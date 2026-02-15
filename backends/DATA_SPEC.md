@@ -69,13 +69,49 @@ CREATE TABLE
     );
 ```
 
-## Test fixture data
+## Testing
+
+### Postgres image
+
+A throwaway Postgres image can be created using the following:
+
+```shell
+docker run --rm -d \
+    --name test-postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -e POSTGRES_DB=testdb \
+    -p 5432:5432 \
+    postgres:latest
+```
+
+### Fixture data
+
+The following creates some fixture data to work with,
+with one Post, some top-level Comments,
+and some nested replies (at different levels of nesting).
+
+The hierarchy of the fixture Post and its Comment replies
+can be visualized like so:
+
+```
+- new_post
+  - comment_1
+    - reply_1a
+      - reply_1a_a
+        - reply_1a_a_a
+    - reply_1b
+  - comment_2
+    - reply_2a
+    - reply_2b
+```
+
+**Query**:
 
 ```sql
--- Sample fixture data
--- Creates 1 Post, 2 top-level Comments, 2 replies to each Comment,
--- and 2 additional levels of replies on the first reply.
-
+--
+-- We use CTEs (the `WITH` clause) to return the randomized IDs of the new objects
+-- and then re-use those IDs to establish the parent post and parent comment, if any.
+--
 WITH new_post AS (
     INSERT INTO posts (title, body, author)
     VALUES ('What is your favorite programming language?', 'Genuinely curious what everyone is using these days and why.', 'griceturrble')
@@ -134,22 +170,23 @@ reply_1a_a_a AS (
 SELECT 'Fixtures inserted successfully.' AS result;
 ```
 
-## Example scripts for accessing fixtures
+## Common scripts for accessing data
 
 ### See all posts
 ```sql
 SELECT * FROM posts
 ```
 
-### Top-level comments on first-returned post
+### Top-level Comments of a Post, without replies
 
 > [!note]
-> If you know the `post_id` already,
-> there is no need for the `WITH first_post AS` condition:
-> just use `post_id = ...`!
+> In the application,
+> we should know the `post_id` already we are requesting,
+> so there is no need for the `WITH first_post` CTE at all.
+> Just use `WHERE post_id = :post_id` instead!
 >
-> This is used just to read from fixture data automatically,
-> where IDs are randomized on entry.
+> We use the `WITH` clause in this example just to grab the fixture post
+> without needing to know its randomized ID ahead of time.
 
 ```sql
 WITH first_post AS (SELECT id from posts LIMIT 1)
@@ -160,50 +197,14 @@ WHERE 1=1
     AND parent_comment_id IS NULL
 ```
 
-### Replies to each top-level comment
-
-**First** (note the `ORDER BY ... ASC`):
-
-```sql
-WITH
-    first_post AS (SELECT id FROM posts LIMIT 1),
-    top_comment1 AS (
-        SELECT * FROM comments
-        WHERE 1=1
-            AND post_id in (SELECT id FROM first_post)
-            AND parent_comment_id IS NULL
-        ORDER BY id ASC
-        LIMIT 1
-    )
-SELECT * FROM comments WHERE post_id in (select id from first_post)
-AND parent_comment_id in (select id from top_comment1)
-```
-
-**Second** (`ORDER BY ... DESC`):
-
-```sql
-WITH
-    first_post AS (SELECT id FROM posts LIMIT 1),
-    top_comment2 AS (
-        SELECT * FROM comments
-        WHERE 1=1
-            AND post_id in (SELECT id FROM first_post)
-            AND parent_comment_id IS NULL
-        ORDER BY id DESC
-        LIMIT 1
-    )
-SELECT * FROM comments WHERE post_id in (select id from first_post)
-AND parent_comment_id in (select id from top_comment2)
-```
-
-### Returning n-level replies for a Post
+### Returning the comment tree for a Post
 
 For a **Post**, return the comment tree up to `n` levels deep.
 
 - All top-level comments are returned, up to `replies_page_size` (default 10).
 - For each top-level comment, up to `replies_page_size` replies are returned recursively, up to `max_depth` levels deep (default 1).
 - Pagination uses **keyset/cursor-based** paging on top-level comments: pass `cursor_id` (the `id` of the last top-level comment from the previous page) to fetch the next page. Set `cursor_id` to `NULL` for the first page.
-- The query resolves `created_at` from the `cursor_id` automatically, so only one cursor value is needed.
+    - The `created_at` time of the `cursor_id` comment is used to ensure that only comments made *after* the previously-selected Comment are returned.
 - Replies within each parent are always returned from the beginning (not cursor-paginated); deeper reply pagination should use the single-comment endpoint.
 
 ```sql
@@ -227,7 +228,8 @@ WITH RECURSIVE
     top_comments AS (
         SELECT *, 0 AS depth
         FROM comments
-        WHERE post_id IN (SELECT id FROM first_post)
+        WHERE 1=1
+            AND post_id IN (SELECT id FROM first_post)
             AND parent_comment_id IS NULL
             AND (
                 (SELECT cursor_id FROM params) IS NULL
@@ -264,7 +266,7 @@ SELECT * FROM comment_tree
 ORDER BY depth, created_at ASC, id ASC;
 ```
 
-### Returning replies to any single Comment
+### Returning the reply tree for a Comment
 
 For a single **Comment**, return the reply tree up to `n` levels deep.
 
@@ -272,10 +274,6 @@ For a single **Comment**, return the reply tree up to `n` levels deep.
 - Up to `replies_page_size` direct replies are returned, with keyset pagination via `cursor_id`.
 - Replies are fetched recursively up to `max_depth` levels deep.
 - The target comment itself is **not** included in the results; only its replies are returned.
-
-> [!note]
-> Example post ID: `019c5780-af42-7a37-98f6-31af2af9a4e1`
-> Example comment ID: `019c5780-af43-747d-8d6b-a76f983ce8c1`
 
 ```sql
 WITH RECURSIVE
@@ -290,7 +288,8 @@ WITH RECURSIVE
     first_post AS (SELECT id FROM posts LIMIT 1),
     comment_1 AS (
         SELECT id FROM comments
-        WHERE post_id IN (SELECT id FROM first_post)
+        WHERE 1=1
+            AND post_id IN (SELECT id FROM first_post)
             AND parent_comment_id IS NULL
         ORDER BY created_at ASC, id ASC
         LIMIT 1
@@ -299,14 +298,16 @@ WITH RECURSIVE
     target_comment AS (
         SELECT *, 0 AS depth
         FROM comments
-        WHERE id IN (SELECT id FROM comment_1)
+        WHERE 1=1
+            AND id IN (SELECT id FROM comment_1)
             AND post_id IN (SELECT id FROM first_post)
     ),
     -- Direct replies to the target comment, with keyset pagination
     direct_replies AS (
         SELECT *, 1 AS depth
         FROM comments
-        WHERE parent_comment_id = (SELECT id FROM target_comment)
+        WHERE 1=1
+            AND parent_comment_id = (SELECT id FROM target_comment)
             AND (
                 (SELECT cursor_id FROM params) IS NULL
                 OR (created_at, id) > (
