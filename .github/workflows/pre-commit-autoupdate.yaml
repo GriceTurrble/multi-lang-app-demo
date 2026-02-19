@@ -1,0 +1,22 @@
+## On a cron schedule or on demand, autoupdate the pre-commit config and create a draft PR with those changes.
+
+name: pre-commit autoupdate
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every Mon 11AM UTC (~6AM US/Eastern)
+    - cron: "0 11 * * 1"
+
+jobs:
+  pre-commit-autoupdate:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: griceturrble/precommit-autoupdate-action@v4
+        with:
+          pr_title: "[Draft] pre-commit autoupdate"
+          python_version: "3.14"
