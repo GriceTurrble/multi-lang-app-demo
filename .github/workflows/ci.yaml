@@ -23,12 +23,17 @@ concurrency:
 jobs:
   pre-commit-check:
     runs-on: ubuntu-latest
+    # Elevating permissions for `contents` and `pull-requests` required
+    # when using the `suggest_fixes` option:
+    permissions:
+      contents: write
+      pull-requests: write
     if: ${{ !github.event.pull_request || !contains(github.event.pull_request.title, '[draft]') }}
     steps:
       - uses: actions/checkout@v6
       - uses: griceturrble/precommit-checks-action@v3
         with:
-          python_version: "3.14"
+          suggest_fixes: true
 
   test-backend-fastapi:
     name: Tests - Python FastAPI backend
