@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.db import close_pool, init_pool
-from app.routers import comments, posts, votes
+from app.routers import ALL_ROUTERS
 
 
 @asynccontextmanager
@@ -13,14 +13,15 @@ async def lifespan(app: FastAPI):
     await close_pool()
 
 
-app = FastAPI(
-    title="FastAPI Reddit-like Backend",
-    version="0.1.0",
-    docs_url="/docs",
-    lifespan=lifespan,
-)
+def get_app():
+    app = FastAPI(
+        title="FastAPI Reddit-like Backend",
+        version="0.1.0",
+        docs_url="/docs",
+        lifespan=lifespan,
+    )
 
+    for router in ALL_ROUTERS:
+        app.include_router(router)
 
-app.include_router(posts.router)
-app.include_router(comments.router)
-app.include_router(votes.router)
+    return app
