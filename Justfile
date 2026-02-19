@@ -22,5 +22,10 @@ bootstrap:
     just bootstrap-commons
     just sync
 
+# Sync all dependencies in all projects
 sync:
-    echo "Nothing yet, boss!"
+    just backends sync
+
+# bring up Tilt to start all services
+up:
+    tilt up

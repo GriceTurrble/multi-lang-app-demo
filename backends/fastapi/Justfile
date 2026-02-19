@@ -4,7 +4,9 @@ VERSION := "local"
 
 APP := SERVICE + "-" + SERVIVE_TYPE
 DOCKER_TAG := APP + ":" + VERSION
-PORT := "8080"
+PORT := "-p 8080:8080"
+ENV_FILE := "--env-file .env"
+TTY := `if tty -s; then echo "-it"; fi`
 
 # Show these help docs
 [default]
@@ -18,6 +20,10 @@ PORT := "8080"
 sync:
     uv sync --all-groups
 
+# Lint this backend
+lint:
+    echo "Still working on it!"
+
 # builds Docker image for this backend
 build-docker:
     docker build \
@@ -25,16 +31,13 @@ build-docker:
         -t {{DOCKER_TAG}} \
         .
 
-# No, we don't use `set dotenv-load` like we could for Just to use
-# Instead, we tell the Docker commands which file they can use.
-env_file := ".env"
-
-# Run Docker image (built with `build-docker`)
+# Run Docker image for this backend (built with `build-docker`)
 run-docker:
-    docker run \
+    docker run {{TTY}} \
         --rm -it \
-        -p {{PORT}}:{{PORT}} \
-        --env-file {{env_file}} \
+        {{PORT}} \
+        {{ENV_FILE}} \
         {{DOCKER_TAG}}
 
-build-run-docker: build-docker run-docker
+# Exec into the Docker image for this backend
+shell-docker:
