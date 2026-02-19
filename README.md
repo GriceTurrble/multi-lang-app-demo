@@ -75,9 +75,9 @@ Otherwise, you can manually install each of the following:
 You will also need:
 
 - Docker, particularly [Docker Compose]
-    - recommendation: install Docker Desktop to install Docker, Compose, and other tools together
+    - **recommendation**: install Docker Desktop to install Docker, Compose, and other tools together
 - [Tilt] to orchestrate the full application on your local machine
-    - recommendation: follow their installation instructions, including the setup for Kubernetes in Docker)
+    - **recommendation**: follow their installation instructions, including the setup for Kubernetes in Docker.
 
 ## Usage
 ### First start up
@@ -120,7 +120,7 @@ and loading [fixture data](database_schema/fixtures.sql).
 With `tilt up` running in a dedicated console, hit the `Space` key to open its web UI
 and view the logs for each service.
 
-Difference services also expose their ports independently,
+Different services also expose their ports independently,
 and you can open them from the links provided in the UI.
 
 ### pgadmin
