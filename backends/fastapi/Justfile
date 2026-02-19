@@ -1,0 +1,40 @@
+SERVICE := "backend"
+SERVIVE_TYPE := "fastapi"
+VERSION := "local"
+
+APP := SERVICE + "-" + SERVIVE_TYPE
+DOCKER_TAG := APP + ":" + VERSION
+PORT := "8080"
+
+# Show these help docs
+[default]
+@help:
+    echo "[ {{GREEN}}FastAPI backend{{NORMAL}} Just commands ]"
+    echo "[ $(pwd) ]"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
+
+# sync dependencies for this backend
+sync:
+    uv sync --all-groups
+
+# builds Docker image for this backend
+build-docker:
+    docker build \
+        -f Dockerfile \
+        -t {{DOCKER_TAG}} \
+        .
+
+# No, we don't use `set dotenv-load` like we could for Just to use
+# Instead, we tell the Docker commands which file they can use.
+env_file := ".env"
+
+# Run Docker image (built with `build-docker`)
+run-docker:
+    docker run \
+        --rm -it \
+        -p {{PORT}}:{{PORT}} \
+        --env-file {{env_file}} \
+        {{DOCKER_TAG}}
+
+build-run-docker: build-docker run-docker
