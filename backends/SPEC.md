@@ -11,7 +11,7 @@ Comments may relate to a Post or to another Comment.
 
 ## Data spec
 
-Refer to the [Data specification](DATA_SPEC.md) for details.
+Refer to the [Data specification] for details.
 
 ## Requirements
 
@@ -68,7 +68,7 @@ send a POST request to the `/vote` endpoint after that resource
 The following parameters are required:
 
 - `username` string
-- `value` of the vote, either `1`, `0`, or `-1` (return a 400 error if the value is missing or incorrect)
+- `value` of the vote, either `1`, `0`, or `-1`
 
 The `object_id` of the given resource will be assigned, either the `post_id` for a Post
 or the `comment_id` for a Comment.
@@ -89,3 +89,5 @@ When a vote is cast, one of these scenarios may occur:
   INSERT a new row into the `votes` table.
 - **A vote already exists for this user on this resource**:
   UPDATE the existing vote, potentially overwriting the existing `value`.
+
+[Data specification]: ../database_schema/SPEC.md

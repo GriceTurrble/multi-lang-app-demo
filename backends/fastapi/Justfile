@@ -1,0 +1,43 @@
+SERVICE := "backend"
+SERVIVE_TYPE := "fastapi"
+VERSION := "local"
+
+APP := SERVICE + "-" + SERVIVE_TYPE
+DOCKER_TAG := APP + ":" + VERSION
+PORT := "-p 8080:8080"
+ENV_FILE := "--env-file .env"
+TTY := `if tty -s; then echo "-it"; fi`
+
+# Show these help docs
+[default]
+@help:
+    echo "{{GREEN}}[MLAD] FastAPI (Python) backend{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
+
+# lock dependencies for this backend
+lock:
+    uv lock
+
+# sync dependencies for this backend
+sync:
+    uv sync --all-groups
+
+test:
+    uv run pytest
+
+# builds Docker image for this backend
+build-docker:
+    docker build \
+        -f Dockerfile \
+        -t {{DOCKER_TAG}} \
+        .
+
+# Run Docker image for this backend (built with `build-docker`)
+run-docker:
+    docker run {{TTY}} \
+        --rm -it \
+        {{PORT}} \
+        {{ENV_FILE}} \
+        {{DOCKER_TAG}}

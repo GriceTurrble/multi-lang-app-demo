@@ -1,10 +1,17 @@
+# backend modules
+[group("submodules")]
+mod backends
+
 ### START COMMON ###
 import? 'common.just'
 
 # Show these help docs
 [default]
-help:
-    @just --list --unsorted --justfile {{ source_file() }}
+@help:
+    echo "{{GREEN}}[MLAD] Multi-Lang App Demo root{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
 
 # Pull latest common justfile recipes to local repo
 [group("commons")]
@@ -20,5 +27,10 @@ bootstrap:
     just bootstrap-commons
     just sync
 
+# Sync all dependencies in all projects
 sync:
-    echo "Nothing yet, boss!"
+    just backends sync
+
+# bring up Tilt to start all services
+up:
+    tilt up
