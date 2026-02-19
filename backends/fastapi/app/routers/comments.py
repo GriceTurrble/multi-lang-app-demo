@@ -3,7 +3,12 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 
 from app.db import get_pool
-from app.models import CommentCreate, CommentResponse, CommentTreeResponse, CommentUpdate
+from app.models import (
+    CommentCreate,
+    CommentResponse,
+    CommentTreeResponse,
+    CommentUpdate,
+)
 
 router = APIRouter(prefix="/posts/{post_id}/comments", tags=["comments"])
 
@@ -36,9 +41,7 @@ async def list_comments(
             cursor,
         )
     top_level = [r for r in rows if r["depth"] == 0]
-    next_cursor = (
-        top_level[-1]["id"] if len(top_level) == replies_per_page else None
-    )
+    next_cursor = top_level[-1]["id"] if len(top_level) == replies_per_page else None
     items = [CommentResponse(**dict(r)) for r in rows]
     return CommentTreeResponse(items=items, next_cursor=next_cursor)
 
@@ -150,9 +153,7 @@ async def list_replies(
             return CommentTreeResponse(items=[], next_cursor=None)
     direct_replies = [r for r in rows if r["depth"] == 1]
     next_cursor = (
-        direct_replies[-1]["id"]
-        if len(direct_replies) == replies_per_page
-        else None
+        direct_replies[-1]["id"] if len(direct_replies) == replies_per_page else None
     )
     items = [CommentResponse(**dict(r)) for r in rows]
     return CommentTreeResponse(items=items, next_cursor=next_cursor)
