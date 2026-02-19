@@ -2,13 +2,15 @@ from typing import Annotated
 import asyncpg
 from fastapi import Depends
 
-from app.config import settings
+from app.config import get_settings
 
 _pool: asyncpg.Pool | None = None
 
 
 async def init_pool() -> None:
     global _pool
+
+    settings = get_settings()
     _pool = await asyncpg.create_pool(
         dsn=settings.db_connection_url,
         min_size=settings.db_min_connections,

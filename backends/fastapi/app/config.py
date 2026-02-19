@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import Annotated
+
+from fastapi import Depends
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """Application settings."""
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     db_connection_url: str
@@ -9,7 +16,22 @@ class Settings(BaseSettings):
     db_max_connections: int = 10
 
 
-settings = Settings()  # ty:ignore[missing-argument]
-# NOTE We expect this to load from environment variables
-# If it fails because of a missing required value,
-# update the environment associated with this app.
+_settings = None
+
+
+def get_settings(reload: bool = False, **kwargs) -> Settings:
+    """Return application settings singleton.
+
+    Set `reload` to `True` to force a new Settings object creation,
+    which reads from current environment variables.
+
+    Any additional kwags passed to this function will override those environment variables,
+    allowing more fine-tuned control.
+    """
+    global _settings
+    if reload or _settings is None:
+        _settings = Settings(**kwargs)
+    return _settings
+
+
+SettingsDep = Annotated[Settings, Depends(get_settings)]
