@@ -25,3 +25,16 @@ services:
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
     restart: always
+
+  fastapi-backend:
+    container_name: fastapi-backend
+    build:
+      context: ./backends/fastapi
+      dockerfile: Dockerfile
+    env_file:
+      - ./backends/fastapi/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    restart: always
