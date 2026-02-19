@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 
 from app.db import close_pool, init_pool
 from app.routers import comments, posts, votes
@@ -21,14 +19,6 @@ app = FastAPI(
     docs_url="/docs",
     lifespan=lifespan,
 )
-
-
-@app.exception_handler(RequestValidationError)
-async def vote_validation_handler(request, exc):
-    """Return 400 instead of 422 for vote endpoint validation errors."""
-    if request.url.path.endswith("/vote"):
-        return JSONResponse(status_code=400, content={"detail": str(exc)})
-    return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 
 app.include_router(posts.router)
