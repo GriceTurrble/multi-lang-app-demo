@@ -24,6 +24,9 @@ lock:
 sync:
     uv sync --all-groups
 
+test:
+    uv run pytest
+
 # builds Docker image for this backend
 build-docker:
     docker build \
