@@ -66,7 +66,7 @@ To get started, if using [Homebrew], you can install the tools listed in the [Br
 brew bundle install
 ```
 
-Other, you can manually install each of the following:
+Otherwise, you can manually install each of the following:
 
 - [just] - command runner used to manage pretty much everything in the project
 - [pre-commit] - a framework for tools used to check code quality
