@@ -281,3 +281,5 @@ BEGIN
     ORDER BY comment_tree.depth, comment_tree.created_at ASC, comment_tree.id ASC;
 END;
 $$ LANGUAGE plpgsql;
+
+SELECT 'Schema load complete' AS run_status;

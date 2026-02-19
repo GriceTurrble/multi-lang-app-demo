@@ -11,7 +11,7 @@ Comments may relate to a Post or to another Comment.
 
 ## Data spec
 
-Refer to the [Data specification](DATA_SPEC.md) for details.
+Refer to the [Data specification] for details.
 
 ## Requirements
 
@@ -89,3 +89,5 @@ When a vote is cast, one of these scenarios may occur:
   INSERT a new row into the `votes` table.
 - **A vote already exists for this user on this resource**:
   UPDATE the existing vote, potentially overwriting the existing `value`.
+
+[Data specification]: ../database_schema/SPEC.md
