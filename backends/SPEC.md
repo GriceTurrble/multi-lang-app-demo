@@ -68,7 +68,7 @@ send a POST request to the `/vote` endpoint after that resource
 The following parameters are required:
 
 - `username` string
-- `value` of the vote, either `1`, `0`, or `-1` (return a 400 error if the value is missing or incorrect)
+- `value` of the vote, either `1`, `0`, or `-1`
 
 The `object_id` of the given resource will be assigned, either the `post_id` for a Post
 or the `comment_id` for a Comment.
