@@ -1,4 +1,6 @@
+from typing import Annotated
 import asyncpg
+from fastapi import Depends
 
 from app.config import settings
 
@@ -23,3 +25,6 @@ def get_pool() -> asyncpg.Pool:
     if _pool is None:
         raise RuntimeError("Database pool not initialized")
     return _pool
+
+
+PoolDep = Annotated[asyncpg.Pool, Depends(get_pool)]

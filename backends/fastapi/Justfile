@@ -11,18 +11,18 @@ TTY := `if tty -s; then echo "-it"; fi`
 # Show these help docs
 [default]
 @help:
-    echo "[ {{GREEN}}FastAPI backend{{NORMAL}} Just commands ]"
-    echo "[ $(pwd) ]"
+    echo "{{GREEN}}[MLAD] FastAPI (Python) backend{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
     echo ""
     just --list --unsorted --justfile {{ source_file() }}
+
+# lock dependencies for this backend
+lock:
+    uv lock
 
 # sync dependencies for this backend
 sync:
     uv sync --all-groups
-
-# Lint this backend
-lint:
-    echo "Still working on it!"
 
 # builds Docker image for this backend
 build-docker:
@@ -38,6 +38,3 @@ run-docker:
         {{PORT}} \
         {{ENV_FILE}} \
         {{DOCKER_TAG}}
-
-# Exec into the Docker image for this backend
-shell-docker:

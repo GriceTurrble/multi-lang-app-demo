@@ -9,4 +9,7 @@ class Settings(BaseSettings):
     db_max_connections: int = 10
 
 
-settings = Settings()
+settings = Settings()  # ty:ignore[missing-argument]
+# NOTE We expect this to load from environment variables
+# If it fails because of a missing required value,
+# update the environment associated with this app.
