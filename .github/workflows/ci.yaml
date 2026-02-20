@@ -53,10 +53,12 @@ jobs:
           python-version: "3.14"
 
       - name: Install project dependencies
-        run: just backends fastapi sync
+        working-directory: ./backends/fastapi
+        run: just sync
 
       - name: Run tests
-        run: just backends fastapi test
+        working-directory: ./backends/fastapi
+        run: just test
 
   test-result:
     name: Test results
