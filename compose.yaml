@@ -29,8 +29,8 @@ services:
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
 
-  fastapi-backend:
-    container_name: fastapi-backend
+  backend-fastapi:
+    container_name: backend-fastapi
     build:
       context: ./backends/fastapi
       dockerfile: Dockerfile
