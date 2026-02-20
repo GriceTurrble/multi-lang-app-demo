@@ -12,7 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql
-    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     container_name: pgadmin
@@ -24,7 +28,6 @@ services:
       - "5050:80"
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
-    restart: always
 
   fastapi-backend:
     container_name: fastapi-backend
@@ -35,6 +38,4 @@ services:
       - ./backends/fastapi/.env
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     restart: always
