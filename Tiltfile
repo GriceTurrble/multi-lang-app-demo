@@ -30,7 +30,7 @@ local_resource(
 
 # FastAPI backend service
 dc_resource(
-    "fastapi-backend",
+    "backend-fastapi",
     links=[
         link("http://localhost:8080", "Main"),
         link("http://localhost:8080/docs", "OpenAPI Docs"),

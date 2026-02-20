@@ -34,3 +34,7 @@ sync:
 # bring up Tilt to start all services
 up:
     tilt up
+
+# destroy Tilt resources so they will rebuild when using `just up` next time
+down:
+    tilt down

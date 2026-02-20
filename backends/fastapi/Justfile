@@ -1,8 +1,8 @@
 SERVICE := "backend"
-SERVIVE_TYPE := "fastapi"
+SERVICE_TYPE := "fastapi"
 VERSION := "local"
 
-APP := SERVICE + "-" + SERVIVE_TYPE
+APP := SERVICE + "-" + SERVICE_TYPE
 DOCKER_TAG := APP + ":" + VERSION
 PORT := "-p 8080:8080"
 ENV_FILE := "--env-file .env"

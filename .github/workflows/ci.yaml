@@ -42,6 +42,8 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v6
 
+      # TODO replace with the setup-just task (likely faster, not a big deal here)
+      # Or, just use the native commands? Skip the thing?
       - name: Install just runner
         uses: extractions/setup-just@v3
 
