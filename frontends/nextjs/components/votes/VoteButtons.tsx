@@ -7,9 +7,10 @@ type Props = {
   userVote?: -1 | 0 | 1;
   onVote: (value: -1 | 0 | 1) => Promise<void>;
   disabled?: boolean;
+  vertical?: boolean;
 };
 
-export function VoteButtons({ score, userVote = 0, onVote, disabled }: Props) {
+export function VoteButtons({ score, userVote = 0, onVote, disabled, vertical }: Props) {
   const [pending, setPending] = useState(false);
   const [localDelta, setLocalDelta] = useState(0);
   const [currentVote, setCurrentVote] = useState(userVote);
@@ -41,7 +42,7 @@ export function VoteButtons({ score, userVote = 0, onVote, disabled }: Props) {
   const displayScore = score + localDelta;
 
   return (
-    <div className="flex items-center gap-1">
+    <div className={`flex items-center gap-1 ${vertical ? "flex-col" : ""}`}>
       <button
         onClick={() => handleVote(1)}
         disabled={pending || disabled}
