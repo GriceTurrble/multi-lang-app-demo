@@ -133,6 +133,16 @@ The environment variables `PGADMIN_EMAIL` and `PGADMIN_PASSWORD`
 (see [`.env.example`](.env.example))
 define the login credentials for this interface.
 
+## AI Usage Disclosure
+
+Code in this repository was developed with AI assistance, however all code here is (eventually) reviewed by a human and continually refactored to improve quality, clarity, coherence, and idiomatic patterns in their respective frameworks.
+
+## AI Contributions
+
+Any contributions to this repository should adhere to the same standard set by the above disclosure. Human contributors must always be directly accountable for the work committed.
+
+Contributions suspected of being created and submitted solely by an AI agent will be summarily closed with a reminder about this standard.
+
 [brewfile]: Brewfile
 [compose.yaml]: compose.yaml
 [database-schema]: database_schema/
