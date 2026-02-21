@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 export type PostFormValues = {
@@ -72,13 +73,21 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
-      <button
-        type="submit"
-        disabled={submitting || !body.trim()}
-        className="w-fit rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {submitting ? "Saving…" : submitLabel}
-      </button>
+      <div className="flex space-x-2">
+        <button
+          type="submit"
+          disabled={submitting || !body.trim()}
+          className="w-fit rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {submitting ? "Saving…" : submitLabel}
+        </button>
+        <Link
+          className="w-fit rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          href="/posts"
+        >
+          Cancel
+        </Link>
+      </div>
     </form>
   );
 }
