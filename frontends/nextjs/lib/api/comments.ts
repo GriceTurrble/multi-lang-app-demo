@@ -17,7 +17,7 @@ export const listComments = (
 
 export const createComment = (
   postId: string,
-  body: { author: string; body: string },
+  body: { author: string; body: string; parent_comment_id?: string },
 ) =>
   apiFetch<CommentResponse>(`/posts/${postId}/comments`, {
     method: "POST",
