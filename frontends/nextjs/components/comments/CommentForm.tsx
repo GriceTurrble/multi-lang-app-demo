@@ -31,7 +31,9 @@ export function CommentForm({
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
+    // TODO this is overly complicated. Use Next.JS Form element
+    // https://nextjs.org/docs/app/api-reference/components/form
     e.preventDefault();
     if (!body.trim()) return;
     setSubmitting(true);
