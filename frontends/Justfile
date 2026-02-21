@@ -1,0 +1,23 @@
+# Next.js frontend
+[group("submodules")]
+mod nextjs
+
+# Common variable used for running `just` commands from this file, but not from the repo root
+# See: https://gist.github.com/GriceTurrble/1f08c363dc024e24d3ae102208113ccf
+just_local := "just --justfile " + source_file()
+
+# Show these help docs
+[default]
+@help:
+    echo "{{GREEN}}[MLAD] all frontends{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
+
+# Sync each frontend
+sync:
+    {{just_local}} nextjs sync
+
+# Lint frontends
+lint:
+    {{just_local}} nextjs lint

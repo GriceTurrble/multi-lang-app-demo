@@ -18,6 +18,7 @@ def get_app():
         title="FastAPI Reddit-like Backend",
         version="0.1.0",
         docs_url="/docs",
+        root_path="/api",
         lifespan=lifespan,
     )
 

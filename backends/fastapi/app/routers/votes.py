@@ -152,7 +152,7 @@ class VoteService:
     ):
         await self._validate_comment_exists(post_id=post_id, comment_id=comment_id)
         return await self._apply_vote(
-            object_id=post_id,
+            object_id=comment_id,
             object_type="Comment",
             payload=payload,
         )

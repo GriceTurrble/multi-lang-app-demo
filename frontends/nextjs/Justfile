@@ -1,0 +1,60 @@
+SERVICE := "frontend"
+SERVICE_TYPE := "nextjs"
+VERSION := "local"
+
+APP := SERVICE + "-" + SERVICE_TYPE
+DOCKER_TAG := APP + ":" + VERSION
+PORT := "-p 3000:3000"
+TTY := `if tty -s; then echo "-it"; fi`
+
+# Localized `just` command for this file only
+just_local := "just --justfile " + source_file()
+
+# Show these help docs
+[default]
+@help:
+    echo "{{GREEN}}[MLAD] Next.js frontend{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
+
+# Remove lockfile and node_modules, then reinstall from scratch
+[confirm("This will delete 'package.lock' and 'node_modules/'.\nProceed? [y/N]")]
+lock:
+    rm -f package-lock.json
+    rm -rf node_modules
+    {{just_local}} sync
+
+# sync dependencies for this frontend
+sync:
+    npm install
+
+# No tests configured yet
+test:
+    @echo "None yet!"
+
+# Run the development server
+dev:
+    npm run dev
+
+# Build for production
+build:
+    npm run build
+
+# Lint
+lint:
+    npm run lint
+
+# builds Docker image for this frontend
+build-docker:
+    docker build \
+        -f Dockerfile \
+        -t {{DOCKER_TAG}} \
+        .
+
+# Run Docker image for this frontend (built with `build-docker`)
+run-docker:
+    docker run {{TTY}} \
+        --rm \
+        {{PORT}} \
+        {{DOCKER_TAG}}

@@ -35,35 +35,73 @@ jobs:
         with:
           suggest_fixes: true
 
-  test-backend-fastapi:
-    name: Tests - Python FastAPI backend
+  test-backends:
+    name: Test backend
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend:
+          - fastapi
     steps:
       - name: Checkout the code
         uses: actions/checkout@v6
 
-      # TODO replace with the setup-just task (likely faster, not a big deal here)
-      # Or, just use the native commands? Skip the thing?
       - name: Install just runner
         uses: extractions/setup-just@v3
 
+      # TODO replace this with some backend-specific call to install its tools?
+      # I don't know how feasible that is, but worth a shot
       - name: Install uv
+        if: ${{ contains('fastapi', matrix.backend) }}
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.14"
 
       - name: Install project dependencies
-        working-directory: ./backends/fastapi
+        working-directory: ./backends/${{ matrix.backend }}
         run: just sync
 
       - name: Run tests
-        working-directory: ./backends/fastapi
+        working-directory: ./backends/${{ matrix.backend }}
+        run: just test
+
+  test-frontends:
+    name: Test frontend
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        frontend:
+          - nextjs
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v6
+
+      - name: Install just runner
+        uses: extractions/setup-just@v3
+
+      - name: Setup Node
+        if: ${{ contains('nextjs', matrix.frontend) }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: ./frontends/${{ matrix.frontend }}/package-lock.json
+
+      - name: Install project dependencies
+        working-directory: ./frontends/${{ matrix.frontend }}
+        run: just sync
+
+      - name: Run tests
+        working-directory: ./frontends/${{ matrix.frontend }}
         run: just test
 
   test-result:
     name: Test results
     runs-on: ubuntu-latest
     needs:
-      - test-backend-fastapi
+      - test-backends
+      - test-frontends
     steps:
       - run: echo "Tests passing!"

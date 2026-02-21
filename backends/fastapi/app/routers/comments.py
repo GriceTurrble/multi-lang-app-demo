@@ -76,12 +76,13 @@ async def create_comment(
         row = await conn.fetchrow(
             """
             INSERT INTO comments
-            (post_id, author, body)
+            (post_id, parent_comment_id, author, body)
             VALUES
-            ($1, $2, $3)
+            ($1, $2, $3, $4)
             RETURNING *
             """,
             post_id,
+            payload.parent_comment_id,
             payload.author,
             payload.body,
         )

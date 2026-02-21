@@ -8,10 +8,18 @@ docker_compose('compose.yaml')
 dc_resource(
     "postgres",
     labels=["database"],
+    links=[
+        link("http://localhost:5432", "postgres"),
+    ],
+    infer_links=False,
 )
 dc_resource(
     "pgadmin",
     labels=["database"],
+    links=[
+        link("http://localhost:5050", "pgAdmin"),
+    ],
+    infer_links=False,
 )
 local_resource(
     "schema-load",
@@ -26,14 +34,37 @@ local_resource(
     labels=["database"],
 )
 
-# Backend services
+# Nginx
+dc_resource(
+    "nginx",
+    links=[
+        link("http://localhost:8080", "Frontend"),
+        link("http://localhost:8080/api/docs", "API Docs"),
+    ],
+    infer_links=False,
+    labels=["nginx"],
+)
 
-# FastAPI backend service
+
+## Frontend services ##
+# NextJS
+dc_resource(
+    "frontend-nextjs",
+    links=[
+        link("http://localhost:8080", "Frontend"),
+    ],
+    infer_links=False,
+    labels=["frontends"],
+)
+
+
+## Backend services ##
+# FastAPI
 dc_resource(
     "backend-fastapi",
     links=[
-        link("http://localhost:8080", "Main"),
-        link("http://localhost:8080/docs", "OpenAPI Docs"),
+        link("http://localhost:8080/api/docs", "OpenAPI Docs"),
     ],
+    infer_links=False,
     labels=["backends"],
 )
