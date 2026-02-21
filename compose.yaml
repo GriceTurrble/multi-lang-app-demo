@@ -39,10 +39,18 @@ services:
     restart: always
     depends_on:
       - backend-fastapi
+      - frontend-nextjs
     develop:
       watch:
         - action: rebuild
           path: ./nginx/nginx.conf
+
+  frontend-nextjs:
+    container_name: frontend-nextjs
+    build:
+      context: ./frontends/nextjs
+      dockerfile: Dockerfile
+    restart: always
 
   backend-fastapi:
     container_name: backend-fastapi

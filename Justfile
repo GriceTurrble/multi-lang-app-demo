@@ -2,6 +2,10 @@
 [group("submodules")]
 mod backends
 
+# backend modules
+[group("submodules")]
+mod frontends
+
 ### START COMMON ###
 import? 'common.just'
 
@@ -30,6 +34,7 @@ bootstrap:
 # Sync all dependencies in all projects
 sync:
     just backends sync
+    just frontends sync
 
 # bring up Tilt to start all services
 up:

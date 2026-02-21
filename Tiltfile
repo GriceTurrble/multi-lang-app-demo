@@ -38,19 +38,33 @@ local_resource(
 dc_resource(
     "nginx",
     links=[
+        link("http://localhost:8080", "Frontend"),
         link("http://localhost:8080/api/docs", "API Docs"),
     ],
     infer_links=False,
     labels=["nginx"],
 )
 
+
+## Frontend services ##
+# NextJS
+dc_resource(
+    "frontend-nextjs",
+    links=[
+        link("http://localhost:8080", "Frontend"),
+    ],
+    infer_links=False,
+    labels=["frontends"],
+)
+
+
 ## Backend services ##
 # FastAPI
 dc_resource(
     "backend-fastapi",
     links=[
-        link("http://localhost:8080", "Main"),
-        link("http://localhost:8080/docs", "OpenAPI Docs"),
+        link("http://localhost:8080/api/docs", "OpenAPI Docs"),
     ],
+    infer_links=False,
     labels=["backends"],
 )
