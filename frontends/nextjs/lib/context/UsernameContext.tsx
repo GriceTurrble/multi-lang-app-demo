@@ -19,12 +19,19 @@ const UsernameContext = createContext<UsernameContextType>({
 });
 
 export function UsernameProvider({ children }: { children: ReactNode }) {
-  const [username, setUsername] = useState(() => {
-    return localStorage.getItem("mlad_username") || "";
-  });
+  const [username, setUsername] = useState("");
 
-  // Hydrate from localStorage after mount to avoid SSR mismatch
   useEffect(() => {
+    // On first render, hydrate username state from localStorage if it exists
+    const stored = localStorage.getItem("mlad_username");
+    if (stored && stored !== username) {
+      setUsername(stored);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Persist username to localStorage whenever it changes
     localStorage.setItem("mlad_username", username);
   }, [username]);
 
