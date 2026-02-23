@@ -28,7 +28,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: ${{ !github.event.pull_request || !contains(github.event.pull_request.title, '[draft]') }}
     steps:
       - uses: actions/checkout@v6
       - uses: griceturrble/precommit-checks-action@v3
@@ -36,6 +35,7 @@ jobs:
           suggest_fixes: true
 
   test-backends:
+    if: ${{ !github.event.pull_request || !contains(github.event.pull_request.title, '[draft]') }}
     name: Test backend
     runs-on: ubuntu-latest
     strategy:
@@ -67,6 +67,7 @@ jobs:
         run: just test
 
   test-frontends:
+    if: ${{ !github.event.pull_request || !contains(github.event.pull_request.title, '[draft]') }}
     name: Test frontend
     runs-on: ubuntu-latest
     strategy:
@@ -98,6 +99,7 @@ jobs:
         run: just test
 
   test-result:
+    if: ${{ !github.event.pull_request || !contains(github.event.pull_request.title, '[draft]') }}
     name: Test results
     runs-on: ubuntu-latest
     needs:
