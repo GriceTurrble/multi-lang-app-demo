@@ -28,10 +28,10 @@ def get_settings(reload: bool = False, **kwargs) -> Settings:
     Set `reload` to `True` to force a new Settings object creation,
     which reads from current environment variables.
 
-    Any additional kwags passed to this function will override those environment variables,
+    Any additional kwags passed to this function will override those env variables,
     allowing more fine-tuned control.
     """
-    global _settings
+    global _settings  # noqa: PLW0603
     if reload or _settings is None:
         _settings = Settings(**kwargs)
     return _settings

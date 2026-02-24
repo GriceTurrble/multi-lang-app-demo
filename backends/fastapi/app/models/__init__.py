@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from .comments import CommentCreate, CommentResponse, CommentTreeResponse, CommentUpdate
-from .posts import PostCreate, PostUpdate, PostResponse, PostListResponse
+from .posts import PostCreate, PostListResponse, PostResponse, PostUpdate
 from .votes import VoteRequest, VoteResponse
-
 
 __all__ = [
     "CommentCreate",
