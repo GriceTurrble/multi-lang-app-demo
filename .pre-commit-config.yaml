@@ -49,6 +49,15 @@ repos:
         id: uv-sync
         entry: pre-commit hazmat cd backends/fastapi uv sync --locked --all-groups --
         args: []
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty-check-fastapi
+        entry: pre-commit hazmat cd backends/fastapi uv run ty check . --python .venv --
+        pass_filenames: false
+        always_run: true
+        language: system
+        args: []
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: "v3.8.1"
     hooks:

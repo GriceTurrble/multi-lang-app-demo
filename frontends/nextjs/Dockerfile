@@ -8,17 +8,31 @@ RUN npm ci
 
 # Copy application source and build
 COPY . .
+
+# Run in dev mode with watchfiles and a reloading server
+FROM builder AS dev-runner
+
+EXPOSE 3000
+ENV NODE_ENV=development
+ENV PORT=3000
+CMD ["npm", "run", "dev"]
+
+# Build for prod.
+# Contents of this builder are COPY-ed into the prod-runner below
+# to make the image smaller.
+FROM builder AS prod-builder
+
 RUN npm run build
 
-FROM node:22-alpine AS runner
+FROM node:22-alpine AS prod-runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=prod-builder /app/public ./public
+COPY --from=prod-builder /app/.next/standalone ./
+COPY --from=prod-builder /app/.next/static ./.next/static
 
 EXPOSE 3000
 

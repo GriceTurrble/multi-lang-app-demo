@@ -95,6 +95,4 @@ async def delete_post(
     post_id: UUID,
 ):
     async with pool.acquire() as conn:
-        result = await conn.execute("DELETE FROM posts WHERE id = $1", post_id)
-    if result == "DELETE 0":
-        raise HTTPException(status_code=404, detail="Post not found")
+        _ = await conn.execute("DELETE FROM posts WHERE id = $1", post_id)

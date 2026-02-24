@@ -46,17 +46,25 @@ services:
           path: ./nginx/nginx.conf
 
   frontend-nextjs:
-    container_name: frontend-nextjs
-    build:
-      context: ./frontends/nextjs
-      dockerfile: Dockerfile
-    restart: always
+    # Tilt makes the build for us.
+    image: frontend-nextjs
+    # If using Docker Compose alone, comment the above,
+    # then uncomment below:
+    # container_name: frontend-nextjs
+    # build:
+    #   context: ./frontends/nextjs
+    #   dockerfile: Dockerfile
+    # restart: always
 
   backend-fastapi:
-    container_name: backend-fastapi
-    build:
-      context: ./backends/fastapi
-      dockerfile: Dockerfile
+    # Tilt makes the build for us.
+    image: backend-fastapi
+    # If using Docker Compose alone, comment the above,
+    # then uncomment below:
+    # container_name: backend-fastapi
+    # build:
+    #   context: ./backends/fastapi
+    #   dockerfile: Dockerfile
     env_file:
       - ./backends/fastapi/.env
     restart: always

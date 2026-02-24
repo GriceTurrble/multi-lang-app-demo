@@ -1,4 +1,4 @@
-FROM python:3.14-slim
+FROM python:3.14-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.10.3 /uv /uvx /bin/
 
@@ -26,6 +26,17 @@ COPY app/ ./app/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
 
+# Uvicorn settings via env variables (to avoid cluttering the CMDs):
+ENV UVICORN_HOST=0.0.0.0
+ENV UVICORN_PORT=8080
+ENV UVICORN_FACTORY=1
+
 EXPOSE 8080
 
-CMD ["uv", "run", "uvicorn", "app.main:get_app", "--factory", "--host", "0.0.0.0", "--port", "8080"]
+FROM builder AS dev-runner
+
+CMD ["uv", "run", "uvicorn", "app.main:get_app", "--reload"]
+
+FROM builder AS prod-runner
+
+CMD ["uv", "run", "uvicorn", "app.main:get_app"]

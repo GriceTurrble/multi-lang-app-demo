@@ -1,5 +1,6 @@
 "use client";
 
+import Form from "next/form";
 import { useState } from "react";
 import { createComment } from "@/lib/api/comments";
 import { useUsername } from "@/lib/context/UsernameContext";
@@ -31,8 +32,7 @@ export function CommentForm({
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleForm(formData: FormData) {
     if (!body.trim()) return;
     setSubmitting(true);
     setError(undefined);
@@ -52,8 +52,9 @@ export function CommentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+    <Form action={handleForm} className="flex flex-col gap-2">
       <textarea
+        name="body"
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder={parentCommentId ? "Write a reply…" : "Write a comment…"}
@@ -82,6 +83,6 @@ export function CommentForm({
           </button>
         )}
       </div>
-    </form>
+    </Form>
   );
 }

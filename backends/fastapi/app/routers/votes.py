@@ -21,8 +21,8 @@ class VoteService:
         self.pool = pool
 
     def _get_table_for_object_type(self, object_type: str) -> str:
-        # TODO move this to some more generic service layer for all object types
-        # (which would be needed if some new table were added with more polymorphic keys)
+        # TODO move this to some more generic service layer for all object types,
+        # which would be needed if some new table were added with more polymorphic keys.
         if object_type.lower() in {"post", "posts"}:
             return "posts"
         if object_type.lower() in {"comment", "comments"}:
@@ -56,10 +56,9 @@ class VoteService:
         post_id: UUID,
         comment_id: UUID,
     ) -> None:
-        """Checks in the database whether the given Comment exists and is a child of the selected Post.
+        """Checks database whether this Comment exists and is a child of the given Post.
 
-        Raises HTTPException with 404 if not.
-        Otherwise, returns None.
+        Raises HTTPException with 404 if not. Otherwise, returns None.
         """
         exists = await self.pool.fetchval(
             """
@@ -82,9 +81,10 @@ class VoteService:
         object_type: str,
         payload: VoteRequest,
     ) -> VoteResponse:
-        """Applies the vote in our `payload` to the given object of type `object_type` with ID `object_id`.
+        """Applies `payload` vote to the `object_type` object with ID `object_id`.
 
-        Note we expect another call has validated that the object, its parents, and all connections between them
+        Note we expect another call has validated that the object, its parents, and all
+        connections between them
         already exist in the database.
         """
         object_table = self._get_table_for_object_type(object_type)

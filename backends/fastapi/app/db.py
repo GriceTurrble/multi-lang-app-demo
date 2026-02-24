@@ -1,4 +1,5 @@
 from typing import Annotated
+
 import asyncpg
 from fastapi import Depends
 
@@ -8,7 +9,7 @@ _pool: asyncpg.Pool | None = None
 
 
 async def init_pool() -> None:
-    global _pool
+    global _pool  # noqa: PLW0603
 
     settings = get_settings()
     _pool = await asyncpg.create_pool(
