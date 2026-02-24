@@ -61,7 +61,7 @@ unfixable = [
     "B", # flake8-bugbear
 ]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "**/*test.py" = [
     "E501",    # line-too-long
     "F811",    # redefined-while-unused
