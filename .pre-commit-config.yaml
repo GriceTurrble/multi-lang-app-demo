@@ -1,3 +1,8 @@
+# Skip these when runnnig in CI mode:
+ci:
+  skip:
+    - ty
+
 default_install_hook_types:
   - pre-commit
   - post-checkout
@@ -48,6 +53,15 @@ repos:
         files: ^backends/fastapi/
         id: uv-sync
         entry: pre-commit hazmat cd backends/fastapi uv sync --locked --all-groups --
+        args: []
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty-check-fastapi
+        entry: pre-commit hazmat cd backends/fastapi uvx ty check . --python .venv --
+        pass_filenames: false
+        always_run: true
+        language: system
         args: []
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: "v3.8.1"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Generator
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -10,7 +11,7 @@ from app.main import get_app
 
 
 @pytest.fixture
-def settings() -> Settings:
+def settings() -> Generator[Settings]:
     # Apply any test overrides here
     overrides = {
         "db_connection_url": "postgresql://postgres:postgres@localhost:5432/testdb",
@@ -39,7 +40,7 @@ def mock_pool(mock_conn: AsyncMock) -> MagicMock:
 
 
 @pytest.fixture
-def test_client(settings, mock_pool: MagicMock) -> TestClient:
+def test_client(settings, mock_pool: MagicMock) -> Generator[TestClient]:
     from app.db import get_pool
 
     app = get_app()
