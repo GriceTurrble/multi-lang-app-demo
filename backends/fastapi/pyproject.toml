@@ -9,10 +9,12 @@ dependencies = [
     "asyncpg~=0.31.0",
     "pydantic~=2.12.5",
     "pydantic-settings~=2.13.1",
+    "uuid7-standard>=1.1.0",
 ]
 
 [dependency-groups]
 dev = [
+    "freezegun>=1.5.5",
     "httpx>=0.28.1",
     "pytest~=9.0.2",
     "pytest-cov~=7.0.0",
@@ -20,4 +22,12 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-v"
+addopts = """
+--verbose
+--cov=app
+--no-cov-on-fail
+--cov-branch
+--cov-report=html:pytest_cov
+--cov-report term-missing
+--cov-report xml:code_coverage/coverage.xml
+"""

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-import pytest
+from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from fastapi.testclient import TestClient
-from app.main import get_app
+
 from app.config import Settings, get_settings
+from app.main import get_app
 
 
 @pytest.fixture
@@ -22,7 +24,26 @@ def settings() -> Settings:
 
 
 @pytest.fixture
-def test_client(settings) -> TestClient:
+def mock_conn() -> AsyncMock:
+    return AsyncMock()
+
+
+@pytest.fixture
+def mock_pool(mock_conn: AsyncMock) -> MagicMock:
+    pool = MagicMock()
+    ctx = AsyncMock()
+    ctx.__aenter__.return_value = mock_conn
+    ctx.__aexit__.return_value = None
+    pool.acquire.return_value = ctx
+    return pool
+
+
+@pytest.fixture
+def test_client(settings, mock_pool: MagicMock) -> TestClient:
+    from app.db import get_pool
+
     app = get_app()
+    app.dependency_overrides[get_pool] = lambda: mock_pool
     client = TestClient(app)
     yield client
+    app.dependency_overrides.clear()

@@ -2,3 +2,6 @@
 # Local data volumes
 data/
 .env
+.coverage
+.coverage.*
+coverage.xml
