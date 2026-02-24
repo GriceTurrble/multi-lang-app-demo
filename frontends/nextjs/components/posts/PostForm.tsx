@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Form from "next/form";
 import { useState } from "react";
 
 export type PostFormValues = {
@@ -20,8 +21,7 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function handleForm(formData: FormData) {
     if (!body.trim()) return;
     setSubmitting(true);
     setError(undefined);
@@ -35,7 +35,7 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <Form action={handleForm} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label
           htmlFor="title"
@@ -45,11 +45,11 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
           <span className="font-normal text-gray-400">(optional)</span>
         </label>
         <input
-          id="title"
+          name="title"
           type="text"
           value={title}
+          placeholder="Post title..."
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Post title…"
           className="rounded border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900"
         />
       </div>
@@ -61,7 +61,7 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
           Body <span className="text-red-500">*</span>
         </label>
         <textarea
-          id="body"
+          name="body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="What's on your mind?"
@@ -88,6 +88,6 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
           Cancel
         </Link>
       </div>
-    </form>
+    </Form>
   );
 }
