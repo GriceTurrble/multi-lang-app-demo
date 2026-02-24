@@ -30,6 +30,12 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+
       - uses: griceturrble/precommit-checks-action@v3
         with:
           # Use the fix suggestions.
@@ -52,8 +58,6 @@ jobs:
       - name: Install just runner
         uses: extractions/setup-just@v3
 
-      # TODO replace this with some backend-specific call to install its tools?
-      # I don't know how feasible that is, but worth a shot
       - name: Install uv
         if: ${{ contains('fastapi', matrix.backend) }}
         uses: astral-sh/setup-uv@v7

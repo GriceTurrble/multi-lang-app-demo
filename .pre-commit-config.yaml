@@ -58,7 +58,7 @@ repos:
     hooks:
       - id: ty
         name: ty-check-fastapi
-        entry: pre-commit hazmat cd backends/fastapi uv run ty check . --python .venv --
+        entry: pre-commit hazmat cd backends/fastapi uvx ty check . --python .venv --
         pass_filenames: false
         always_run: true
         language: system
