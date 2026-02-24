@@ -48,6 +48,19 @@ dc_resource(
 
 ## Frontend services ##
 # NextJS
+docker_build(
+    "frontend-nextjs",
+    "./frontends/nextjs/",
+    target="dev-runner",
+    live_update=[
+        # Copy file changes into the container
+        sync("./frontends/nextjs", "/app"),
+        # install any new dependencies
+        run("npm i", trigger=["package.json", "package-lock.json"]),
+        # force a restart of the
+        restart_container(),
+    ],
+)
 dc_resource(
     "frontend-nextjs",
     links=[
@@ -60,6 +73,18 @@ dc_resource(
 
 ## Backend services ##
 # FastAPI
+docker_build(
+    "backend-fastapi",
+    "./backends/fastapi/",
+    target="dev-runner",
+    live_update=[
+        # Copy file changes into the container
+        sync("./backends/fastapi", "/app"),
+        # install any new dependencies
+        run("uv sync --locked", trigger=["pyproject.toml", "uv.lock"]),
+        # uvicorn --reload watcher auto-restarts server
+    ],
+)
 dc_resource(
     "backend-fastapi",
     links=[

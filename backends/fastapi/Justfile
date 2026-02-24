@@ -27,10 +27,11 @@ sync:
 test:
     uv run pytest
 
-# builds Docker image for this backend
-build-docker:
+# builds Docker image for this backend, with optional `target` build stage
+build-docker target="":
     docker build \
         -f Dockerfile \
+        {{ if target != "" { "--target " + target } else {""} }} \
         -t {{DOCKER_TAG}} \
         .
 
