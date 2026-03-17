@@ -6,6 +6,10 @@ mod backends
 [group("submodules")]
 mod frontends
 
+# mgmt CLI tool
+[group("submodules")]
+mod mladmgmt
+
 ### START COMMON ###
 import? 'common.just'
 
