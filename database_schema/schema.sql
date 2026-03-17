@@ -2,31 +2,39 @@
 -- Backend data schema
 --
 
---
--- Post instances
---
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS sessions (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+
 CREATE TABLE IF NOT EXISTS posts (
     id UUID PRIMARY KEY DEFAULT uuidv7 (),
     title TEXT,
     body TEXT NOT NULL,
-    author VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP
-    WITH
-        TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP
-    WITH
-        TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        vote_score INTEGER NOT NULL DEFAULT 1
+    author_id UUID NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    vote_score INTEGER NOT NULL DEFAULT 1
 );
 
---
--- Comment instances
---
 CREATE TABLE IF NOT EXISTS comments (
     id UUID PRIMARY KEY DEFAULT uuidv7 (),
     post_id UUID NOT NULL REFERENCES posts (id) ON DELETE CASCADE,
     parent_comment_id UUID REFERENCES comments (id) ON DELETE CASCADE,
-    author VARCHAR(100) NOT NULL,
+    author_id UUID NOT NULL REFERENCES users(id),
     body TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -52,12 +60,12 @@ VALUES
 ON CONFLICT (name) DO NOTHING;
 
 --
--- Vote instances
 -- Votes may apply to either Posts or Comments.
 -- `vote_value` must be either 1 or -1 so that they can be summed up properly.
 --
 CREATE TABLE IF NOT EXISTS votes (
-    voter VARCHAR(100) NOT NULL,
+    -- NO, NOT THAT KIND OF VOTER ID
+    voter_id UUID NOT NULL REFERENCES users(id),
     object_id UUID NOT NULL,
     object_type VARCHAR(20) NOT NULL REFERENCES object_types (name),
     vote_value SMALLINT NOT NULL DEFAULT 1 CHECK (vote_value IN (1, -1)),
@@ -109,8 +117,8 @@ CREATE OR REPLACE TRIGGER trg_update_vote_score
 CREATE OR REPLACE FUNCTION auto_upvote_post()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO votes (voter, object_id, object_type, vote_value)
-    VALUES (NEW.author, NEW.id, 'Post', 1);
+    INSERT INTO votes (voter_id, object_id, object_type, vote_value)
+    VALUES (NEW.author_id, NEW.id, 'Post', 1);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -128,8 +136,8 @@ CREATE OR REPLACE TRIGGER trg_auto_upvote_post
 CREATE OR REPLACE FUNCTION auto_upvote_comment()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO votes (voter, object_id, object_type, vote_value)
-    VALUES (NEW.author, NEW.id, 'Comment', 1);
+    INSERT INTO votes (voter_id, object_id, object_type, vote_value)
+    VALUES (NEW.author_id, NEW.id, 'Comment', 1);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -157,7 +165,7 @@ RETURNS TABLE (
     id UUID,
     post_id UUID,
     parent_comment_id UUID,
-    author VARCHAR(100),
+    author_id UUID,
     body TEXT,
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
@@ -183,13 +191,13 @@ BEGIN
             LIMIT p_page_size
         ),
         comment_tree AS (
-            SELECT tc.id, tc.post_id, tc.parent_comment_id, tc.author, tc.body,
+            SELECT tc.id, tc.post_id, tc.parent_comment_id, tc.author_id, tc.body,
                 tc.created_at, tc.updated_at, tc.vote_score, tc.depth
             FROM top_comments tc
 
             UNION ALL
 
-            SELECT c.id, c.post_id, c.parent_comment_id, c.author, c.body,
+            SELECT c.id, c.post_id, c.parent_comment_id, c.author_id, c.body,
                 c.created_at, c.updated_at, c.vote_score, ct.depth + 1
             FROM comment_tree ct
             JOIN LATERAL (
@@ -225,7 +233,7 @@ RETURNS TABLE (
     id UUID,
     post_id UUID,
     parent_comment_id UUID,
-    author VARCHAR(100),
+    author_id UUID,
     body TEXT,
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
@@ -259,13 +267,13 @@ BEGIN
             LIMIT p_page_size
         ),
         comment_tree AS (
-            SELECT dr.id, dr.post_id, dr.parent_comment_id, dr.author, dr.body,
+            SELECT dr.id, dr.post_id, dr.parent_comment_id, dr.author_id, dr.body,
                 dr.created_at, dr.updated_at, dr.vote_score, dr.depth
             FROM direct_replies dr
 
             UNION ALL
 
-            SELECT c.id, c.post_id, c.parent_comment_id, c.author, c.body,
+            SELECT c.id, c.post_id, c.parent_comment_id, c.author_id, c.body,
                 c.created_at, c.updated_at, c.vote_score, ct.depth + 1
             FROM comment_tree ct
             JOIN LATERAL (
