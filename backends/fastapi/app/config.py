@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    db_connection_url: str
+    database_url: str
     db_min_connections: int = 2
     db_max_connections: int = 10
     session_expire_days: int = 30
