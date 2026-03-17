@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     db_connection_url: str
     db_min_connections: int = 2
     db_max_connections: int = 10
+    session_expire_days: int = 30
 
 
 _settings = None

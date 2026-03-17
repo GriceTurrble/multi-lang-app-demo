@@ -10,7 +10,7 @@ dependencies = [
     "pydantic[email]~=2.12.5",
     "pydantic-settings~=2.13.1",
     "uuid7-standard>=1.1.0",
-    "passlib>=1.7.4",
+    "passlib[argon2,bcrypt]>=1.7.4",
     "python-multipart>=0.0.22",
 ]
 
