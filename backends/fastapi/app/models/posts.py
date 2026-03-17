@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+import datetime
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -22,8 +22,8 @@ class PostResponse(BaseModel):
     title: str | None
     body: str
     author: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
     vote_score: int
 
 
