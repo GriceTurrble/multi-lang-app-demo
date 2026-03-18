@@ -9,7 +9,6 @@ from pydantic import BaseModel
 class PostCreate(BaseModel):
     title: str | None = None
     body: str
-    author: str
 
 
 class PostUpdate(BaseModel):

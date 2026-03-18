@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 
+from app.auth import CurrentUserDep
 from app.db import PoolDep
 from app.models import (
     CommentCreate,
@@ -63,6 +64,7 @@ async def list_comments(
 @router.post("", response_model=CommentResponse, status_code=201)
 async def create_comment(
     pool: PoolDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
     payload: CommentCreate,
 ):
@@ -76,14 +78,14 @@ async def create_comment(
         row = await conn.fetchrow(
             """
             INSERT INTO comments
-            (post_id, parent_comment_id, author, body)
+            (post_id, parent_comment_id, author_id, body)
             VALUES
             ($1, $2, $3, $4)
             RETURNING *
             """,
             post_id,
             payload.parent_comment_id,
-            payload.author,
+            current_user.id,
             payload.body,
         )
     return CommentResponse(**dict(row))
@@ -111,6 +113,7 @@ async def get_comment(
 @router.patch("/{comment_id}", response_model=CommentResponse)
 async def update_comment(
     pool: PoolDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
     comment_id: UUID,
     payload: CommentUpdate,
@@ -146,6 +149,7 @@ async def update_comment(
 @router.delete("/{comment_id}", status_code=204)
 async def delete_comment(
     pool: PoolDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
     comment_id: UUID,
 ):

@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
+from app.auth import CurrentUserDep
 from app.db import PoolDep
 from app.models import PostCreate, PostListResponse, PostResponse, PostUpdate
 
@@ -42,14 +43,21 @@ async def list_posts(
 @router.post("", response_model=PostResponse, status_code=201)
 async def create_post(
     pool: PoolDep,
+    current_user: CurrentUserDep,
     payload: PostCreate,
 ):
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            "INSERT INTO posts (title, body, author) VALUES ($1, $2, $3) RETURNING *",
+            """
+            INSERT INTO posts
+            (title, body, author_id)
+            VALUES
+            ($1, $2, $3)
+            RETURNING *
+            """,
             payload.title,
             payload.body,
-            payload.author,
+            current_user.id,
         )
     return PostResponse(**dict(row))
 
@@ -69,6 +77,7 @@ async def get_post(
 @router.patch("/{post_id}", response_model=PostResponse)
 async def update_post(
     pool: PoolDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
     payload: PostUpdate,
 ):
@@ -92,6 +101,7 @@ async def update_post(
 @router.delete("/{post_id}", status_code=204)
 async def delete_post(
     pool: PoolDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
 ):
     async with pool.acquire() as conn:

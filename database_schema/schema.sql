@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS votes (
     object_id UUID NOT NULL,
     object_type VARCHAR(20) NOT NULL REFERENCES object_types (name),
     vote_value SMALLINT NOT NULL DEFAULT 1 CHECK (vote_value IN (1, -1)),
-    UNIQUE (object_id, object_type, voter)
+    UNIQUE (object_id, object_type, voter_id)
 );
 
 --
