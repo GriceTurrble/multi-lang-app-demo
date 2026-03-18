@@ -30,7 +30,7 @@ impl ReloadSchema {
         }
 
         println!("Dropping public schema…");
-        sqlx::query("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+        sqlx::raw_sql("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
             .execute(&ctx.pool)
             .await
             .context("Failed to drop/recreate public schema")?;
