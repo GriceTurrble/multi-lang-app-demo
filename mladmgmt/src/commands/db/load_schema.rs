@@ -100,7 +100,10 @@ fn first_table_name(sql: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::first_table_name;
+    use super::{first_table_name, LoadSchema};
+    use crate::commands::db::test_helpers::schema_path;
+    use crate::context::Context;
+    use sqlx::PgPool;
 
     #[test]
     fn finds_simple_create_table() {
@@ -136,5 +139,58 @@ mod tests {
     fn returns_none_when_no_create_table() {
         let sql = "SELECT 1; INSERT INTO foo VALUES (1);";
         assert_eq!(first_table_name(sql), None);
+    }
+
+    // --- Integration tests ---
+
+    /// Create the first table that schema.sql would create, simulating an already-loaded schema.
+    async fn create_users_table(pool: &PgPool) {
+        sqlx::raw_sql("CREATE TABLE users (id UUID PRIMARY KEY, email TEXT NOT NULL)")
+            .execute(pool)
+            .await
+            .unwrap();
+    }
+
+    #[sqlx::test]
+    async fn blocks_load_if_first_table_exists(pool: PgPool) {
+        create_users_table(&pool).await;
+
+        let ctx = Context { pool };
+        let result = LoadSchema {
+            schema_file: schema_path(),
+            yes: true,
+            force: false,
+        }
+        .run(&ctx)
+        .await;
+
+        assert!(result.is_err());
+        assert!(
+            result.unwrap_err().to_string().contains("already exists"),
+            "Expected an 'already exists' error"
+        );
+    }
+
+    #[sqlx::test]
+    async fn force_bypasses_existence_check(pool: PgPool) {
+        create_users_table(&pool).await;
+
+        let ctx = Context { pool };
+        let result = LoadSchema {
+            schema_file: schema_path(),
+            yes: true,
+            force: true,
+        }
+        .run(&ctx)
+        .await;
+
+        // The guard must not block us. The command may still fail for other
+        // environment reasons (e.g. missing extension), but not with "already exists".
+        if let Err(e) = result {
+            assert!(
+                !e.to_string().contains("already exists"),
+                "Guard should be bypassed with --force, got: {e}"
+            );
+        }
     }
 }

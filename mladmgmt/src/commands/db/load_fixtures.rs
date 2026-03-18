@@ -29,3 +29,58 @@ impl LoadFixtures {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::LoadFixtures;
+    use crate::commands::db::test_helpers::{apply_schema, fixtures_path};
+    use crate::context::Context;
+    use sqlx::PgPool;
+
+    #[sqlx::test]
+    async fn loads_fixture_rows_into_schema(pool: PgPool) {
+        apply_schema(&pool).await;
+
+        let ctx = Context { pool };
+        LoadFixtures {
+            fixtures_file: fixtures_path(),
+        }
+        .run(&ctx)
+        .await
+        .unwrap();
+
+        let user_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
+            .fetch_one(&ctx.pool)
+            .await
+            .unwrap();
+        assert_eq!(user_count, 12);
+    }
+
+    #[sqlx::test]
+    async fn is_idempotent_when_posts_already_exist(pool: PgPool) {
+        apply_schema(&pool).await;
+        let ctx = Context { pool };
+
+        // Load fixtures twice; the second run should skip due to the existing-posts guard
+        // in fixtures.sql and leave row counts unchanged.
+        LoadFixtures {
+            fixtures_file: fixtures_path(),
+        }
+        .run(&ctx)
+        .await
+        .unwrap();
+
+        LoadFixtures {
+            fixtures_file: fixtures_path(),
+        }
+        .run(&ctx)
+        .await
+        .unwrap();
+
+        let user_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
+            .fetch_one(&ctx.pool)
+            .await
+            .unwrap();
+        assert_eq!(user_count, 12);
+    }
+}

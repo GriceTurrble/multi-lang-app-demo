@@ -33,3 +33,30 @@ impl RefreshDb {
         fixtures.run(ctx).await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::RefreshDb;
+    use crate::commands::db::test_helpers::{fixtures_path, schema_path};
+    use crate::context::Context;
+    use sqlx::PgPool;
+
+    #[sqlx::test]
+    async fn applies_schema_and_fixtures(pool: PgPool) {
+        let ctx = Context { pool };
+        RefreshDb {
+            schema_file: schema_path(),
+            fixtures_file: fixtures_path(),
+            yes: true,
+        }
+        .run(&ctx)
+        .await
+        .unwrap();
+
+        let user_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
+            .fetch_one(&ctx.pool)
+            .await
+            .unwrap();
+        assert_eq!(user_count, 12);
+    }
+}

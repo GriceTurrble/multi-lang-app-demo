@@ -35,3 +35,6 @@ ensure-built:
 # Run a command in `mladmgmt` in dev mode. This does not build a binary, instead it calls `cargo run`.
 @run-dev +args:
     cargo run {{ args }}
+
+test:
+    cargo test

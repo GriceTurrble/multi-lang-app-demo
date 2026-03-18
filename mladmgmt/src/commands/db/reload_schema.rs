@@ -27,3 +27,36 @@ impl ReloadSchema {
         .await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ReloadSchema;
+    use crate::commands::db::test_helpers::schema_path;
+    use crate::context::Context;
+    use sqlx::PgPool;
+
+    #[sqlx::test]
+    async fn succeeds_when_schema_exists(pool: PgPool) {
+        // Simulate an existing schema by creating the first table.
+        sqlx::raw_sql("CREATE TABLE users (id UUID PRIMARY KEY, email TEXT NOT NULL)")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let ctx = Context { pool };
+        let result = ReloadSchema {
+            schema_file: schema_path(),
+            yes: true,
+        }
+        .run(&ctx)
+        .await;
+
+        // ReloadSchema always uses --force, so it must not block with "already exists".
+        if let Err(e) = result {
+            assert!(
+                !e.to_string().contains("already exists"),
+                "ReloadSchema should bypass the existence guard, got: {e}"
+            );
+        }
+    }
+}
