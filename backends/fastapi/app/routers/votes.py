@@ -5,6 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.auth import CurrentUserDep
 from app.db import PoolDep
 from app.models import VoteRequest, VoteResponse
 
@@ -79,6 +80,7 @@ class VoteService:
         self,
         object_id: UUID,
         object_type: str,
+        voter_id: UUID,
         payload: VoteRequest,
     ) -> VoteResponse:
         """Applies `payload` vote to the `object_type` object with ID `object_id`.
@@ -93,11 +95,11 @@ class VoteService:
                 await conn.execute(
                     """
                     DELETE FROM votes
-                    WHERE voter = $1
+                    WHERE voter_id = $1
                     AND object_id = $2
                     AND object_type = $3
                     """,
-                    payload.username,
+                    voter_id,
                     object_id,
                     object_type,
                 )
@@ -105,13 +107,13 @@ class VoteService:
                 await conn.execute(
                     """
                     INSERT INTO votes
-                    (voter, object_id, object_type, vote_value)
+                    (voter_id, object_id, object_type, vote_value)
                     VALUES
                     ($1, $2, $3, $4)
-                    ON CONFLICT (object_id, object_type, voter)
+                    ON CONFLICT (object_id, object_type, voter_id)
                     DO UPDATE SET vote_value = EXCLUDED.vote_value
                     """,
-                    payload.username,
+                    voter_id,
                     object_id,
                     object_type,
                     payload.value,
@@ -135,12 +137,14 @@ class VoteService:
     async def vote_on_post(
         self,
         post_id: UUID,
+        voter_id: UUID,
         payload: VoteRequest,
     ):
         await self._validate_post_exists(post_id=post_id)
         return await self._apply_vote(
             object_id=post_id,
             object_type="Post",
+            voter_id=voter_id,
             payload=payload,
         )
 
@@ -148,12 +152,14 @@ class VoteService:
         self,
         post_id: UUID,
         comment_id: UUID,
+        voter_id: UUID,
         payload: VoteRequest,
     ):
         await self._validate_comment_exists(post_id=post_id, comment_id=comment_id)
         return await self._apply_vote(
             object_id=comment_id,
             object_type="Comment",
+            voter_id=voter_id,
             payload=payload,
         )
 
@@ -171,11 +177,13 @@ VoterServiceDep = typing.Annotated[VoteService, Depends(VoteServiceWithDepInject
 @router.post("/posts/{post_id}/vote", response_model=VoteResponse)
 async def vote_on_post(
     service: VoterServiceDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
     payload: VoteRequest,
 ):
     return await service.vote_on_post(
         post_id=post_id,
+        voter_id=current_user.id,
         payload=payload,
     )
 
@@ -183,6 +191,7 @@ async def vote_on_post(
 @router.post("/posts/{post_id}/comments/{comment_id}/vote", response_model=VoteResponse)
 async def vote_on_comment(
     service: VoterServiceDep,
+    current_user: CurrentUserDep,
     post_id: UUID,
     comment_id: UUID,
     payload: VoteRequest,
@@ -190,5 +199,6 @@ async def vote_on_comment(
     return await service.vote_on_comment(
         post_id=post_id,
         comment_id=comment_id,
+        voter_id=current_user.id,
         payload=payload,
     )

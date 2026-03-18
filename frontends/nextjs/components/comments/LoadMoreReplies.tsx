@@ -37,7 +37,7 @@ export function LoadMoreReplies({ postId, commentId, cursor, onLoaded }: Props) 
         disabled={loading}
         className="w-fit text-xs text-blue-600 hover:underline disabled:opacity-50 dark:text-blue-400"
       >
-        {loading ? "Loading…" : "Load more replies"}
+        {loading ? "Loading..." : "Load more replies"}
       </button>
       {error && (
         <p className="text-xs text-red-600 dark:text-red-400">{error}</p>

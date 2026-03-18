@@ -101,6 +101,47 @@ jobs:
         working-directory: ./frontends/${{ matrix.frontend }}
         run: just test
 
+  test-mladmgmt:
+    if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
+    name: Test mladmgmt CLI
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: postgres:18
+        # Health checks
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v6
+
+      - name: Setup database
+        run: |
+          psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE testdb;"
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            mladmgmt/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('mladmgmt/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Run tests
+        working-directory: ./mladmgmt
+        run: cargo test
+
   test-result:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
     name: Test results
@@ -108,5 +149,6 @@ jobs:
     needs:
       - test-backends
       - test-frontends
+      - test-mladmgmt
     steps:
       - run: echo "Tests passing!"

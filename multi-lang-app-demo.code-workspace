@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"name": "root",
+			"path": "."
+		},
+    {
+			"path": "mladmgmt",
+		},
+		{
+			"name": "backends/fastapi",
+			"path": "backends/fastapi"
+		},
+		{
+			"name": "frontends/nextjs",
+			"path": "frontends/nextjs"
+		}
+	],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "mladmgmt": true,
+      "backends/fastapi": true,
+      "frontends/nextjs": true
+    }
+  }
+}

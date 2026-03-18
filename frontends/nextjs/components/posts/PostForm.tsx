@@ -79,7 +79,7 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
           disabled={submitting || !body.trim()}
           className="w-fit rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {submitting ? "Saving…" : submitLabel}
+          {submitting ? "Saving..." : submitLabel}
         </button>
         <Link
           className="w-fit rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"

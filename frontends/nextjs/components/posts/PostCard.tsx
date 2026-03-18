@@ -17,7 +17,7 @@ function formatDate(dateStr: string) {
 export function PostCard({ post }: { post: PostResponse }) {
   const { username } = useUsername();
   const excerpt =
-    post.body.length > 120 ? post.body.slice(0, 120) + "…" : post.body;
+    post.body.length > 120 ? post.body.slice(0, 120) + "..." : post.body;
 
   const handleVote = async (value: -1 | 0 | 1) => {
     if (!username) return;

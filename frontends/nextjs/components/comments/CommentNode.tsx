@@ -128,7 +128,7 @@ export function CommentNode({ postId, comment }: Props) {
                 disabled={saving || !editDraft.trim()}
                 className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {saving ? "Saving…" : "Save"}
+                {saving ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={() => {
@@ -177,7 +177,7 @@ export function CommentNode({ postId, comment }: Props) {
                 disabled={deleting}
                 className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50 dark:text-red-400"
               >
-                {deleting ? "Deleting…" : "Delete"}
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </>
           )}

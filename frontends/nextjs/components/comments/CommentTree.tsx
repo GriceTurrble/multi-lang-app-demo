@@ -60,7 +60,7 @@ export function CommentTree({ postId }: Props) {
       <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
 
       {loading && (
-        <p className="text-sm text-gray-500">Loading comments…</p>
+        <p className="text-sm text-gray-500">Loading comments...</p>
       )}
 
       {error && (
@@ -89,7 +89,7 @@ export function CommentTree({ postId }: Props) {
           disabled={loadingMore}
           className="w-fit rounded border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900"
         >
-          {loadingMore ? "Loading…" : "Load more comments"}
+          {loadingMore ? "Loading..." : "Load more comments"}
         </button>
       )}
     </div>
