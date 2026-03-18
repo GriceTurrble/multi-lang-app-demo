@@ -2,7 +2,7 @@ just_local := "just --justfile " + source_file()
 
 PACKAGE := "mladmgmt"
 BIN_DIR := "bin"
-BIN_PATH := PACKAGE + "/" + BIN_DIR
+BIN_PATH := BIN_DIR + "/" + PACKAGE
 
 # Show these help docs.
 [default]
