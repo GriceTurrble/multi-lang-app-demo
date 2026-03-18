@@ -27,7 +27,7 @@ export default function PostPage() {
   }, [postId]);
 
   if (loading) {
-    return <p className="text-sm text-gray-500">Loading…</p>;
+    return <p className="text-sm text-gray-500">Loading...</p>;
   }
 
   if (error) {

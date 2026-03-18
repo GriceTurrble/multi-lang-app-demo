@@ -72,7 +72,7 @@ export function Header() {
               {username ? (
                 username
               ) : (
-                <span className="italic text-gray-400">set a username…</span>
+                <span className="italic text-gray-400">set a username...</span>
               )}
             </button>
           )}

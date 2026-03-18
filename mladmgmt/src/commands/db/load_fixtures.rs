@@ -19,7 +19,7 @@ impl LoadFixtures {
             )
         })?;
 
-        println!("Loading fixtures from {}…", self.fixtures_file.display());
+        println!("Loading fixtures from {}...", self.fixtures_file.display());
         sqlx::raw_sql(&sql)
             .execute(&ctx.pool)
             .await

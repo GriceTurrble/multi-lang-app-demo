@@ -1,10 +1,10 @@
-# Rust CLI Management Tool — Proposal
+# Rust CLI Management Tool - Proposal
 
 ## Overview
 
 A standalone Rust binary (`mgmt`) providing subcommands for common database
 management tasks. It lives in `mgmt/` as its own Cargo project and connects
-directly to PostgreSQL — no dependency on any backend service.
+directly to PostgreSQL - no dependency on any backend service.
 
 ---
 
@@ -84,19 +84,19 @@ Commands are organized as a file-per-subcommand module tree. The rules are:
   further subdirectories, each following the same pattern.
 
 Adding a new command means adding one file (and registering it in the parent
-`mod.rs`) — nothing else changes.
+`mod.rs`) - nothing else changes.
 
 ### Sketch
 
 ```rust
-// commands/db/reload_schema.rs  — a leaf command
+// commands/db/reload_schema.rs  - a leaf command
 #[derive(Args)]
 pub struct ReloadSchema { /* flags */ }
 impl ReloadSchema {
     pub async fn run(&self, ctx: &Context) -> Result<()> { ... }
 }
 
-// commands/db/mod.rs  — a command group
+// commands/db/mod.rs  - a command group
 #[derive(Subcommand)]
 pub enum DbCommands {
     ReloadSchema(reload_schema::ReloadSchema),
@@ -116,7 +116,7 @@ impl Db {
     }
 }
 
-// commands/mod.rs  — root subcommand enum
+// commands/mod.rs  - root subcommand enum
 #[derive(Subcommand)]
 pub enum Commands {
     Db(db::Db),
