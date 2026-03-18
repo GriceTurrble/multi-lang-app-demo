@@ -124,21 +124,9 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v6
 
-      # - name: Setup PostgreSQL with pg_uuidv7
-      #   run: |
-      #     # Discover the pre-installed PostgreSQL major version
-      #     PG_VERSION=$(pg_config --version | grep -oP '\d+' | head -1)
-      #     # Install pg_uuidv7 from the PGDG apt repository
-      #     sudo apt-get update -y
-      #     sudo apt-get install -y postgresql-${PG_VERSION}-pg-uuidv7
-      #     # Set a password and create a test database
-      #     sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
-      #     sudo -u postgres psql -c "CREATE DATABASE testdb;"
-      #     # Install pg_uuidv7 in template1 so every test DB created by sqlx::test has it
-      #     sudo -u postgres psql template1 -c "CREATE EXTENSION IF NOT EXISTS pg_uuidv7;"
-
-      # - name: Install Rust toolchain
-      #   uses: dtolnay/rust-toolchain@stable
+      - name: Setup database
+        run: |
+          psql ${{ env.DATABASE_URL }} -c "CREATE DATABASE testdb;"
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
