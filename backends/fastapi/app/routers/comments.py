@@ -77,11 +77,14 @@ async def create_comment(
             )
         row = await conn.fetchrow(
             """
-            INSERT INTO comments
-            (post_id, parent_comment_id, author_id, body)
-            VALUES
-            ($1, $2, $3, $4)
-            RETURNING *
+            WITH ins AS (
+                INSERT INTO comments (post_id, parent_comment_id, author_id, body)
+                VALUES ($1, $2, $3, $4)
+                RETURNING *
+            )
+            SELECT ins.*, u.username AS author
+            FROM ins
+              JOIN users u ON u.id = ins.author_id
             """,
             post_id,
             payload.parent_comment_id,
@@ -99,7 +102,12 @@ async def get_comment(
 ):
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT * FROM comments WHERE id = $1 AND post_id = $2",
+            """
+            SELECT c.*, u.username AS author
+            FROM comments c
+            JOIN users u ON u.id = c.author_id
+            WHERE c.id = $1 AND c.post_id = $2
+            """,
             comment_id,
             post_id,
         )
@@ -130,10 +138,14 @@ async def update_comment(
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             f"""
-            UPDATE comments
-            SET {set_clauses}
-            WHERE id = $1 AND post_id = $2
-            RETURNING *
+            WITH upd AS (
+                UPDATE comments SET {set_clauses}
+                WHERE id = $1 AND post_id = $2
+                RETURNING *
+            )
+            SELECT upd.*, u.username AS author
+            FROM upd
+              JOIN users u ON u.id = upd.author_id
             """,
             comment_id,
             post_id,

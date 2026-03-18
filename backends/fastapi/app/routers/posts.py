@@ -20,11 +20,13 @@ async def list_posts(
         if cursor:
             rows = await conn.fetch(
                 """
-                SELECT * FROM posts
-                WHERE (created_at, id) > (
-                    SELECT created_at, id FROM posts WHERE id = $1
+                SELECT p.*, u.username AS author
+                FROM posts p
+                JOIN users u ON u.id = p.author_id
+                WHERE (p.created_at, p.id) > (
+                    SELECT pp.created_at, pp.id FROM posts pp WHERE pp.id = $1
                 )
-                ORDER BY created_at ASC, id ASC
+                ORDER BY p.created_at ASC, p.id ASC
                 LIMIT $2
                 """,
                 cursor,
@@ -32,7 +34,13 @@ async def list_posts(
             )
         else:
             rows = await conn.fetch(
-                "SELECT * FROM posts ORDER BY created_at ASC, id ASC LIMIT $1",
+                """
+                SELECT p.*, u.username AS author
+                FROM posts p
+                JOIN users u ON u.id = p.author_id
+                ORDER BY p.created_at ASC, p.id ASC
+                LIMIT $1
+                """,
                 PAGE_SIZE,
             )
     items = [PostResponse(**dict(r)) for r in rows]
@@ -49,11 +57,14 @@ async def create_post(
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             """
-            INSERT INTO posts
-            (title, body, author_id)
-            VALUES
-            ($1, $2, $3)
-            RETURNING *
+            WITH ins AS (
+                INSERT INTO posts (title, body, author_id)
+                VALUES ($1, $2, $3)
+                RETURNING *
+            )
+            SELECT ins.*, u.username AS author
+            FROM ins
+            JOIN users u ON u.id = ins.author_id
             """,
             payload.title,
             payload.body,
@@ -68,7 +79,15 @@ async def get_post(
     post_id: UUID,
 ):
     async with pool.acquire() as conn:
-        row = await conn.fetchrow("SELECT * FROM posts WHERE id = $1", post_id)
+        row = await conn.fetchrow(
+            """
+            SELECT p.*, u.username AS author
+            FROM posts p
+            JOIN users u ON u.id = p.author_id
+            WHERE p.id = $1
+            """,
+            post_id,
+        )
     if not row:
         raise HTTPException(status_code=404, detail="Post not found")
     return PostResponse(**dict(row))
@@ -89,7 +108,12 @@ async def update_post(
     values = list(updates.values())
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            f"UPDATE posts SET {set_clauses} WHERE id = $1 RETURNING *",
+            f"""
+            WITH upd AS (UPDATE posts SET {set_clauses} WHERE id = $1 RETURNING *)
+            SELECT upd.*, u.username AS author
+            FROM upd
+            JOIN users u ON u.id = upd.author_id
+            """,
             post_id,
             *values,
         )

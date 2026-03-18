@@ -165,7 +165,7 @@ RETURNS TABLE (
     id UUID,
     post_id UUID,
     parent_comment_id UUID,
-    author_id UUID,
+    author VARCHAR,
     body TEXT,
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
@@ -209,8 +209,19 @@ BEGIN
             ) c ON TRUE
             WHERE ct.depth < p_max_depth
         )
-    SELECT * FROM comment_tree
-    ORDER BY comment_tree.depth, comment_tree.created_at ASC, comment_tree.id ASC;
+    SELECT
+        ct.id,
+        ct.post_id,
+        ct.parent_comment_id,
+        u.username AS author,
+        ct.body,
+        ct.created_at,
+        ct.updated_at,
+        ct.vote_score,
+        ct.depth
+    FROM comment_tree ct
+    JOIN users u ON u.id = ct.author_id
+    ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -233,7 +244,7 @@ RETURNS TABLE (
     id UUID,
     post_id UUID,
     parent_comment_id UUID,
-    author_id UUID,
+    author VARCHAR,
     body TEXT,
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
@@ -285,8 +296,19 @@ BEGIN
             ) c ON TRUE
             WHERE ct.depth < p_max_depth
         )
-    SELECT * FROM comment_tree
-    ORDER BY comment_tree.depth, comment_tree.created_at ASC, comment_tree.id ASC;
+    SELECT
+        ct.id,
+        ct.post_id,
+        ct.parent_comment_id,
+        u.username AS author,
+        ct.body,
+        ct.created_at,
+        ct.updated_at,
+        ct.vote_score,
+        ct.depth
+    FROM comment_tree ct
+    JOIN users u ON u.id = ct.author_id
+    ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
 
