@@ -105,6 +105,13 @@ jobs:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
     name: Test mladmgmt CLI
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: postgres:18
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
     steps:
