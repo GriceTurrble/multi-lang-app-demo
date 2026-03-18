@@ -4,8 +4,8 @@ A CLI management tool written in Rust for managing database state for the multi-
 
 ## Requirements
 
-- Rust toolchain (see [rustup](https://rustup.rs/))
-- [just](https://github.com/casey/just) (optional, for Justfile recipes)
+- Rust toolchain (see [rustup])
+- [just] (optional, for Justfile recipes)
 - A running PostgreSQL instance
 
 ## Configuration
@@ -142,3 +142,6 @@ just run db reload-schema --yes --schema-file /path/to/schema.sql
 # Create a new user interactively
 just run users create
 ```
+
+[just]: https://github.com/casey/just
+[rustup]: https://rustup.rs/

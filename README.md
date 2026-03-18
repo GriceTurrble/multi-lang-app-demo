@@ -10,7 +10,7 @@ leave Comments on those Posts,
 reply to Comments,
 and cast upvotes or downvotes on both Posts and Comments.
 
-Every backend implementation follows the same [specification]
+Every backend implementation follows the same [specification](backends/SPEC.md)
 and exposes the same REST API, making each one a drop-in replacement for any other. A single shared Postgres instance handles data storage across all services, with the schema and stored functions defined once in [`database_schema/`](database_schema/).
 
 The local development environment is orchestrated with [Tilt] and [Docker Compose],
@@ -29,7 +29,7 @@ data/           # Supporting data files
 
 | Directory                    | Language | Framework |
 | ---------------------------- | -------- | --------- |
-| [`fastapi`][fastapi-backend] | Python   | FastAPI   |
+| [`fastapi`](backends/fastapi/) | Python   | FastAPI   |
 
 ### Frontends
 
@@ -60,7 +60,7 @@ Otherwise, you are free to run processes via their Docker entrypoints.
 
 ### Tools
 
-To get started, if using [Homebrew], you can install the tools listed in the [Brewfile] using the following command:
+To get started, if using [Homebrew], you can install the tools listed in the [Brewfile](Brewfile) using the following command:
 
 ```sh
 brew bundle install
@@ -109,9 +109,9 @@ To start all services at once, simply run:
 tilt up
 ```
 
-**Tilt** runs everything configured in our [Tiltfile],
+**Tilt** runs everything configured in our [Tiltfile](Tiltfile),
 which essentially runs on top of Docker Compose
-(using [compose.yaml]).
+(using [compose.yaml](compose.yaml)).
 Resources are defined in the Docker Compose spec,
 while Tilt provides some means for extra local resources,
 such as migrating the shared [database schema](database_schema/schema.sql) automatically
@@ -133,6 +133,10 @@ The environment variables `PGADMIN_EMAIL` and `PGADMIN_PASSWORD`
 (see [`.env.example`](.env.example))
 define the login credentials for this interface.
 
+## Architecture Decision Records
+
+Key design decisions are documented in [docs/adr/](docs/adr/).
+
 ## AI Usage Disclosure
 
 Code in this repository was developed with AI assistance, however all code here is (eventually) reviewed by a human and continually refactored to improve quality, clarity, coherence, and idiomatic patterns in their respective frameworks.
@@ -143,18 +147,12 @@ Any contributions to this repository should adhere to the same standard set by t
 
 Contributions suspected of being created and submitted solely by an AI agent will be summarily closed with a reminder about this standard.
 
-[brewfile]: Brewfile
-[compose.yaml]: compose.yaml
-[database-schema]: database_schema/
 [docker compose]: https://docs.docker.com/compose/install
-[fastapi-backend]: backends/fastapi/
 [homebrew]: https://brew.sh/
 [just]: https://just.systems/man/en/introduction.html
 [pgadmin]: https://www.pgadmin.org/
 [pre-commit]: https://pre-commit.com
 [python]: https://www.python.org/
 [rust]: https://rust-lang.org/
-[specification]: backends/SPEC.md
 [tilt]: https://docs.tilt.dev/install.html
-[tiltfile]: Tiltfile
 [uv]: https://docs.astral.sh/uv/
