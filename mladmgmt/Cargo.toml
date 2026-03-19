@@ -9,6 +9,7 @@ tokio = { version = "1", features = ["full"] }
 sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid"] }
 argon2 = "0.5"
 uuid = { version = "1", features = ["v4", "v7"] }
+chrono = { version = "0.4", features = ["clock"] }
 dotenvy = "0.15"
 rpassword = "7"
 anyhow = "1"

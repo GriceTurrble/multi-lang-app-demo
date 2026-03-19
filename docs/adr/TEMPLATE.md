@@ -1,6 +1,6 @@
-# ADR-{number}: {Title}
+# ADR-{number}: {title}
 
-**Status:** Accepted
+**Status:** {status}
 **Date:** {date}
 
 ## Context
