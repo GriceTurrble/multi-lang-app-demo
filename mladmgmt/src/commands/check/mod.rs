@@ -9,6 +9,9 @@ pub enum CheckCommands {
     Adr(adr::CheckAdr),
 }
 
+/// Arguments for the `check` subcommand group.
+///
+/// When invoked without a subcommand, all registered checks are run in parallel.
 #[derive(Args)]
 pub struct Check {
     #[command(subcommand)]
@@ -16,6 +19,7 @@ pub struct Check {
 }
 
 impl Check {
+    /// Dispatch to a specific check subcommand, or run all checks when none is given.
     pub fn run(&self) -> Result<()> {
         match &self.command {
             Some(CheckCommands::Adr(cmd)) => {
@@ -33,6 +37,9 @@ impl Check {
     }
 }
 
+/// Run every registered check in parallel and report results.
+///
+/// Returns an error if any check fails or panics.
 fn run_all_checks() -> Result<()> {
     println!("Running management checks");
 
@@ -69,6 +76,7 @@ fn run_all_checks() -> Result<()> {
     Ok(())
 }
 
+/// Print a check result line followed by any failure details.
 fn print_result(check_name: &str, failures: &[String]) {
     if failures.is_empty() {
         print_result_line(check_name, "PASSED");
@@ -80,11 +88,13 @@ fn print_result(check_name: &str, failures: &[String]) {
     }
 }
 
+/// Print an ERROR result line and write the error detail to stderr.
 fn print_error(check_name: &str, detail: &str) {
     print_result_line(check_name, "ERROR");
     eprintln!("  {detail}");
 }
 
+/// Format and print a single `>> <name>...<result>` status line.
 fn print_result_line(check_name: &str, result: &str) {
     let dots = ".".repeat(70usize.saturating_sub(check_name.len()));
     println!(">> {check_name}{dots}{result}");

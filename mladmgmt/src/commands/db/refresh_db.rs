@@ -4,6 +4,7 @@ use anyhow::Result;
 use clap::Args;
 use std::path::PathBuf;
 
+/// Arguments for the `db refresh-db` subcommand.
 #[derive(Args)]
 pub struct RefreshDb {
     /// Path to the schema SQL file.
@@ -20,6 +21,7 @@ pub struct RefreshDb {
 }
 
 impl RefreshDb {
+    /// Reload the schema unconditionally, then load fixtures in one step.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         let reload = ReloadSchema {
             schema_file: self.schema_file.clone(),

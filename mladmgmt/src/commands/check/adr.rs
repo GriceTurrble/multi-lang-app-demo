@@ -4,6 +4,7 @@ use mladmgmt_adr_lib::collect_adr_files;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
+/// Arguments for the `check adr` subcommand.
 #[derive(Args)]
 pub struct CheckAdr {
     /// Path to the ADR directory.
@@ -30,6 +31,7 @@ impl CheckAdr {
     }
 }
 
+/// Check that no two ADR files share the same 4-digit ID.
 fn check_duplicates(id_to_files: &HashMap<u32, Vec<String>>) -> Vec<String> {
     let mut duplicates: Vec<_> = id_to_files
         .iter()
@@ -46,6 +48,7 @@ fn check_duplicates(id_to_files: &HashMap<u32, Vec<String>>) -> Vec<String> {
         .collect()
 }
 
+/// Check that ADR IDs form a contiguous sequence with no missing numbers.
 fn check_gaps(id_to_files: &HashMap<u32, Vec<String>>) -> Vec<String> {
     if id_to_files.is_empty() {
         return vec![];

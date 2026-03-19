@@ -3,6 +3,7 @@ use clap::Args;
 use mladmgmt_adr_lib::collect_adr_files;
 use std::path::PathBuf;
 
+/// Arguments for the `generate adr` subcommand.
 #[derive(Args)]
 pub struct Adr {
     /// Title for the new ADR.
@@ -15,6 +16,7 @@ pub struct Adr {
 }
 
 impl Adr {
+    /// Determine the next ADR number, render the template, and write the file.
     pub fn run(&self) -> Result<()> {
         let title = self.title.join(" ");
         let existing = collect_unique_adr_numbers(&self.adr_dir)?;
@@ -65,6 +67,7 @@ fn collect_unique_adr_numbers(adr_dir: &PathBuf) -> Result<std::collections::Has
         .collect())
 }
 
+/// Convert a title string into a lowercase hyphen-separated slug suitable for filenames.
 fn slugify(title: &str) -> String {
     title
         .to_lowercase()

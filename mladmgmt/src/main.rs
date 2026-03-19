@@ -8,6 +8,7 @@ use commands::Commands;
 use config::Config;
 use context::Context;
 
+/// Top-level CLI arguments parsed by Clap.
 #[derive(Parser)]
 #[command(name = "mgmt", about = "Management CLI for multi-lang-app-demo")]
 struct Cli {

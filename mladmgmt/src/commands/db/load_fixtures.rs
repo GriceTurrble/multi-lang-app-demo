@@ -3,6 +3,7 @@ use anyhow::{Context as _, Result};
 use clap::Args;
 use std::path::PathBuf;
 
+/// Arguments for the `db load-fixtures` subcommand.
 #[derive(Args)]
 pub struct LoadFixtures {
     /// Path to the fixtures SQL file.
@@ -11,6 +12,7 @@ pub struct LoadFixtures {
 }
 
 impl LoadFixtures {
+    /// Execute `fixtures.sql` against the current schema.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         let sql = std::fs::read_to_string(&self.fixtures_file).with_context(|| {
             format!(
