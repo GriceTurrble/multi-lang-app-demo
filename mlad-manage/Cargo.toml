@@ -1,13 +1,13 @@
 [workspace]
-members = ["mladmgmt-adr-lib"]
+members = ["mlad-manage-adr-lib"]
 
 [package]
-name = "mladmgmt"
+name = "mlad-manage"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-mladmgmt-adr-lib = { path = "mladmgmt-adr-lib" }
+mlad-manage-adr-lib = { path = "mlad-manage-adr-lib" }
 clap = { version = "4", features = ["derive", "env"] }
 tokio = { version = "1", features = ["full"] }
 sqlx = { version = "0.8", features = ["postgres", "runtime-tokio", "uuid"] }

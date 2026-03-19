@@ -1,29 +1,29 @@
 use anyhow::Result;
 use clap::Args;
-use mladmgmt_adr_lib::collect_adr_files;
+use mlad_manage_adr_lib::collect_adr_files;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
-/// Arguments for the `check adr` subcommand.
+/// Arguments for the `check adrs` subcommand.
 #[derive(Args)]
-pub struct CheckAdr {
+pub struct CheckAdrs {
     /// Path to the ADR directory.
-    #[arg(long, default_value = "../docs/adr")]
-    pub adr_dir: PathBuf,
+    #[arg(long, default_value = "../docs/adrs")]
+    pub adrs_dir: PathBuf,
 }
 
-impl Default for CheckAdr {
+impl Default for CheckAdrs {
     fn default() -> Self {
         Self {
-            adr_dir: PathBuf::from("../docs/adr"),
+            adrs_dir: PathBuf::from("../docs/adrs"),
         }
     }
 }
 
-impl CheckAdr {
+impl CheckAdrs {
     /// Run all ADR checks. Returns a list of failure messages; empty means all passed.
     pub fn check(&self) -> Result<Vec<String>> {
-        let id_to_files = collect_adr_files(&self.adr_dir)?;
+        let id_to_files = collect_adr_files(&self.adrs_dir)?;
         let mut failures = Vec::new();
         failures.extend(check_duplicates(&id_to_files));
         failures.extend(check_gaps(&id_to_files));
@@ -81,8 +81,8 @@ mod tests {
         fs::write(dir.path().join(name), "# ADR").unwrap();
     }
 
-    fn checker(dir: &TempDir) -> CheckAdr {
-        CheckAdr { adr_dir: dir.path().to_path_buf() }
+    fn checker(dir: &TempDir) -> CheckAdrs {
+        CheckAdrs { adrs_dir: dir.path().to_path_buf() }
     }
 
     #[test]

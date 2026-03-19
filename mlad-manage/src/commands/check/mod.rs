@@ -1,4 +1,4 @@
-pub mod adr;
+pub mod adrs;
 
 use anyhow::{Result, bail};
 use clap::{Args, Subcommand};
@@ -6,7 +6,7 @@ use clap::{Args, Subcommand};
 #[derive(Subcommand)]
 pub enum CheckCommands {
     /// Check ADR compliance: no duplicate IDs, no gaps in sequence.
-    Adr(adr::CheckAdr),
+    Adr(adrs::CheckAdrs),
 }
 
 /// Arguments for the `check` subcommand group.
@@ -25,9 +25,9 @@ impl Check {
             Some(CheckCommands::Adr(cmd)) => {
                 println!("Running management checks");
                 let failures = cmd.check()?;
-                print_result("adr", &failures);
+                print_result("ADRs", &failures);
                 if !failures.is_empty() {
-                    bail!("check adr: {} failure(s)", failures.len());
+                    bail!("check adrs: {} failure(s)", failures.len());
                 }
                 println!("All checks passed");
                 Ok(())
@@ -45,8 +45,8 @@ fn run_all_checks() -> Result<()> {
 
     // Each check is a (name, thread) pair. New checks are added here.
     let handles: Vec<(&str, std::thread::JoinHandle<anyhow::Result<Vec<String>>>)> = vec![(
-        "adr",
-        std::thread::spawn(|| adr::CheckAdr::default().check()),
+        "ADRs",
+        std::thread::spawn(|| adrs::CheckAdrs::default().check()),
     )];
 
     let mut any_failed = false;

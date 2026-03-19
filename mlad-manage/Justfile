@@ -1,6 +1,6 @@
 just_local := "just --justfile " + source_file()
 
-PACKAGE := "mladmgmt"
+PACKAGE := "mlad-manage"
 BIN_DIR := "bin"
 BIN_PATH := BIN_DIR + "/" + PACKAGE
 
@@ -13,7 +13,7 @@ BIN_PATH := BIN_DIR + "/" + PACKAGE
     just --list --unsorted --justfile {{ source_file() }}
 
 
-# Build the `mladmgmt` binary in release mode, then copy it into `bin/`.
+# Build the `mlad-manage` binary in release mode, then copy it into `bin/`.
 build:
     rm -rf {{ BIN_DIR }}
     cargo build --release
@@ -27,12 +27,12 @@ ensure-built:
         {{ just_local }} build
     fi
 
-# Run a command in `mladmgmt` using the "release" version. If it is not available, builds it first.
+# Run a command in `mlad-manage` using the "release" version. If it is not available, builds it first.
 @run +args:
     {{ just_local }} ensure-built
     {{ BIN_PATH }} {{ args }}
 
-# Run a command in `mladmgmt` in dev mode. This does not build a binary, instead it calls `cargo run`.
+# Run a command in `mlad-manage` in dev mode. This does not build a binary, instead it calls `cargo run`.
 @run-dev +args:
     cargo run {{ args }}
 
