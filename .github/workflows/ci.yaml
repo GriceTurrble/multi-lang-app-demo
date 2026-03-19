@@ -140,7 +140,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./mladmgmt
-        run: cargo test
+        run: cargo test --workspace
 
   test-result:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
