@@ -6,7 +6,6 @@ from pydantic import BaseModel, field_validator
 
 
 class VoteRequest(BaseModel):
-    username: str
     value: int
 
     @field_validator("value")

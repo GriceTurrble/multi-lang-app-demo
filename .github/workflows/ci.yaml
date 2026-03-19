@@ -39,15 +39,10 @@ jobs:
           # This is also why this job is NOT skipped for draft PRs:
           suggest_fixes: true
 
-  test-backends:
+  test-backend-fastapi:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
-    name: Test backend
+    name: Test backend - FastAPI
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        backend:
-          - fastapi
     steps:
       - name: Checkout the code
         uses: actions/checkout@v6
@@ -56,28 +51,22 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Install uv
-        if: ${{ contains('fastapi', matrix.backend) }}
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.14"
 
       - name: Install project dependencies
-        working-directory: ./backends/${{ matrix.backend }}
+        working-directory: ./backends/fastapi
         run: just sync
 
       - name: Run tests
-        working-directory: ./backends/${{ matrix.backend }}
+        working-directory: ./backends/fastapi
         run: just test
 
-  test-frontends:
+  test-frontend-nextjs:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
-    name: Test frontend
+    name: Test frontend - NextJS
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        frontend:
-          - nextjs
     steps:
       - name: Checkout the code
         uses: actions/checkout@v6
@@ -86,27 +75,86 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Setup Node
-        if: ${{ contains('nextjs', matrix.frontend) }}
         uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: "npm"
-          cache-dependency-path: ./frontends/${{ matrix.frontend }}/package-lock.json
+          cache-dependency-path: ./frontends/nextjs/package-lock.json
 
       - name: Install project dependencies
-        working-directory: ./frontends/${{ matrix.frontend }}
+        working-directory: ./frontends/nextjs
         run: just sync
 
       - name: Run tests
-        working-directory: ./frontends/${{ matrix.frontend }}
+        working-directory: ./frontends/nextjs
         run: just test
+
+  test-mlad-manage:
+    if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
+    name: Test mlad-manage CLI
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: postgres:18
+        # Health checks
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v6
+
+      - name: Setup database
+        run: |
+          psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE testdb;"
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            mlad-manage/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('mlad-manage/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Run tests
+        working-directory: ./mlad-manage
+        run: cargo test --workspace
+
+  test-backends-result:
+    if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
+    name: Test backends - result
+    runs-on: ubuntu-latest
+    needs:
+      - test-backend-fastapi
+    steps:
+      - run: echo "Tests passing!"
+
+  test-frontends-result:
+    if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
+    name: Test frontends - result
+    runs-on: ubuntu-latest
+    needs:
+      - test-frontend-nextjs
+    steps:
+      - run: echo "Tests passing!"
 
   test-result:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
     name: Test results
     runs-on: ubuntu-latest
     needs:
-      - test-backends
-      - test-frontends
+      - test-backends-result
+      - test-frontends-result
+      - test-mlad-manage
     steps:
       - run: echo "Tests passing!"

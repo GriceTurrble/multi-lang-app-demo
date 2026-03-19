@@ -1,0 +1,41 @@
+just_local := "just --justfile " + source_file()
+
+PACKAGE := "mlad-manage"
+BIN_DIR := "bin"
+BIN_PATH := BIN_DIR + "/" + PACKAGE
+
+# Show these help docs.
+[default]
+@help:
+    echo "{{GREEN}}[MLAD] {{ PACKAGE }} CLI tool{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
+
+
+# Build the `mlad-manage` binary in release mode, then copy it into `bin/`.
+build:
+    rm -rf {{ BIN_DIR }}
+    cargo build --release
+    mkdir -p {{ BIN_DIR }}
+    cp target/release/{{ PACKAGE }} {{ BIN_PATH }}
+
+# Ensures the binary exists. If it does not, builds it.
+ensure-built:
+    #!/usr/bin/env bash
+    if [ ! -f {{ BIN_PATH }} ]; then
+        {{ just_local }} build
+    fi
+
+# Run a command in `mlad-manage` using the "release" version. If it is not available, builds it first.
+@run +args:
+    {{ just_local }} ensure-built
+    {{ BIN_PATH }} {{ args }}
+
+# Run a command in `mlad-manage` in dev mode. This does not build a binary, instead it calls `cargo run`.
+@run-dev +args:
+    cargo run {{ args }}
+
+# Run tests across the workspace
+test:
+    cargo test --workspace

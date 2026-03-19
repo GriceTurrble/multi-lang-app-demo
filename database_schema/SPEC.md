@@ -3,6 +3,8 @@
 Backend data will be stored in Postgres.
 The structure of this data can be found in [schema.sql](schema.sql).
 
+All [UUID v7] values are generated as column defaults within the database.
+
 ## Testing
 
 ### Postgres image
@@ -41,7 +43,7 @@ WHERE 1=1
 
 ### Returning the comment tree for a Post
 
-Use the `get_comment_tree` stored function (see [schema.sql] for its definition):
+Use the `get_comment_tree` stored function (see [schema.sql](schema.sql) for its definition):
 
 ```sql
 SELECT
@@ -95,4 +97,4 @@ FROM get_reply_tree(
 - Pagination is **keyset/cursor-based** on direct replies: pass `p_cursor_id` for subsequent pages, or `NULL` for the first page.
 - Replies are fetched recursively up to `p_max_depth` levels deep.
 
-[schema.sql]: schema.sql
+[uuid v7]: https://uuidv7.com

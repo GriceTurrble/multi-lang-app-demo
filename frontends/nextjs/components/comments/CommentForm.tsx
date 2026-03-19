@@ -57,7 +57,7 @@ export function CommentForm({
         name="body"
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder={parentCommentId ? "Write a reply…" : "Write a comment…"}
+        placeholder={parentCommentId ? "Write a reply..." : "Write a comment..."}
         rows={3}
         required
         className="rounded border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900"
@@ -71,7 +71,7 @@ export function CommentForm({
           disabled={submitting || !body.trim()}
           className="rounded bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {submitting ? "Posting…" : "Post"}
+          {submitting ? "Posting..." : "Post"}
         </button>
         {onCancel && (
           <button

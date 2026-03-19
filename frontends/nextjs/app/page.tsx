@@ -5,7 +5,7 @@ export default function Home() {
     <div className="flex flex-col gap-4">
       <h1 className="text-3xl font-bold">Welcome to MLAD Forum</h1>
       <p className="text-gray-600 dark:text-gray-400">
-        A multi-language app demo — Reddit-like posts and comments, implemented
+        A multi-language app demo - Reddit-like posts and comments, implemented
         across multiple backend frameworks.
       </p>
       <Link

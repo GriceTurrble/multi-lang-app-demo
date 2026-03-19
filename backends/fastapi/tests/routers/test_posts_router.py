@@ -14,6 +14,8 @@ from freezegun import freeze_time
 if typing.TYPE_CHECKING:
     from fastapi.testclient import TestClient
 
+    from app.models import UserResponse
+
 
 @freeze_time("2025-02-24")
 def _make_post_row(**kwargs) -> dict:
@@ -108,39 +110,36 @@ def test_list_posts_with_cursor(
 
 
 def test_create_post(
-    test_client: TestClient,
+    authed_client: TestClient,
     mock_conn: AsyncMock,
+    mock_user: UserResponse,
 ):
     """A POST to /posts endpoint creates a new post."""
-    row = _make_post_row(title="New Post", body="Body text", author="alice")
+    row = _make_post_row(title="New Post", body="Body text")
 
     # We make a somewhat complex side effect for the fetchrow call here.
     # We want to take the values actually passed to the request in the payload
     # and assert that those values were "entered" in our INSERT statement.
     # So, we copy all the valid keys of the generated `row` dict,
-    # then overwrite the ones requested i the `fetchrow` call itself.
+    # then overwrite the ones requested in the `fetchrow` call itself.
     # It's a little roundabout, but it asserts the real values are passed into the method.
-    async def _side_effect(query, title, body, author):
+    async def _side_effect(query, title, body, author_id):
         # Assert args as passed
         assert "INSERT" in query.upper()
         assert title == row["title"]
         assert body == row["body"]
-        assert author == row["author"]
+        assert author_id == mock_user.id
 
         # Return an updated copy of the row using those passed values
         copied = copy.deepcopy(row)
-        copied.update({"title": title, "body": body, "author": author})
+        copied.update({"title": title, "body": body})
         return copied
 
     mock_conn.fetchrow.side_effect = _side_effect
 
-    resp = test_client.post(
+    resp = authed_client.post(
         "/posts",
-        json={
-            "title": row["title"],
-            "body": row["body"],
-            "author": row["author"],
-        },
+        json={"title": row["title"], "body": row["body"]},
     )
 
     # We should get a 201 response and the same data we had fetchrow return:
@@ -148,45 +147,52 @@ def test_create_post(
     data = resp.json()
     assert data["title"] == "New Post"
     assert data["body"] == "Body text"
-    assert data["author"] == "alice"
+    assert data["author"] == "testuser"
 
 
 def test_create_post_without_title(
-    test_client: TestClient,
+    authed_client: TestClient,
     mock_conn: AsyncMock,
+    mock_user: UserResponse,
 ):
     """Post titles are optional (in this implementation).
 
     Assert that we can pass None and get a Post from it still.
     """
-    row = _make_post_row(title=None, body="Body text", author="alice")
+    row = _make_post_row(title=None, body="Body text")
 
-    async def _side_effect(query, title, body, author):
+    async def _side_effect(query, title, body, author_id):
         # Assert args as passed
         assert "INSERT" in query.upper()
         assert title == row["title"]
         assert body == row["body"]
-        assert author == row["author"]
+        assert author_id == mock_user.id
 
         # Return an updated copy of the row using those passed values
         copied = copy.deepcopy(row)
-        copied.update({"title": title, "body": body, "author": author})
+        copied.update({"title": title, "body": body})
         return copied
 
     mock_conn.fetchrow.side_effect = _side_effect
 
-    resp = test_client.post("/posts", json={"body": "Body text", "author": "alice"})
+    resp = authed_client.post("/posts", json={"body": "Body text"})
 
     assert resp.status_code == status.HTTP_201_CREATED
     assert resp.json()["title"] is None
 
 
 def test_create_post_missing_required_fields(
-    test_client: TestClient,
+    authed_client: TestClient,
 ):
     """Checks validation errors for missing required fields."""
-    resp = test_client.post("/posts", json={"title": "Only title"})
+    resp = authed_client.post("/posts", json={"title": "Only title"})
     assert resp.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+
+def test_create_post_requires_auth(test_client: TestClient):
+    """POST /posts without credentials is rejected."""
+    resp = test_client.post("/posts", json={"body": "hello"})
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 # === GET /posts/{post_id} ===
@@ -249,7 +255,7 @@ def test_get_post_invalid_uuid(
 
 
 def test_update_post(
-    test_client: TestClient,
+    authed_client: TestClient,
     mock_conn: AsyncMock,
 ):
     """PATCH /posts/<uuid> edits the post."""
@@ -267,34 +273,40 @@ def test_update_post(
 
     mock_conn.fetchrow.side_effect = _side_effect
 
-    resp = test_client.patch(f"/posts/{post_id}", json={"body": "Updated body"})
+    resp = authed_client.patch(f"/posts/{post_id}", json={"body": "Updated body"})
 
     assert resp.status_code == status.HTTP_200_OK
     assert resp.json()["body"] == "Updated body"
 
 
-def test_update_post_no_fields(test_client: TestClient):
+def test_update_post_no_fields(authed_client: TestClient):
     """If no fields are passed in the PATCH call, responds with 400."""
-    resp = test_client.patch(f"/posts/{uuid7.create()}", json={})
+    resp = authed_client.patch(f"/posts/{uuid7.create()}", json={})
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
     assert resp.json()["detail"] == "No fields to update"
 
 
-def test_update_post_not_found(test_client: TestClient, mock_conn: AsyncMock):
+def test_update_post_not_found(authed_client: TestClient, mock_conn: AsyncMock):
     """Attemping to PATCH a non-existent Post 404's."""
     mock_conn.fetchrow.return_value = None
 
-    resp = test_client.patch(f"/posts/{uuid7.create()}", json={"body": "Updated"})
+    resp = authed_client.patch(f"/posts/{uuid7.create()}", json={"body": "Updated"})
 
     assert resp.status_code == status.HTTP_404_NOT_FOUND
     assert resp.json()["detail"] == "Post not found"
 
 
+def test_update_post_requires_auth(test_client: TestClient):
+    """PATCH /posts without credentials is rejected."""
+    resp = test_client.patch(f"/posts/{uuid7.create()}", json={"body": "Updated"})
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+
 # === DELETE /posts/{post_id} ===
 
 
-def test_delete_post(test_client: TestClient, mock_conn: AsyncMock):
+def test_delete_post(authed_client: TestClient, mock_conn: AsyncMock):
     """Can DELETE Posts."""
     row_id = uuid7.create()
 
@@ -307,13 +319,13 @@ def test_delete_post(test_client: TestClient, mock_conn: AsyncMock):
 
     mock_conn.execute.side_effect = _side_effect
 
-    resp = test_client.delete(f"/posts/{row_id}")
+    resp = authed_client.delete(f"/posts/{row_id}")
 
     assert resp.status_code == status.HTTP_204_NO_CONTENT
 
 
 def test_delete_post_not_found_still_works(
-    test_client: TestClient, mock_conn: AsyncMock
+    authed_client: TestClient, mock_conn: AsyncMock
 ):
     """Attempting to DELETE a non-existent post should still work.
 
@@ -322,6 +334,12 @@ def test_delete_post_not_found_still_works(
     """
     mock_conn.execute.return_value = "DELETE 0"
 
-    resp = test_client.delete(f"/posts/{uuid7.create()}")
+    resp = authed_client.delete(f"/posts/{uuid7.create()}")
 
     assert resp.status_code == status.HTTP_204_NO_CONTENT
+
+
+def test_delete_post_requires_auth(test_client: TestClient):
+    """DELETE /posts without credentials is rejected."""
+    resp = test_client.delete(f"/posts/{uuid7.create()}")
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED

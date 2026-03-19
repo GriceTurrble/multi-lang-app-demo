@@ -32,7 +32,7 @@ export function DeletePostButton({ postId }: { postId: string }) {
           disabled={deleting}
           className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700 disabled:opacity-50"
         >
-          {deleting ? "Deleting…" : "Confirm"}
+          {deleting ? "Deleting..." : "Confirm"}
         </button>
         <button
           onClick={() => setConfirming(false)}
