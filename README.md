@@ -135,7 +135,7 @@ define the login credentials for this interface.
 
 ## Architecture Decision Records
 
-Key design decisions are documented in [docs/adr/](docs/adr/).
+Key design decisions are documented in [docs/adrs/](docs/adrs/).
 
 ## AI Usage Disclosure
 

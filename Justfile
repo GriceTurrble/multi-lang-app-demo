@@ -8,7 +8,7 @@ mod frontends
 
 # mgmt CLI tool
 [group("submodules")]
-mod mladmgmt
+mod manage "mlad-manage"
 
 ### START COMMON ###
 import? 'common.just'

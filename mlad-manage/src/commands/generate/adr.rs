@@ -1,6 +1,6 @@
 use anyhow::{bail, Context as _, Result};
 use clap::Args;
-use mladmgmt_adr_lib::collect_adr_files;
+use mlad_manage_adr_lib::collect_adr_files;
 use std::path::PathBuf;
 
 /// Arguments for the `generate adr` subcommand.
@@ -11,21 +11,21 @@ pub struct Adr {
     pub title: Vec<String>,
 
     /// Path to the ADR directory.
-    #[arg(long, default_value = "../docs/adr")]
-    pub adr_dir: PathBuf,
+    #[arg(long, default_value = "../docs/adrs")]
+    pub adrs_dir: PathBuf,
 }
 
 impl Adr {
     /// Determine the next ADR number, render the template, and write the file.
     pub fn run(&self) -> Result<()> {
         let title = self.title.join(" ");
-        let existing = collect_unique_adr_numbers(&self.adr_dir)?;
+        let existing = collect_unique_adr_numbers(&self.adrs_dir)?;
         let next = existing.keys().max().map_or(1, |n| n + 1);
         let slug = slugify(&title);
         let filename = format!("{:04}-{}.md", next, slug);
-        let output_path = self.adr_dir.join(&filename);
+        let output_path = self.adrs_dir.join(&filename);
 
-        let template_path = self.adr_dir.join("TEMPLATE.md");
+        let template_path = self.adrs_dir.join("TEMPLATE.md");
         let template = std::fs::read_to_string(&template_path)
             .with_context(|| format!("Failed to read template: {}", template_path.display()))?;
 

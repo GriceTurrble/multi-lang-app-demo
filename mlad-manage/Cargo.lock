@@ -867,7 +867,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mladmgmt"
+name = "mlad-manage"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -875,7 +875,7 @@ dependencies = [
  "chrono",
  "clap",
  "dotenvy",
- "mladmgmt-adr-lib",
+ "mlad-manage-adr-lib",
  "rpassword",
  "sqlx",
  "tempfile",
@@ -884,7 +884,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mladmgmt-adr-lib"
+name = "mlad-manage-adr-lib"
 version = "0.1.0"
 dependencies = [
  "anyhow",
