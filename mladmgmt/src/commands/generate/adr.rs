@@ -1,6 +1,6 @@
 use anyhow::{bail, Context as _, Result};
 use clap::Args;
-use std::collections::HashMap;
+use mladmgmt_adr_lib::collect_adr_files;
 use std::path::PathBuf;
 
 #[derive(Args)]
@@ -17,7 +17,7 @@ pub struct Adr {
 impl Adr {
     pub fn run(&self) -> Result<()> {
         let title = self.title.join(" ");
-        let existing = collect_adr_numbers(&self.adr_dir)?;
+        let existing = collect_unique_adr_numbers(&self.adr_dir)?;
         let next = existing.keys().max().map_or(1, |n| n + 1);
         let slug = slugify(&title);
         let filename = format!("{:04}-{}.md", next, slug);
@@ -42,21 +42,12 @@ impl Adr {
     }
 }
 
-fn collect_adr_numbers(adr_dir: &PathBuf) -> Result<HashMap<u32, String>> {
-    let mut map: HashMap<u32, Vec<String>> = HashMap::new();
-
-    for entry in std::fs::read_dir(adr_dir)
-        .with_context(|| format!("Failed to read ADR directory: {}", adr_dir.display()))?
-    {
-        let entry = entry.context("Failed to read directory entry")?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        if let Some(number) = parse_adr_number(&name) {
-            map.entry(number).or_default().push(name);
-        }
-    }
+/// Collect ADR numbers from `adr_dir`, failing if any ID has more than one file.
+fn collect_unique_adr_numbers(adr_dir: &PathBuf) -> Result<std::collections::HashMap<u32, String>> {
+    let grouped = collect_adr_files(adr_dir)?;
 
     let conflicts: Vec<String> = {
-        let mut v: Vec<_> = map
+        let mut v: Vec<_> = grouped
             .iter()
             .filter(|(_, files)| files.len() > 1)
             .map(|(n, files)| format!("  {:04}: {}", n, files.join(", ")))
@@ -68,25 +59,10 @@ fn collect_adr_numbers(adr_dir: &PathBuf) -> Result<HashMap<u32, String>> {
         bail!("ADR number conflicts detected:\n{}", conflicts.join("\n"));
     }
 
-    Ok(map
+    Ok(grouped
         .into_iter()
         .filter_map(|(n, mut files)| files.pop().map(|f| (n, f)))
         .collect())
-}
-
-fn parse_adr_number(filename: &str) -> Option<u32> {
-    if !filename.ends_with(".md") {
-        return None;
-    }
-    let digits: String = filename.chars().take_while(|c| c.is_ascii_digit()).collect();
-    if digits.len() != 4 {
-        return None;
-    }
-    // Must be followed by '-' to distinguish from e.g. filenames with more digits
-    if filename.chars().nth(4) != Some('-') {
-        return None;
-    }
-    digits.parse().ok()
 }
 
 fn slugify(title: &str) -> String {
@@ -104,17 +80,6 @@ fn slugify(title: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_parse_adr_number() {
-        assert_eq!(parse_adr_number("0001-some-title.md"), Some(1));
-        assert_eq!(parse_adr_number("0042-another-adr.md"), Some(42));
-        assert_eq!(parse_adr_number("TEMPLATE.md"), None);
-        assert_eq!(parse_adr_number("README.md"), None);
-        assert_eq!(parse_adr_number("001-short.md"), None); // only 3 digits
-        assert_eq!(parse_adr_number("00001-too-long.md"), None); // 5 digits
-        assert_eq!(parse_adr_number("0001notaslug.md"), None); // no hyphen after digits
-    }
 
     #[test]
     fn test_slugify() {

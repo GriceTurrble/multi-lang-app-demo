@@ -24,11 +24,16 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let config = Config::load(cli.database_url)?;
 
-    // Dispatch commands that don't require a database connection before DB init.
-    if let Commands::Generate(cmd) = &cli.command {
-        return cmd.run();
+    match &cli.command {
+        Commands::Check(cmd) => cmd.run(),
+        Commands::Generate(cmd) => cmd.run(),
+        Commands::Db(cmd) => {
+            let ctx = Context::new(config).await?;
+            cmd.run(&ctx).await
+        }
+        Commands::Users(cmd) => {
+            let ctx = Context::new(config).await?;
+            cmd.run(&ctx).await
+        }
     }
-
-    let ctx = Context::new(config).await?;
-    cli.command.run(&ctx).await
 }
