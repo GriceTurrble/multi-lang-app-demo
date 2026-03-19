@@ -10,6 +10,7 @@ pub enum UsersCommands {
     Create(create::Create),
 }
 
+/// Arguments for the `users` subcommand group.
 #[derive(Args)]
 pub struct Users {
     #[command(subcommand)]
@@ -17,6 +18,7 @@ pub struct Users {
 }
 
 impl Users {
+    /// Dispatch to the selected user subcommand.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         match &self.command {
             UsersCommands::Create(cmd) => cmd.run(ctx).await,

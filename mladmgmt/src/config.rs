@@ -1,10 +1,16 @@
 use anyhow::Result;
 
+/// Application configuration loaded from the environment or `.env` file.
 pub struct Config {
     pub database_url: String,
 }
 
 impl Config {
+    /// Load configuration, optionally overriding `DATABASE_URL`.
+    ///
+    /// Reads `.env` from the working directory if present. Falls back to a
+    /// default local Postgres URL when no value is supplied or found in the
+    /// environment.
     pub fn load(database_url_override: Option<String>) -> Result<Self> {
         // Load .env from the working directory; ignore if missing.
         let _ = dotenvy::dotenv();

@@ -17,6 +17,7 @@ pub struct ReloadSchema {
 }
 
 impl ReloadSchema {
+    /// Delegate to [`LoadSchema::run`] with `force: true`.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         LoadSchema {
             schema_file: self.schema_file.clone(),

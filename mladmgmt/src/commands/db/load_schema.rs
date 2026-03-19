@@ -3,6 +3,7 @@ use anyhow::{bail, Context as _, Result};
 use clap::Args;
 use std::path::PathBuf;
 
+/// Arguments for the `db load-schema` subcommand.
 #[derive(Args)]
 pub struct LoadSchema {
     /// Path to the schema SQL file.
@@ -19,6 +20,10 @@ pub struct LoadSchema {
 }
 
 impl LoadSchema {
+    /// Drop the public schema and re-apply `schema.sql`.
+    ///
+    /// Aborts with an error when the schema appears to already be loaded, unless
+    /// `--force` is set. Prompts the user for confirmation unless `--yes` is set.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         let sql = std::fs::read_to_string(&self.schema_file)
             .with_context(|| format!("Cannot read schema file: {}", self.schema_file.display()))?;

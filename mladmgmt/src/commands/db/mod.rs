@@ -19,6 +19,7 @@ pub enum DbCommands {
     RefreshDb(refresh_db::RefreshDb),
 }
 
+/// Arguments for the `db` subcommand group.
 #[derive(Args)]
 pub struct Db {
     #[command(subcommand)]
@@ -26,6 +27,7 @@ pub struct Db {
 }
 
 impl Db {
+    /// Dispatch to the selected database subcommand.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         match &self.command {
             DbCommands::LoadSchema(cmd) => cmd.run(ctx).await,
@@ -41,10 +43,12 @@ pub mod test_helpers {
     use sqlx::PgPool;
     use std::path::PathBuf;
 
+    /// Canonical path to `schema.sql` relative to the workspace root.
     pub fn schema_path() -> PathBuf {
         PathBuf::from("../database_schema/schema.sql")
     }
 
+    /// Canonical path to `fixtures.sql` relative to the workspace root.
     pub fn fixtures_path() -> PathBuf {
         PathBuf::from("../database_schema/fixtures.sql")
     }

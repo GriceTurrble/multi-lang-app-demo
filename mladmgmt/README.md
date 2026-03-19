@@ -134,6 +134,39 @@ just run db refresh-db [OPTIONS]
 
 ---
 
+### `check` — Management Checks
+
+Run integrity checks against project assets. When invoked without a subcommand, all registered checks are run in parallel.
+
+```bash
+just run check [SUBCOMMAND]
+```
+
+Output follows the format:
+
+```
+>> <check-name>......................................................PASSED
+>> <check-name>......................................................FAILED
+   - <failure detail>
+```
+
+#### `check adr`
+
+Check ADR file compliance. Verifies:
+
+- **No duplicate IDs** — no two files share the same 4-digit number prefix.
+- **No gaps in sequence** — ADR IDs form a contiguous sequence starting from `0001`.
+
+```bash
+just run check adr [OPTIONS]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `--adr-dir <PATH>` | Path to the ADR directory | `../docs/adr` |
+
+---
+
 ### `users` — User Management
 
 #### `users create`
@@ -164,14 +197,23 @@ just run db reload-schema --yes --schema-file /path/to/schema.sql
 # Create a new user interactively
 just run users create
 
+# Run all checks
+just run check
+
+# Run only the ADR check
+just run check adr
+
+# Run ADR check against a non-default directory
+just run check adr --adr-dir /path/to/docs/adr
+
 # Create a new ADR
-just run-dev generate adr "My Architecture Decision"
+just run generate adr "My Architecture Decision"
 
 # Create a new ADR using the short alias
-just run-dev gen adr "My Architecture Decision"
+just run gen adr "My Architecture Decision"
 
 # Create a new ADR targeting a non-default directory
-just run-dev gen adr "My Architecture Decision" --adr-dir /path/to/docs/adr
+just run gen adr "My Architecture Decision" --adr-dir /path/to/docs/adr
 ```
 
 [just]: https://github.com/casey/just

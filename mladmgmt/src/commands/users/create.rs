@@ -7,10 +7,12 @@ use argon2::{
 use clap::Args;
 use uuid::Uuid;
 
+/// Arguments for the `users create` subcommand.
 #[derive(Args)]
 pub struct Create;
 
 impl Create {
+    /// Prompt for user details, hash the password with Argon2, and insert the new user.
     pub async fn run(&self, ctx: &Context) -> Result<()> {
         let email = prompt("Email: ")?;
         let username = prompt("Username: ")?;
@@ -41,6 +43,7 @@ impl Create {
     }
 }
 
+/// Print `label` and read a trimmed line from stdin.
 fn prompt(label: &str) -> Result<String> {
     use std::io::Write;
     print!("{}", label);

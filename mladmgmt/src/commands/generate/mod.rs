@@ -9,6 +9,7 @@ pub enum GenerateCommands {
     Adr(adr::Adr),
 }
 
+/// Arguments for the `generate` subcommand group.
 #[derive(Args)]
 pub struct Generate {
     #[command(subcommand)]
@@ -16,6 +17,7 @@ pub struct Generate {
 }
 
 impl Generate {
+    /// Dispatch to the selected generate subcommand.
     pub fn run(&self) -> Result<()> {
         match &self.command {
             GenerateCommands::Adr(cmd) => cmd.run(),

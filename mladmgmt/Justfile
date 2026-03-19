@@ -36,5 +36,6 @@ ensure-built:
 @run-dev +args:
     cargo run {{ args }}
 
+# Run tests across the workspace
 test:
-    cargo test
+    cargo test --workspace
