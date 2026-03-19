@@ -5,7 +5,7 @@
 			"path": "."
 		},
     {
-			"path": "mladmgmt",
+			"path": "mlad-manage",
 		},
 		{
 			"name": "backends/fastapi",
@@ -23,7 +23,7 @@
       "**/.hg": true,
       "**/.DS_Store": true,
       "**/Thumbs.db": true,
-      "mladmgmt": true,
+      "mlad-manage": true,
       "backends/fastapi": true,
       "frontends/nextjs": true
     }

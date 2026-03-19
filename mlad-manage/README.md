@@ -1,4 +1,4 @@
-# mladmgmt
+# mlad-manage - CLI for management tasks across the project
 
 A CLI management tool written in Rust for managing database state for the multi-lang-app-demo app, independent from other backends.
 
@@ -10,10 +10,10 @@ A CLI management tool written in Rust for managing database state for the multi-
 
 ## Configuration
 
-The tool reads configuration from environment variables or a `.env` file in the `mladmgmt/` directory.
+The tool reads configuration from environment variables or a `.env` file in the `mlad-manage/` directory.
 
-| Variable | Description | Default |
-|---|---|---|
+| Variable       | Description                  | Default                                                |
+| -------------- | ---------------------------- | ------------------------------------------------------ |
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/testdb` |
 
 `DATABASE_URL` can also be overridden at runtime with the `--database-url` flag (see [Global Flags](#global-flags)).
@@ -31,10 +31,10 @@ cargo run -- [command]
 **Production (pre-built binary):**
 
 ```bash
-just build         # builds release binary and copies to bin/mladmgmt
-just run [command] # runs bin/mladmgmt (builds if missing)
+just build         # builds release binary and copies to `bin/`
+just run [command] # runs a command in release binary `bin/mlad-manage` (builds if missing)
 # or
-./bin/mladmgmt [command]
+./bin/mlad-manage [command]
 ```
 
 **Tests:**
@@ -49,9 +49,9 @@ cargo test
 
 These flags apply to all commands:
 
-| Flag | Description | Default |
-|---|---|---|
-| `--database-url <URL>` | Override the `DATABASE_URL` environment variable | — |
+| Flag                   | Description                                      | Default |
+| ---------------------- | ------------------------------------------------ | ------- |
+| `--database-url <URL>` | Override the `DATABASE_URL` environment variable | —       |
 
 ## Commands
 
@@ -61,7 +61,7 @@ These flags apply to all commands:
 
 #### `generate adr`
 
-Create a new ADR file from [docs/adr/TEMPLATE.md](../docs/adr/TEMPLATE.md).
+Create a new ADR file from [docs/adrs/TEMPLATE.md](../docs/adrs/TEMPLATE.md).
 Scans the ADR directory for existing numbered files, determines the next number in sequence, and writes a new file with status `Draft`.
 Errors if any two existing files share the same 4-digit number prefix.
 
@@ -71,9 +71,9 @@ just run-dev generate adr "Title of the Decision" [OPTIONS]
 just run-dev gen adr "Title of the Decision" [OPTIONS]
 ```
 
-| Option | Description | Default |
-|---|---|---|
-| `--adr-dir <PATH>` | Path to the ADR directory | `../docs/adr` |
+| Option             | Description               | Default       |
+| ------------------ | ------------------------- | ------------- |
+| `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
 ---
 
@@ -87,11 +87,11 @@ Apply `schema.sql` to the database. Fails if the schema appears already loaded (
 just run db load-schema [OPTIONS]
 ```
 
-| Option | Description | Default |
-|---|---|---|
-| `--schema-file <PATH>` | Path to schema SQL file | `../database_schema/schema.sql` |
-| `-y, --yes` | Skip confirmation prompt | — |
-| `--force` | Drop and reload even if schema already appears loaded | — |
+| Option                 | Description                                           | Default                         |
+| ---------------------- | ----------------------------------------------------- | ------------------------------- |
+| `--schema-file <PATH>` | Path to schema SQL file                               | `../database_schema/schema.sql` |
+| `-y, --yes`            | Skip confirmation prompt                              | —                               |
+| `--force`              | Drop and reload even if schema already appears loaded | —                               |
 
 #### `db reload-schema`
 
@@ -101,10 +101,10 @@ Alias for `load-schema --force`. Drops and reloads the schema unconditionally.
 just run db reload-schema [OPTIONS]
 ```
 
-| Option | Description | Default |
-|---|---|---|
-| `--schema-file <PATH>` | Path to schema SQL file | `../database_schema/schema.sql` |
-| `-y, --yes` | Skip confirmation prompt | — |
+| Option                 | Description              | Default                         |
+| ---------------------- | ------------------------ | ------------------------------- |
+| `--schema-file <PATH>` | Path to schema SQL file  | `../database_schema/schema.sql` |
+| `-y, --yes`            | Skip confirmation prompt | —                               |
 
 #### `db load-fixtures`
 
@@ -114,8 +114,8 @@ Load fixture data from `fixtures.sql` into the current schema.
 just run db load-fixtures [OPTIONS]
 ```
 
-| Option | Description | Default |
-|---|---|---|
+| Option                   | Description               | Default                           |
+| ------------------------ | ------------------------- | --------------------------------- |
 | `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database_schema/fixtures.sql` |
 
 #### `db refresh-db`
@@ -126,11 +126,11 @@ Reload the schema then load fixtures in one step. Equivalent to running `reload-
 just run db refresh-db [OPTIONS]
 ```
 
-| Option | Description | Default |
-|---|---|---|
-| `--schema-file <PATH>` | Path to schema SQL file | `../database_schema/schema.sql` |
+| Option                   | Description               | Default                           |
+| ------------------------ | ------------------------- | --------------------------------- |
+| `--schema-file <PATH>`   | Path to schema SQL file   | `../database_schema/schema.sql`   |
 | `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database_schema/fixtures.sql` |
-| `-y, --yes` | Skip confirmation prompt | — |
+| `-y, --yes`              | Skip confirmation prompt  | —                                 |
 
 ---
 
@@ -150,7 +150,7 @@ Output follows the format:
    - <failure detail>
 ```
 
-#### `check adr`
+#### `check adrs`
 
 Check ADR file compliance. Verifies:
 
@@ -158,12 +158,12 @@ Check ADR file compliance. Verifies:
 - **No gaps in sequence** — ADR IDs form a contiguous sequence starting from `0001`.
 
 ```bash
-just run check adr [OPTIONS]
+just run check adrs [OPTIONS]
 ```
 
-| Option | Description | Default |
-|---|---|---|
-| `--adr-dir <PATH>` | Path to the ADR directory | `../docs/adr` |
+| Option             | Description               | Default       |
+| ------------------ | ------------------------- | ------------- |
+| `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
 ---
 
@@ -201,10 +201,10 @@ just run users create
 just run check
 
 # Run only the ADR check
-just run check adr
+just run check adrs
 
 # Run ADR check against a non-default directory
-just run check adr --adr-dir /path/to/docs/adr
+just run check adrs --adrs-dir /path/to/docs/adrs
 
 # Create a new ADR
 just run generate adr "My Architecture Decision"
@@ -213,7 +213,7 @@ just run generate adr "My Architecture Decision"
 just run gen adr "My Architecture Decision"
 
 # Create a new ADR targeting a non-default directory
-just run gen adr "My Architecture Decision" --adr-dir /path/to/docs/adr
+just run gen adr "My Architecture Decision" --adrs-dir /path/to/docs/adrs
 ```
 
 [just]: https://github.com/casey/just
