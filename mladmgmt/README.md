@@ -4,8 +4,8 @@ A CLI management tool written in Rust for managing database state for the multi-
 
 ## Requirements
 
-- Rust toolchain (see [rustup](https://rustup.rs/))
-- [just](https://github.com/casey/just) (optional, for Justfile recipes)
+- Rust toolchain (see [rustup])
+- [just] (optional, for Justfile recipes)
 - A running PostgreSQL instance
 
 ## Configuration
@@ -54,6 +54,28 @@ These flags apply to all commands:
 | `--database-url <URL>` | Override the `DATABASE_URL` environment variable | — |
 
 ## Commands
+
+### `generate` (`gen`) — Generators
+
+> These commands do not require a database connection.
+
+#### `generate adr`
+
+Create a new ADR file from [docs/adr/TEMPLATE.md](../docs/adr/TEMPLATE.md).
+Scans the ADR directory for existing numbered files, determines the next number in sequence, and writes a new file with status `Draft`.
+Errors if any two existing files share the same 4-digit number prefix.
+
+```bash
+just run-dev generate adr "Title of the Decision" [OPTIONS]
+# or
+just run-dev gen adr "Title of the Decision" [OPTIONS]
+```
+
+| Option | Description | Default |
+|---|---|---|
+| `--adr-dir <PATH>` | Path to the ADR directory | `../docs/adr` |
+
+---
 
 ### `db` — Database Management
 
@@ -141,4 +163,16 @@ just run db reload-schema --yes --schema-file /path/to/schema.sql
 
 # Create a new user interactively
 just run users create
+
+# Create a new ADR
+just run-dev generate adr "My Architecture Decision"
+
+# Create a new ADR using the short alias
+just run-dev gen adr "My Architecture Decision"
+
+# Create a new ADR targeting a non-default directory
+just run-dev gen adr "My Architecture Decision" --adr-dir /path/to/docs/adr
 ```
+
+[just]: https://github.com/casey/just
+[rustup]: https://rustup.rs/
