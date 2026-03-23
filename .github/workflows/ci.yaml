@@ -117,7 +117,7 @@ jobs:
           psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE testdb;"
 
       - name: Cache Rust dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry
