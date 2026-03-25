@@ -61,7 +61,7 @@ repos:
     hooks:
       # Requires GITHUB_TOKEN env var to avoid API rate limits
       - id: pin-github-action
-        name: pin-github-action
+        name: pin-github-action-shas
         language: node
         entry: pin-github-action
         additional_dependencies: ["pin-github-action"]
