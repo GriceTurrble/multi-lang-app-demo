@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deletePost } from "@/lib/api/posts";
 
-export function DeletePostButton({ postId }: { postId: string }) {
+export function DeletePostButton({ postId, token }: { postId: string; token: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -14,7 +14,7 @@ export function DeletePostButton({ postId }: { postId: string }) {
     setDeleting(true);
     setError(undefined);
     try {
-      await deletePost(postId);
+      await deletePost(postId, token);
       router.push("/posts");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete post");

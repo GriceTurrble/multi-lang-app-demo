@@ -5,14 +5,14 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getPost, updatePost } from "@/lib/api/posts";
 import { ApiError } from "@/lib/api/client";
-import { useUsername } from "@/lib/context/UsernameContext";
+import { useRequireAuth } from "@/lib/context/AuthProvider";
 import { PostForm, type PostFormValues } from "@/components/posts/PostForm";
 import type { PostResponse } from "@/lib/api/types";
 
 export default function EditPostPage() {
   const { postId } = useParams<{ postId: string }>();
   const router = useRouter();
-  const { username } = useUsername();
+  const { user, token, initialized } = useRequireAuth();
   const [post, setPost] = useState<PostResponse | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
@@ -26,6 +26,10 @@ export default function EditPostPage() {
       .finally(() => setLoading(false));
   }, [postId]);
 
+  if (!initialized || !user || !token) {
+    return null;
+  }
+
   if (loading) {
     return <p className="text-sm text-gray-500">Loading...</p>;
   }
@@ -38,7 +42,7 @@ export default function EditPostPage() {
     return <p className="text-sm text-gray-500">Post not found.</p>;
   }
 
-  if (!username || username !== post.author) {
+  if (user.username !== post.author) {
     return (
       <p className="text-sm text-gray-500">
         You can only edit your own posts.
@@ -47,7 +51,7 @@ export default function EditPostPage() {
   }
 
   const handleSubmit = async ({ title, body }: PostFormValues) => {
-    await updatePost(postId, { title, body });
+    await updatePost(postId, { title, body }, token);
     router.push(`/posts/${postId}`);
   };
 

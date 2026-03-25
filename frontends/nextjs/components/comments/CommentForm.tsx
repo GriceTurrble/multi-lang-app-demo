@@ -2,8 +2,9 @@
 
 import Form from "next/form";
 import { useState } from "react";
+import Link from "next/link";
 import { createComment } from "@/lib/api/comments";
-import { useUsername } from "@/lib/context/UsernameContext";
+import { useAuth } from "@/lib/context/AuthProvider";
 import type { CommentResponse } from "@/lib/api/types";
 
 type Props = {
@@ -19,29 +20,35 @@ export function CommentForm({
   onCommentAdded,
   onCancel,
 }: Props) {
-  const { username } = useUsername();
+  const { token } = useAuth();
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
-  if (!username) {
+  if (!token) {
     return (
       <p className="text-sm text-gray-500">
-        Set a username in the header to comment.
+        <Link href="/auth/login" className="text-blue-600 hover:underline dark:text-blue-400">
+          Log in
+        </Link>{" "}
+        to comment.
       </p>
     );
   }
 
   async function handleForm(formData: FormData) {
-    if (!body.trim()) return;
+    if (!body.trim() || !token) return;
     setSubmitting(true);
     setError(undefined);
     try {
-      const comment = await createComment(postId, {
-        author: username,
-        body: body.trim(),
-        ...(parentCommentId ? { parent_comment_id: parentCommentId } : {}),
-      });
+      const comment = await createComment(
+        postId,
+        {
+          body: body.trim(),
+          ...(parentCommentId ? { parent_comment_id: parentCommentId } : {}),
+        },
+        token,
+      );
       setBody("");
       onCommentAdded(comment);
     } catch (err) {

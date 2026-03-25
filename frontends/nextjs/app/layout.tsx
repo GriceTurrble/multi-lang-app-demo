@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { UsernameProvider } from "@/lib/context/UsernameContext";
+import { AuthProvider } from "@/lib/context/AuthProvider";
 import { Header } from "@/components/layout/Header";
 
 export const metadata: Metadata = {
@@ -16,10 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <UsernameProvider>
+        <AuthProvider>
           <Header />
           <main className="mx-auto max-w-3xl px-4 py-8">{children}</main>
-        </UsernameProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -17,27 +17,29 @@ export const listComments = (
 
 export const createComment = (
   postId: string,
-  body: { author: string; body: string; parent_comment_id?: string },
+  body: { body: string; parent_comment_id?: string },
+  token: string,
 ) =>
   apiFetch<CommentResponse>(`/posts/${postId}/comments`, {
     method: "POST",
     body: JSON.stringify(body),
-  });
+  }, token);
 
 export const updateComment = (
   postId: string,
   commentId: string,
   body: { body?: string },
+  token: string,
 ) =>
   apiFetch<CommentResponse>(`/posts/${postId}/comments/${commentId}`, {
     method: "PATCH",
     body: JSON.stringify(body),
-  });
+  }, token);
 
-export const deleteComment = (postId: string, commentId: string) =>
+export const deleteComment = (postId: string, commentId: string, token: string) =>
   apiFetch<void>(`/posts/${postId}/comments/${commentId}`, {
     method: "DELETE",
-  });
+  }, token);
 
 export const listReplies = (
   postId: string,

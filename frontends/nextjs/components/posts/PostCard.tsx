@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { PostResponse } from "@/lib/api/types";
 import { voteOnPost } from "@/lib/api/votes";
-import { useUsername } from "@/lib/context/UsernameContext";
+import { useAuth } from "@/lib/context/AuthProvider";
 import { VoteButtons } from "@/components/votes/VoteButtons";
 
 function formatDate(dateStr: string) {
@@ -15,13 +15,13 @@ function formatDate(dateStr: string) {
 }
 
 export function PostCard({ post }: { post: PostResponse }) {
-  const { username } = useUsername();
+  const { token } = useAuth();
   const excerpt =
     post.body.length > 120 ? post.body.slice(0, 120) + "..." : post.body;
 
   const handleVote = async (value: -1 | 0 | 1) => {
-    if (!username) return;
-    await voteOnPost(post.id, { username, value });
+    if (!token) return;
+    await voteOnPost(post.id, { value }, token);
   };
 
   return (
@@ -29,7 +29,7 @@ export function PostCard({ post }: { post: PostResponse }) {
       <VoteButtons
         score={post.vote_score}
         onVote={handleVote}
-        disabled={!username}
+        disabled={!token}
         vertical
       />
       <Link

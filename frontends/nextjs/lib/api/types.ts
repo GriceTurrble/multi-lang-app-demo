@@ -1,3 +1,15 @@
+export type UserResponse = {
+  id: string;
+  email: string;
+  username: string;
+};
+
+export type TokenResponse = {
+  access_token: string;
+  token_type: string;
+  user: UserResponse;
+};
+
 export type PostResponse = {
   id: string;
   title?: string;
@@ -32,7 +44,6 @@ export type CommentTreeResponse = {
 };
 
 export type VoteRequest = {
-  username: string;
   value: -1 | 0 | 1;
 };
 

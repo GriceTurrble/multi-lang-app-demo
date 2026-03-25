@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { PostResponse } from "@/lib/api/types";
 import { voteOnPost } from "@/lib/api/votes";
-import { useUsername } from "@/lib/context/UsernameContext";
+import { useAuth } from "@/lib/context/AuthProvider";
 import { VoteButtons } from "@/components/votes/VoteButtons";
 import { DeletePostButton } from "./DeletePostButton";
 
@@ -20,12 +20,12 @@ type Props = {
 };
 
 export function PostDetail({ post }: Props) {
-  const { username } = useUsername();
-  const isAuthor = !!username && username === post.author;
+  const { user, token } = useAuth();
+  const isAuthor = !!user && user.username === post.author;
 
   const handleVote = async (value: -1 | 0 | 1) => {
-    if (!username) return;
-    await voteOnPost(post.id, { username, value });
+    if (!token) return;
+    await voteOnPost(post.id, { value }, token);
   };
 
   return (
@@ -54,9 +54,9 @@ export function PostDetail({ post }: Props) {
           <VoteButtons
             score={post.vote_score}
             onVote={handleVote}
-            disabled={!username}
+            disabled={!token}
           />
-          {isAuthor && (
+          {isAuthor && token && (
             <div className="flex items-center gap-2">
               <Link
                 href={`/posts/${post.id}/edit`}
@@ -64,7 +64,7 @@ export function PostDetail({ post }: Props) {
               >
                 Edit
               </Link>
-              <DeletePostButton postId={post.id} />
+              <DeletePostButton postId={post.id} token={token} />
             </div>
           )}
         </div>

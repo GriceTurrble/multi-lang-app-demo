@@ -13,10 +13,12 @@ export class ApiError extends Error {
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
+  token?: string,
 ): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
     ...options,
