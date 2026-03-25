@@ -59,6 +59,15 @@ repos:
 
   - repo: local
     hooks:
+      # Requires GITHUB_TOKEN env var to avoid API rate limits
+      - id: pin-github-action
+        name: pin-github-action-shas
+        language: node
+        entry: pin-github-action
+        additional_dependencies: ["pin-github-action"]
+        files: ^\.github/workflows/
+        types_or: [yaml]
+
       - id: ty
         name: ty-check-fastapi
         entry: pre-commit hazmat cd backends/fastapi uv run ty check . --python .venv --
