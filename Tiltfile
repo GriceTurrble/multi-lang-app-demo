@@ -24,6 +24,7 @@ dc_resource(
 local_resource(
     "schema-load",
     cmd="docker exec -i postgres psql -U $POSTGRES_USER -d $POSTGRES_DB < database_schema/schema.sql",
+    allow_parallel=True,
     resource_deps=["postgres"],
     labels=["database"],
 )
