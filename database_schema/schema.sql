@@ -159,7 +159,8 @@ CREATE OR REPLACE FUNCTION get_comment_tree(
     p_post_id UUID,
     p_max_depth INTEGER DEFAULT 2,
     p_page_size INTEGER DEFAULT 10,
-    p_cursor_id UUID DEFAULT NULL
+    p_cursor_id UUID DEFAULT NULL,
+    p_voter_id UUID DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -170,7 +171,8 @@ RETURNS TABLE (
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
     vote_score INTEGER,
-    depth INTEGER
+    depth INTEGER,
+    user_vote INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -218,9 +220,13 @@ BEGIN
         ct.created_at,
         ct.updated_at,
         ct.vote_score,
-        ct.depth
+        ct.depth,
+        COALESCE(v.vote_value, 0) AS user_vote
     FROM comment_tree ct
     JOIN users u ON u.id = ct.author_id
+    LEFT JOIN votes v ON v.object_id = ct.id
+        AND v.object_type = 'Comment'
+        AND v.voter_id = p_voter_id
     ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
@@ -238,7 +244,8 @@ CREATE OR REPLACE FUNCTION get_reply_tree(
     p_comment_id UUID,
     p_max_depth INTEGER DEFAULT 2,
     p_page_size INTEGER DEFAULT 10,
-    p_cursor_id UUID DEFAULT NULL
+    p_cursor_id UUID DEFAULT NULL,
+    p_voter_id UUID DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -249,7 +256,8 @@ RETURNS TABLE (
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
     vote_score INTEGER,
-    depth INTEGER
+    depth INTEGER,
+    user_vote INTEGER
 ) AS $$
 BEGIN
     -- Verify the target comment exists and belongs to the given post
@@ -305,9 +313,13 @@ BEGIN
         ct.created_at,
         ct.updated_at,
         ct.vote_score,
-        ct.depth
+        ct.depth,
+        COALESCE(v.vote_value, 0) AS user_vote
     FROM comment_tree ct
     JOIN users u ON u.id = ct.author_id
+    LEFT JOIN votes v ON v.object_id = ct.id
+        AND v.object_type = 'Comment'
+        AND v.voter_id = p_voter_id
     ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
