@@ -66,6 +66,8 @@ services:
     # build:
     #   context: ./backends/fastapi
     #   dockerfile: Dockerfile
+    depends_on:
+      - postgres
     env_file:
       - ./backends/fastapi/.env
     restart: always
