@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/context/AuthProvider";
 import type { CommentResponse } from "@/lib/api/types";
 import type { CommentNode as CommentNodeType } from "@/lib/api/treeUtils";
 import { VoteButtons } from "@/components/votes/VoteButtons";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { CommentForm } from "./CommentForm";
 import { LoadMoreReplies } from "./LoadMoreReplies";
 
@@ -37,10 +38,12 @@ export function CommentNode({ postId, comment }: Props) {
   const [extraReplies, setExtraReplies] = useState<CommentNodeType[]>([]);
   const [replyCursor, setReplyCursor] = useState<string | undefined>();
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleDelete = async () => {
-    if (!token || !confirm("Delete this comment?")) return;
+    if (!token) return;
     setDeleting(true);
+    setShowDeleteModal(false);
     try {
       await deleteComment(postId, comment.id, token);
       setDeleted(true);
@@ -97,6 +100,16 @@ export function CommentNode({ postId, comment }: Props) {
 
   return (
     <div id={comment.id}>
+      <ConfirmModal
+        open={showDeleteModal}
+        title="Delete comment?"
+        message="This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
       <div className="flex flex-col gap-2">
         {/* Header */}
         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
@@ -174,7 +187,7 @@ export function CommentNode({ postId, comment }: Props) {
                 {showEditForm ? "Cancel" : "Edit"}
               </button>
               <button
-                onClick={handleDelete}
+                onClick={() => setShowDeleteModal(true)}
                 disabled={deleting}
                 className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50 dark:text-red-400"
               >
