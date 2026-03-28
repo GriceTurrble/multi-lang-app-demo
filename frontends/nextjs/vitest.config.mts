@@ -7,6 +7,16 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['components/**', 'lib/**'],
+      exclude: ['**/__tests__/**', '**/*.test.*', 'lib/api/types.ts'],
+      thresholds: {
+        lines: 80,
+        functions: 70,
+      },
+    },
   },
   resolve: {
     tsconfigPaths: true

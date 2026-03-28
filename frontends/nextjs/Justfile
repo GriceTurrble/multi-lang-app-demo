@@ -29,13 +29,17 @@ lock:
 sync:
     npm install
 
-# Run npm tests
+# Run tests
 test:
     npm run test
 
-# Run npm tests and watch for file changes, rerunning tests continuously
+# Run tests and watch for file changes, rerunning tests continuously
 test-watch:
     num run test-watch
+
+# Run tests with code coverage report
+test-coverage:
+    npm run test-coverage
 
 # Run the development server
 dev:
