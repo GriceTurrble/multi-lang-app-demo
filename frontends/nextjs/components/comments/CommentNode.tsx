@@ -151,6 +151,7 @@ export function CommentNode({ postId, comment }: Props) {
         <div className="flex items-center gap-3">
           <VoteButtons
             score={comment.vote_score}
+            userVote={comment.user_vote}
             onVote={handleVote}
             disabled={!token}
           />
@@ -214,6 +215,7 @@ export function CommentNode({ postId, comment }: Props) {
             postId={postId}
             commentId={comment.id}
             cursor={replyCursor}
+            token={token}
             onLoaded={handleMoreRepliesLoaded}
           />
         </div>

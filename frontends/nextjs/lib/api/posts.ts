@@ -1,11 +1,11 @@
 import { apiFetch } from "./client";
 import type { PostListResponse, PostResponse } from "./types";
 
-export const listPosts = (cursor?: string) =>
-  apiFetch<PostListResponse>(`/posts${cursor ? `?cursor=${cursor}` : ""}`);
+export const listPosts = (cursor?: string, token?: string | null) =>
+  apiFetch<PostListResponse>(`/posts${cursor ? `?cursor=${cursor}` : ""}`, {}, token ?? undefined);
 
-export const getPost = (postId: string) =>
-  apiFetch<PostResponse>(`/posts/${postId}`);
+export const getPost = (postId: string, token?: string | null) =>
+  apiFetch<PostResponse>(`/posts/${postId}`, {}, token ?? undefined);
 
 export const createPost = (
   body: { title?: string; body: string },

@@ -4,6 +4,7 @@ import type { CommentResponse, CommentTreeResponse } from "./types";
 export const listComments = (
   postId: string,
   params?: { cursor?: string; max_depth?: number; replies_per_page?: number },
+  token?: string | null,
 ) => {
   const qs = new URLSearchParams();
   if (params?.cursor) qs.set("cursor", params.cursor);
@@ -12,7 +13,7 @@ export const listComments = (
   if (params?.replies_per_page !== undefined)
     qs.set("replies_per_page", String(params.replies_per_page));
   const query = qs.size ? `?${qs}` : "";
-  return apiFetch<CommentTreeResponse>(`/posts/${postId}/comments${query}`);
+  return apiFetch<CommentTreeResponse>(`/posts/${postId}/comments${query}`, {}, token ?? undefined);
 };
 
 export const createComment = (
@@ -45,6 +46,7 @@ export const listReplies = (
   postId: string,
   commentId: string,
   params?: { cursor?: string; max_depth?: number; replies_per_page?: number },
+  token?: string | null,
 ) => {
   const qs = new URLSearchParams();
   if (params?.cursor) qs.set("cursor", params.cursor);
@@ -55,5 +57,7 @@ export const listReplies = (
   const query = qs.size ? `?${qs}` : "";
   return apiFetch<CommentTreeResponse>(
     `/posts/${postId}/comments/${commentId}/replies${query}`,
+    {},
+    token ?? undefined,
   );
 };

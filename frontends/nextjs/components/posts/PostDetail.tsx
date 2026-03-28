@@ -53,6 +53,7 @@ export function PostDetail({ post }: Props) {
         <div className="flex items-center gap-4">
           <VoteButtons
             score={post.vote_score}
+            userVote={post.user_vote}
             onVote={handleVote}
             disabled={!token}
           />

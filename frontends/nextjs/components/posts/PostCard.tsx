@@ -28,6 +28,7 @@ export function PostCard({ post }: { post: PostResponse }) {
     <div className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-gray-700 dark:hover:bg-gray-900">
       <VoteButtons
         score={post.vote_score}
+        userVote={post.user_vote}
         onVote={handleVote}
         disabled={!token}
         vertical
