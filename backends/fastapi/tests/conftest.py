@@ -66,7 +66,7 @@ def test_client(settings, mock_pool: MagicMock) -> Generator[TestClient]:
 def authed_client(
     settings, mock_pool: MagicMock, mock_user: UserResponse
 ) -> Generator[TestClient]:
-    from app.auth import get_current_user
+    from app.auth import get_current_user, get_optional_current_user
     from app.config import get_settings
     from app.db import get_pool
 
@@ -74,6 +74,7 @@ def authed_client(
     app.dependency_overrides[get_pool] = lambda: mock_pool
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_optional_current_user] = lambda: mock_user
     client = TestClient(app)
     yield client
     app.dependency_overrides.clear()

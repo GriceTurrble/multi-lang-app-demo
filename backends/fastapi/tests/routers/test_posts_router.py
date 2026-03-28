@@ -206,7 +206,7 @@ def test_get_post(
     post_id = uuid7.create()
     row = _make_post_row(id=post_id)
 
-    async def _side_effect(query, post_id):
+    async def _side_effect(query, post_id, voter_id=None):
         # Assert args as passed
         assert "SELECT" in query.upper()
         assert post_id == row["id"]
