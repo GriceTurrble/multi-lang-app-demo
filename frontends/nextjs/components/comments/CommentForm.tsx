@@ -37,6 +37,8 @@ export function CommentForm({
   }
 
   async function handleForm(formData: FormData) {
+    // Submit button is disabled when body is empty; form doesn't render without a token.
+    /* v8 ignore next */
     if (!body.trim() || !token) return;
     setSubmitting(true);
     setError(undefined);

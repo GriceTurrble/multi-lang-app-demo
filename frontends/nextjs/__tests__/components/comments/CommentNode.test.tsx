@@ -31,11 +31,12 @@ vi.mock("@/lib/api/votes", () => ({
 const mockDeleteComment = vi.fn();
 const mockUpdateComment = vi.fn();
 const mockCreateComment = vi.fn();
+const mockListReplies = vi.fn();
 vi.mock("@/lib/api/comments", () => ({
   deleteComment: (...args: unknown[]) => mockDeleteComment(...args),
   updateComment: (...args: unknown[]) => mockUpdateComment(...args),
   createComment: (...args: unknown[]) => mockCreateComment(...args),
-  listReplies: vi.fn(),
+  listReplies: (...args: unknown[]) => mockListReplies(...args),
 }));
 
 const aliceUser = { id: "u1", email: "a@b.com", username: "alice" };
@@ -60,6 +61,7 @@ describe("CommentNode", () => {
     mockDeleteComment.mockReset();
     mockUpdateComment.mockReset();
     mockCreateComment.mockReset();
+    mockListReplies.mockReset();
   });
 
   it("renders author, date, and body", () => {
@@ -238,5 +240,27 @@ describe("CommentNode", () => {
     });
     fireEvent.submit(screen.getByPlaceholderText("Write a reply...").closest("form")!);
     await waitFor(() => expect(screen.getByText("New reply body")).toBeInTheDocument());
+  });
+
+  it("handleMoreRepliesLoaded appends replies and clears cursor when onLoaded fires", async () => {
+    const extraReply = makeNode({ id: "r-extra", body: "Extra reply", replies: [] });
+    mockListReplies.mockResolvedValue({ items: [extraReply], next_cursor: undefined });
+    const node = makeNode({ reply_cursor: "cursor1" });
+    renderWithAuth(<CommentNode postId="p1" comment={node} />, { token: "tok" });
+    // LoadMoreReplies renders because reply_cursor is set via initial state
+    const loadMoreBtn = await screen.findByRole("button", { name: "Load more replies" });
+    fireEvent.click(loadMoreBtn);
+    await waitFor(() => expect(screen.getByText("Extra reply")).toBeInTheDocument());
+    // Cursor cleared — button should disappear
+    expect(screen.queryByRole("button", { name: "Load more replies" })).not.toBeInTheDocument();
+  });
+
+  it("closing reply form via form's own Cancel button hides the form", () => {
+    renderWithAuth(<CommentNode postId="p1" comment={makeNode()} />, { token: "tok" });
+    fireEvent.click(screen.getByRole("button", { name: "Reply" }));
+    expect(screen.getByPlaceholderText("Write a reply...")).toBeInTheDocument();
+    // Two Cancel buttons: [0] is the Reply toggle, [1] is the CommentForm's own Cancel
+    fireEvent.click(screen.getAllByRole("button", { name: "Cancel" })[1]);
+    expect(screen.queryByPlaceholderText("Write a reply...")).not.toBeInTheDocument();
   });
 });

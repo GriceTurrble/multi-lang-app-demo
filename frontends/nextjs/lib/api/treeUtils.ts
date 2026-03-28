@@ -1,6 +1,6 @@
 import type { CommentResponse } from "./types";
 
-export type CommentNode = CommentResponse & { replies: CommentNode[] };
+export type CommentNode = CommentResponse & { replies: CommentNode[]; reply_cursor?: string };
 
 export function buildCommentTree(items: CommentResponse[]): CommentNode[] {
   const map = new Map<string, CommentNode>();

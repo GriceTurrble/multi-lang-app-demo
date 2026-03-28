@@ -31,11 +31,15 @@ export function PostDetail({ post }: Props) {
   const [deleting, setDeleting] = useState(false);
 
   const handleVote = async (value: -1 | 0 | 1) => {
+    // Vote button is disabled when !token; this guard is a defensive fallback only.
+    /* v8 ignore next */
     if (!token) return;
     await voteOnPost(post.id, { value }, token);
   };
 
   const handleDelete = async () => {
+    // Delete button is only rendered when isAuthor && token; this guard is a defensive fallback only.
+    /* v8 ignore next */
     if (!token) return;
     setDeleting(true);
     setShowDeleteModal(false);

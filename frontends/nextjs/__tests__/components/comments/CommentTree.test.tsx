@@ -109,6 +109,18 @@ describe("CommentTree", () => {
     expect(screen.getByText("Comment c1")).toBeInTheDocument();
   });
 
+  it("shows error message when load more call fails", async () => {
+    mockListComments
+      .mockResolvedValueOnce({ items: [makeComment("c1")], next_cursor: "cur1" })
+      .mockRejectedValueOnce("plain string error");
+    renderWithAuth(<CommentTree postId="p1" />);
+    await waitFor(() => screen.getByRole("button", { name: "Load more comments" }));
+    fireEvent.click(screen.getByRole("button", { name: "Load more comments" }));
+    await waitFor(() =>
+      expect(screen.getByText("Failed to load more comments")).toBeInTheDocument()
+    );
+  });
+
   it("adds a new top-level comment via CommentForm", async () => {
     mockListComments.mockResolvedValue({ items: [], next_cursor: undefined });
     const newComment = makeComment("c-new", { body: "Fresh comment" });

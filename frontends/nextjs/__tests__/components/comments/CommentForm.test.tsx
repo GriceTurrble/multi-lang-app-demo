@@ -120,6 +120,16 @@ describe("CommentForm", () => {
     await waitFor(() => expect(screen.getByText("Failed")).toBeInTheDocument());
   });
 
+  it("shows 'Failed to post comment' when createComment throws a non-Error value", async () => {
+    mockCreateComment.mockRejectedValue("plain string error");
+    renderWithAuth(<CommentForm postId="p1" onCommentAdded={vi.fn()} />, { token: "tok" });
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "hello" } });
+    fireEvent.submit(screen.getByRole("textbox").closest("form")!);
+    await waitFor(() =>
+      expect(screen.getByText("Failed to post comment")).toBeInTheDocument()
+    );
+  });
+
   it("shows Cancel button when onCancel prop is provided", () => {
     renderWithAuth(
       <CommentForm postId="p1" onCommentAdded={vi.fn()} onCancel={vi.fn()} />,

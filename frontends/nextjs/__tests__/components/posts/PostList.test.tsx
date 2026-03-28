@@ -103,6 +103,18 @@ describe("PostList", () => {
     await act(async () => { resolveMore({ items: [], next_cursor: undefined }); });
   });
 
+  it("shows 'Failed to load more posts' when load more rejects with a non-ApiError", async () => {
+    mockListPosts
+      .mockResolvedValueOnce({ items: [makePost("p1")], next_cursor: "cur1" })
+      .mockRejectedValueOnce(new Error("Network failure"));
+    renderWithAuth(<PostList />);
+    await waitFor(() => screen.getByRole("button", { name: "Load more" }));
+    fireEvent.click(screen.getByRole("button", { name: "Load more" }));
+    await waitFor(() =>
+      expect(screen.getByText("Failed to load more posts")).toBeInTheDocument()
+    );
+  });
+
   it("does not set state after unmount (no error)", async () => {
     let resolve!: (v: unknown) => void;
     mockListPosts.mockReturnValue(new Promise((res) => { resolve = res; }));

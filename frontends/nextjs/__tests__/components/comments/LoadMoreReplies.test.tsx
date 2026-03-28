@@ -90,4 +90,15 @@ describe("LoadMoreReplies", () => {
     fireEvent.click(screen.getByRole("button"));
     await waitFor(() => expect(screen.getByText("Network error")).toBeInTheDocument());
   });
+
+  it("shows 'Failed to load replies' when listReplies throws a non-Error value", async () => {
+    mockListReplies.mockRejectedValue("plain string error");
+    render(
+      <LoadMoreReplies postId="p1" commentId="c1" cursor="cursor1" onLoaded={vi.fn()} />
+    );
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() =>
+      expect(screen.getByText("Failed to load replies")).toBeInTheDocument()
+    );
+  });
 });

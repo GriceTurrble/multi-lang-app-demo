@@ -81,6 +81,16 @@ describe("PostForm", () => {
     await waitFor(() => expect(screen.getByText("Server error")).toBeInTheDocument());
   });
 
+  it("shows 'Something went wrong' when onSubmit throws a non-Error value", async () => {
+    const failingSubmit = vi.fn().mockRejectedValue("plain string error");
+    render(<PostForm onSubmit={failingSubmit} />);
+    fireEvent.change(screen.getByPlaceholderText("What's on your mind?"), {
+      target: { value: "body" },
+    });
+    fireEvent.submit(screen.getByPlaceholderText("What's on your mind?").closest("form")!);
+    await waitFor(() => expect(screen.getByText("Something went wrong")).toBeInTheDocument());
+  });
+
   it("shows Saving... and disables button while submitting", async () => {
     let resolve!: () => void;
     const slowSubmit = vi.fn().mockReturnValue(new Promise<void>((res) => { resolve = res; }));

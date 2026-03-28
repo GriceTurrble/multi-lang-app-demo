@@ -20,6 +20,8 @@ export function PostCard({ post }: { post: PostResponse }) {
     post.body.length > 120 ? post.body.slice(0, 120) + "..." : post.body;
 
   const handleVote = async (value: -1 | 0 | 1) => {
+    // Vote button is disabled when !token; this guard is a defensive fallback only.
+    /* v8 ignore next */
     if (!token) return;
     await voteOnPost(post.id, { value }, token);
   };
