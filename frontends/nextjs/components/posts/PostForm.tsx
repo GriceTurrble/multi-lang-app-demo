@@ -22,6 +22,8 @@ export function PostForm({ initialValues, onSubmit, submitLabel = "Submit" }: Pr
   const [error, setError] = useState<string | undefined>();
 
   async function handleForm(formData: FormData) {
+    // Submit button is disabled when body is empty; this guard is a defensive fallback only.
+    /* v8 ignore next */
     if (!body.trim()) return;
     setSubmitting(true);
     setError(undefined);

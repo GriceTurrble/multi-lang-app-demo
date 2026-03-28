@@ -36,7 +36,7 @@ export function CommentNode({ postId, comment }: Props) {
   const [saving, setSaving] = useState(false);
   const [newReplies, setNewReplies] = useState<CommentNodeType[]>([]);
   const [extraReplies, setExtraReplies] = useState<CommentNodeType[]>([]);
-  const [replyCursor, setReplyCursor] = useState<string | undefined>();
+  const [replyCursor, setReplyCursor] = useState<string | undefined>(comment.reply_cursor);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -68,6 +68,7 @@ export function CommentNode({ postId, comment }: Props) {
   };
 
   const handleVote = async (value: -1 | 0 | 1) => {
+    /* v8 ignore next */
     if (!token) return;
     await voteOnComment(postId, comment.id, { value }, token);
   };

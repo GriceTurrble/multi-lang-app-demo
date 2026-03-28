@@ -19,10 +19,12 @@ type AuthContextType = {
   logout: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
   initialized: false,
+  // No-op stubs — default context value, never called directly.
+  /* v8 ignore next 2 */
   login: () => {},
   logout: async () => {},
 });

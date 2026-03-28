@@ -31,6 +31,7 @@ export function ConfirmModal({
       onClick={onCancel}
     >
       <div
+        role="dialog"
         className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg dark:bg-gray-900"
         onClick={(e) => e.stopPropagation()}
       >
