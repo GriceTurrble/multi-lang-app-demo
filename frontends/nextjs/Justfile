@@ -45,7 +45,6 @@ test-coverage:
 test-coverage-watch:
     npm run test:coverage:watch
 
-
 # Run the development server
 dev:
     npm run dev
