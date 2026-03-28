@@ -33,13 +33,18 @@ sync:
 test:
     npm run test
 
-# Run tests and watch for file changes, rerunning tests continuously
+# Run tests, and watch for file changes to rerun
 test-watch:
-    npm run test-watch
+    npm run test:watch
 
 # Run tests with code coverage report
 test-coverage:
-    npm run test-coverage
+    npm run test:coverage
+
+# Run tests with code coverage report, and watch for file changes to rerun
+test-coverage-watch:
+    npm run test:coverage:watch
+
 
 # Run the development server
 dev:

@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test-coverage": "vitest run --coverage",
-    "test-watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:watch": "vitest --coverage"
   },
   "dependencies": {
     "next": "16.2.1",
