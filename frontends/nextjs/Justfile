@@ -29,9 +29,13 @@ lock:
 sync:
     npm install
 
-# No tests configured yet
+# Run npm tests
 test:
-    @echo "None yet!"
+    npm run test
+
+# Run npm tests and watch for file changes, rerunning tests continuously
+test-watch:
+    num run test-watch
 
 # Run the development server
 dev:
