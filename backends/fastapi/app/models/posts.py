@@ -24,6 +24,7 @@ class PostResponse(BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     vote_score: int
+    user_vote: int = 0
 
 
 class PostListResponse(BaseModel):

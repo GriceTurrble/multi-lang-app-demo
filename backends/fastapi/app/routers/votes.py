@@ -4,6 +4,7 @@ import typing
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pgargs import Args, Cols
 
 from app.auth import CurrentUserDep
 from app.db import PoolDep
@@ -39,12 +40,13 @@ class VoteService:
         Raises HTTPException with 404 if not.
         Otherwise, returns None.
         """
+        exists_args = Args(post_id=post_id)
         exists = await self.pool.fetchval(
-            """
+            f"""
             SELECT 1 FROM posts
-            WHERE id = $1
+            WHERE id = {exists_args.post_id}
             """,
-            post_id,
+            *exists_args,
         )
         if not exists:
             raise HTTPException(
@@ -61,14 +63,14 @@ class VoteService:
 
         Raises HTTPException with 404 if not. Otherwise, returns None.
         """
+        exists_args = Args(post_id=post_id, comment_id=comment_id)
         exists = await self.pool.fetchval(
-            """
+            f"""
             SELECT 1 FROM comments
-            WHERE post_id = $1
-            AND id = $2
+            WHERE post_id = {exists_args.post_id}
+            AND id = {exists_args.comment_id}
             """,
-            post_id,
-            comment_id,
+            *exists_args,
         )
         if not exists:
             raise HTTPException(
@@ -92,36 +94,46 @@ class VoteService:
         object_table = self._get_table_for_object_type(object_type)
         async with self.pool.acquire() as conn:
             if payload.value == 0:
+                delete_args = Args(
+                    voter_id=voter_id,
+                    object_id=object_id,
+                    object_type=object_type,
+                )
                 await conn.execute(
-                    """
+                    f"""
                     DELETE FROM votes
-                    WHERE voter_id = $1
-                    AND object_id = $2
-                    AND object_type = $3
+                    WHERE voter_id = {delete_args.voter_id}
+                    AND object_id = {delete_args.object_id}
+                    AND object_type = {delete_args.object_type}
                     """,
-                    voter_id,
-                    object_id,
-                    object_type,
+                    *delete_args,
                 )
             else:
+                insert_cols = Cols(
+                    voter_id=voter_id,
+                    object_id=object_id,
+                    object_type=object_type,
+                    vote_value=payload.value,
+                )
                 await conn.execute(
-                    """
-                    INSERT INTO votes
-                    (voter_id, object_id, object_type, vote_value)
-                    VALUES
-                    ($1, $2, $3, $4)
+                    f"""
+                    INSERT INTO votes {insert_cols.names}
+                    VALUES {insert_cols.values}
                     ON CONFLICT (object_id, object_type, voter_id)
                     DO UPDATE SET vote_value = EXCLUDED.vote_value
                     """,
-                    voter_id,
-                    object_id,
-                    object_type,
-                    payload.value,
+                    *insert_cols.args,
                 )
 
             # Grab the updated score of the object we voted on
+            score_args = Args(object_id=object_id)
             score = await conn.fetchval(
-                f"SELECT vote_score FROM {object_table} WHERE id = $1", object_id
+                f"""
+                SELECT vote_score
+                FROM {object_table}
+                WHERE id = {score_args.object_id}
+                """,
+                *score_args,
             )
             if score is None:
                 raise HTTPException(

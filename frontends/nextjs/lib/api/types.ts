@@ -18,6 +18,7 @@ export type PostResponse = {
   created_at: string;
   updated_at: string;
   vote_score: number;
+  user_vote: -1 | 0 | 1;
 };
 
 export type PostListResponse = {
@@ -34,6 +35,7 @@ export type CommentResponse = {
   created_at: string;
   updated_at: string;
   vote_score: number;
+  user_vote: -1 | 0 | 1;
   depth?: number;
   replies?: CommentResponse[];
 };

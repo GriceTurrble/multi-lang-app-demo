@@ -5,6 +5,7 @@ import { listComments } from "@/lib/api/comments";
 import { buildCommentTree } from "@/lib/api/treeUtils";
 import type { CommentNode } from "@/lib/api/treeUtils";
 import type { CommentResponse } from "@/lib/api/types";
+import { useAuth } from "@/lib/context/AuthProvider";
 import { CommentNode as CommentNodeComponent } from "./CommentNode";
 import { CommentForm } from "./CommentForm";
 
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export function CommentTree({ postId }: Props) {
+  const { token } = useAuth();
   const [roots, setRoots] = useState<CommentNode[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -20,24 +22,28 @@ export function CommentTree({ postId }: Props) {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    listComments(postId)
+    let cancelled = false;
+    listComments(postId, undefined, token)
       .then(({ items, next_cursor }) => {
+        if (cancelled) return;
         setRoots(buildCommentTree(items));
         setNextCursor(next_cursor);
       })
       .catch((err) => {
+        if (cancelled) return;
         setError(err instanceof Error ? err.message : "Failed to load comments");
       })
-      .finally(() => setLoading(false));
-  }, [postId]);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [postId, token]);
 
   const loadMore = async () => {
     if (!nextCursor) return;
     setLoadingMore(true);
     try {
-      const { items, next_cursor } = await listComments(postId, {
-        cursor: nextCursor,
-      });
+      const { items, next_cursor } = await listComments(postId, { cursor: nextCursor }, token);
       setRoots((prev) => [...prev, ...buildCommentTree(items)]);
       setNextCursor(next_cursor);
     } catch (err) {

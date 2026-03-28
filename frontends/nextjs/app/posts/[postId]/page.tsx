@@ -8,15 +8,17 @@ import type { PostResponse } from "@/lib/api/types";
 import Link from "next/link";
 import { PostDetail } from "@/components/posts/PostDetail";
 import { CommentTree } from "@/components/comments/CommentTree";
+import { useAuth } from "@/lib/context/AuthProvider";
 
 export default function PostPage() {
   const { postId } = useParams<{ postId: string }>();
+  const { token } = useAuth();
   const [post, setPost] = useState<PostResponse | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    getPost(postId)
+    getPost(postId, token)
       .then(setPost)
       .catch((err) => {
         setError(
@@ -24,7 +26,7 @@ export default function PostPage() {
         );
       })
       .finally(() => setLoading(false));
-  }, [postId]);
+  }, [postId, token]);
 
   if (loading) {
     return <p className="text-sm text-gray-500">Loading...</p>;
