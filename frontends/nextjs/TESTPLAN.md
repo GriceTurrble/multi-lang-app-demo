@@ -19,6 +19,8 @@ __tests__/
     context/
       AuthProvider.test.tsx
   components/
+    ui/
+      ConfirmModal.test.tsx
     votes/
       VoteButtons.test.tsx
     posts/
@@ -26,7 +28,6 @@ __tests__/
       PostForm.test.tsx
       PostList.test.tsx
       PostDetail.test.tsx
-      DeletePostButton.test.tsx
     comments/
       CommentForm.test.tsx
       CommentNode.test.tsx
@@ -106,7 +107,32 @@ This file has the highest return-on-investment: pure logic, zero mocking, covers
 
 ---
 
-## 4. `components/votes/VoteButtons.tsx`
+## 4. `components/ui/ConfirmModal.tsx`
+
+**File:** `__tests__/components/ui/ConfirmModal.test.tsx`
+**Deps:** None — fully self-contained, no context or routing.
+
+| # | Test | What to assert |
+|---|------|----------------|
+| 1 | `open === false` → renders nothing | Component returns null |
+| 2 | `open === true` → renders title | Title text visible |
+| 3 | `message` prop → renders message paragraph | Message text visible |
+| 4 | No `message` prop → message paragraph absent | Not rendered |
+| 5 | Default confirm label is "Confirm" | Button text is "Confirm" |
+| 6 | Custom `confirmLabel` prop | Button text matches prop |
+| 7 | Default cancel label is "Cancel" | Button text is "Cancel" |
+| 8 | Custom `cancelLabel` prop | Button text matches prop |
+| 9 | `destructive` → confirm button has red styling | Red class present |
+| 10 | Non-destructive (default) → confirm button has blue styling | Blue class present |
+| 11 | `loading` → confirm button shows "Loading..." and is disabled | Both buttons disabled |
+| 12 | Clicking confirm button calls `onConfirm` | Callback fired |
+| 13 | Clicking cancel button calls `onCancel` | Callback fired |
+| 14 | Clicking backdrop (outer div) calls `onCancel` | Callback fired on backdrop click |
+| 15 | Clicking modal content does not call `onCancel` | Propagation stopped |
+
+---
+
+## 5. `components/votes/VoteButtons.tsx`
 
 **File:** `__tests__/components/votes/VoteButtons.test.tsx`
 **Deps:** No context or routing needed — `VoteButtons` is self-contained.
@@ -165,27 +191,10 @@ This file has the highest return-on-investment: pure logic, zero mocking, covers
 
 ---
 
-## 7. `components/posts/DeletePostButton.tsx`
-
-**File:** `__tests__/components/posts/DeletePostButton.test.tsx`
-**Deps:** Mock `next/navigation`, mock `lib/api/posts` (`deletePost`).
-
-| # | Test | What to assert |
-|---|------|----------------|
-| 1 | Initial state: shows "Delete" button | Confirm UI not visible |
-| 2 | Clicking "Delete" enters confirm state | "Delete post?" prompt + Confirm/Cancel buttons appear |
-| 3 | Clicking Cancel from confirm state resets to initial | Back to single Delete button |
-| 4 | Confirming delete calls `deletePost` with postId and token | Mock received correct args |
-| 5 | Successful delete → `router.push('/posts')` | Navigation called |
-| 6 | Failed delete → error message shown, confirm UI reset | Error text visible |
-| 7 | While deleting → Confirm button shows "Deleting..." and is disabled | Loading state |
-
----
-
 ## 8. `components/posts/PostDetail.tsx`
 
 **File:** `__tests__/components/posts/PostDetail.test.tsx`
-**Deps:** `renderWithAuth`. Mock `next/navigation`, `lib/api/votes`.
+**Deps:** `renderWithAuth`. Mock `next/navigation`, `lib/api/posts` (`deletePost`), `lib/api/votes`.
 
 | # | Test | What to assert |
 |---|------|----------------|
@@ -195,9 +204,15 @@ This file has the highest return-on-investment: pure logic, zero mocking, covers
 | 4 | Shows author and formatted date | Metadata visible |
 | 5 | `updated_at !== created_at` → "edited" label shown | Edit indicator visible |
 | 6 | `updated_at === created_at` → no "edited" label | Not rendered |
-| 7 | User is author → Edit link and Delete button shown | Author controls present |
+| 7 | User is author + has token → Edit link and Delete button shown | Author controls present |
 | 8 | User is not author → no author controls | Edit/Delete absent |
 | 9 | No token → `VoteButtons` disabled | Vote disabled |
+| 10 | `ConfirmModal` not visible on initial render | Modal absent from DOM |
+| 11 | Clicking Delete opens the `ConfirmModal` | Modal title "Delete post?" visible |
+| 12 | Clicking modal Cancel closes the modal | Modal absent again |
+| 13 | Clicking modal Confirm calls `deletePost` and navigates to `/posts` | API called; `router.push` called |
+| 14 | `deletePost` failure → modal closes, Delete button re-enabled | Button no longer in deleting state |
+| 15 | While delete in flight → Delete button is disabled | `disabled` attribute set |
 
 ---
 
@@ -259,7 +274,7 @@ This file has the highest return-on-investment: pure logic, zero mocking, covers
 ## 12. `components/comments/CommentNode.tsx`
 
 **File:** `__tests__/components/comments/CommentNode.test.tsx`
-**Deps:** `renderWithAuth`. Mock `next/form`, `next/navigation`, `lib/api/comments`, `lib/api/votes`. Mock `window.confirm`.
+**Deps:** `renderWithAuth`. Mock `next/form`, `next/navigation`, `lib/api/comments`, `lib/api/votes`.
 
 This is the most complex component. Focus on state transitions; recursive rendering can be tested shallowly by verifying one level of replies renders.
 
@@ -273,12 +288,14 @@ This is the most complex component. Focus on state transitions; recursive render
 | 6 | Clicking Edit shows inline textarea pre-filled with body | Edit form appears |
 | 7 | Saving edit calls `updateComment` and hides form | API called; textarea gone |
 | 8 | Cancelling edit restores original body | Draft discarded |
-| 9 | Delete — `window.confirm` rejected → delete not called | `deleteComment` not invoked |
-| 10 | Delete — confirmed → calls `deleteComment`; renders `[deleted]` | Deleted state shown |
-| 11 | Delete failure → error not propagated visibly (try/catch swallowed) | Component does not crash |
-| 12 | Replies from props rendered recursively | Child nodes visible |
-| 13 | `replyCursor` present → `LoadMoreReplies` rendered | Component mounted |
-| 14 | After reply added via `handleReplyAdded` → new reply appears | New child node visible |
+| 9 | `ConfirmModal` not visible on initial render | Modal absent from DOM |
+| 10 | Clicking Delete opens the `ConfirmModal` | Modal title "Delete comment?" visible |
+| 11 | Clicking modal Cancel closes the modal without deleting | `deleteComment` not called; modal gone |
+| 12 | Clicking modal Confirm calls `deleteComment`; renders `[deleted]` | Deleted state shown |
+| 13 | Delete failure → component does not crash, does not show `[deleted]` | Error swallowed; original body still visible |
+| 14 | Replies from props rendered recursively | Child nodes visible |
+| 15 | `replyCursor` present → `LoadMoreReplies` rendered | Component mounted |
+| 16 | After reply added via `handleReplyAdded` → new reply appears | New child node visible |
 
 ---
 
@@ -321,10 +338,11 @@ Implement in this order for maximum early coverage with minimal setup overhead:
 1. `treeUtils` — pure logic, no mocking, fastest to write
 2. `client` — critical utility, only needs `fetch` mock
 3. Shared test utilities (`__tests__/utils.tsx`)
-4. `VoteButtons` — self-contained, tests optimistic update pattern
-5. `PostForm`, `CommentForm` — form logic, reusable mock patterns
-6. `Header`, `PostCard`, `PostDetail` — context-dependent renders
-7. `DeletePostButton`, `LoadMoreReplies` — focused interaction tests
-8. `AuthProvider` — context internals; useful once component patterns are established
-9. `PostList`, `CommentTree` — data-fetching containers, most complex to set up
-10. `CommentNode` — most complex component; do last
+4. `ConfirmModal` — self-contained, no deps; establishes patterns for modal interaction across delete tests
+5. `VoteButtons` — self-contained, tests optimistic update pattern
+6. `PostForm`, `CommentForm` — form logic, reusable mock patterns
+7. `Header`, `PostCard`, `PostDetail` — context-dependent renders, `PostDetail` now covers delete modal flow
+8. `LoadMoreReplies` — focused interaction test
+9. `AuthProvider` — context internals; useful once component patterns are established
+10. `PostList`, `CommentTree` — data-fetching containers, most complex to set up
+11. `CommentNode` — most complex component; do last
