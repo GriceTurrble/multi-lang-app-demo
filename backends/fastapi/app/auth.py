@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
+from pgargs import Args
 
 from app.db import PoolDep
 from app.models import UserResponse
@@ -39,18 +40,18 @@ async def get_current_user(
     credentials: BearerDep,
     pool: PoolDep,
 ) -> UserResponse:
-    token = credentials.credentials
+    args = Args(token=credentials.credentials)
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            """
+            f"""
             SELECT u.*
             FROM sessions s
             JOIN users u ON u.id = s.user_id
-            WHERE s.id = $1::uuid
+            WHERE s.id = {args.token}::uuid
               AND s.is_active = TRUE
               AND s.expires_at > NOW()
             """,
-            token,
+            *args,
         )
     if not row:
         raise HTTPException(
@@ -70,18 +71,18 @@ async def get_optional_current_user(
 ) -> UserResponse | None:
     if not credentials:
         return None
-    token = credentials.credentials
+    args = Args(token=credentials.credentials)
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            """
+            f"""
             SELECT u.*
             FROM sessions s
             JOIN users u ON u.id = s.user_id
-            WHERE s.id = $1::uuid
+            WHERE s.id = {args.token}::uuid
               AND s.is_active = TRUE
               AND s.expires_at > NOW()
             """,
-            token,
+            *args,
         )
     if not row:
         return None
