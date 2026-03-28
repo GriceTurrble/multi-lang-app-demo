@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthProvider";
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, initialized } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -23,7 +23,9 @@ export function Header() {
           MLAD Forum
         </Link>
         <div className="flex items-center gap-3 text-sm">
-          {user ? (
+          {!initialized ? (
+            <div className="h-7 w-36 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+          ) : user ? (
             <>
               <span className="text-gray-700 dark:text-gray-300">
                 {user.username}
