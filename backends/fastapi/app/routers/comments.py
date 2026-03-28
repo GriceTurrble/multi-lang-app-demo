@@ -3,8 +3,9 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
+from pgargs import Args, Cols
 
-from app.auth import CurrentUserDep
+from app.auth import CurrentUserDep, OptionalCurrentUserDep
 from app.db import PoolDep
 from app.models import (
     CommentCreate,
@@ -26,13 +27,21 @@ DEFAULT_COMMENTS_PAGE_SIZE = 10
 async def list_comments(
     pool: PoolDep,
     post_id: UUID,
+    current_user: OptionalCurrentUserDep,
     cursor: UUID | None = None,
     max_depth: int = DEFAULT_MAX_DEPTH,
     replies_per_page: int = DEFAULT_COMMENTS_PAGE_SIZE,
 ):
+    args = Args(
+        post_id=post_id,
+        max_depth=max_depth,
+        page_size=replies_per_page,
+        cursor_id=cursor,
+        voter_id=current_user.id if current_user else None,
+    )
     async with pool.acquire() as conn:
         rows = await conn.fetch(
-            """
+            f"""
             SELECT
                 id,
                 post_id,
@@ -42,18 +51,17 @@ async def list_comments(
                 created_at,
                 updated_at,
                 vote_score,
-                depth
+                depth,
+                user_vote
             FROM get_comment_tree(
-                p_post_id   := $1,
-                p_max_depth := $2,
-                p_page_size := $3,
-                p_cursor_id := $4
+                p_post_id   := {args.post_id},
+                p_max_depth := {args.max_depth},
+                p_page_size := {args.page_size},
+                p_cursor_id := {args.cursor_id},
+                p_voter_id  := {args.voter_id}
             )
             """,
-            post_id,
-            max_depth,
-            replies_per_page,
-            cursor,
+            *args,
         )
     top_level = [r for r in rows if r["depth"] == 0]
     next_cursor = top_level[-1]["id"] if len(top_level) == replies_per_page else None
@@ -68,28 +76,35 @@ async def create_comment(
     post_id: UUID,
     payload: CommentCreate,
 ):
+    exists_args = Args(post_id=post_id)
     async with pool.acquire() as conn:
-        exists = await conn.fetchval("SELECT 1 FROM posts WHERE id = $1", post_id)
+        exists = await conn.fetchval(
+            f"SELECT 1 FROM posts WHERE id = {exists_args.post_id}",
+            *exists_args,
+        )
         if not exists:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Post not found",
             )
+        cols = Cols(
+            post_id=post_id,
+            parent_comment_id=payload.parent_comment_id,
+            author_id=current_user.id,
+            body=payload.body,
+        )
         row = await conn.fetchrow(
-            """
+            f"""
             WITH ins AS (
-                INSERT INTO comments (post_id, parent_comment_id, author_id, body)
-                VALUES ($1, $2, $3, $4)
+                INSERT INTO comments {cols.names}
+                VALUES {cols.values}
                 RETURNING *
             )
             SELECT ins.*, u.username AS author
             FROM ins
               JOIN users u ON u.id = ins.author_id
             """,
-            post_id,
-            payload.parent_comment_id,
-            current_user.id,
-            payload.body,
+            *cols.args,
         )
     return CommentResponse(**dict(row))
 
@@ -99,17 +114,29 @@ async def get_comment(
     pool: PoolDep,
     post_id: UUID,
     comment_id: UUID,
+    current_user: OptionalCurrentUserDep,
 ):
+    args = Args(
+        comment_id=comment_id,
+        post_id=post_id,
+        voter_id=current_user.id if current_user else None,
+    )
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            """
-            SELECT c.*, u.username AS author
+            f"""
+            SELECT c.*, u.username AS author,
+                COALESCE(v.vote_value, 0) AS user_vote
             FROM comments c
             JOIN users u ON u.id = c.author_id
-            WHERE c.id = $1 AND c.post_id = $2
+            LEFT JOIN votes v
+                ON v.object_id = c.id
+                AND v.object_type = 'Comment'
+                AND v.voter_id = {args.voter_id}
+            WHERE 1=1
+                AND c.id = {args.comment_id}
+                AND c.post_id = {args.post_id}
             """,
-            comment_id,
-            post_id,
+            *args,
         )
     if not row:
         raise HTTPException(
@@ -132,24 +159,24 @@ async def update_comment(
             status_code=400,
             detail="No fields to update",
         )
-    set_clauses = ", ".join(f"{k} = ${i + 3}" for i, k in enumerate(updates))
-    set_clauses += ", updated_at = NOW()"
-    values = list(updates.values())
+    args = Args(
+        comment_id=comment_id,
+        post_id=post_id,
+    )
+    update_cols = Cols(args, **updates)
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             f"""
             WITH upd AS (
-                UPDATE comments SET {set_clauses}
-                WHERE id = $1 AND post_id = $2
+                UPDATE comments SET {update_cols.assignments}, updated_at = NOW()
+                WHERE id = {args.comment_id} AND post_id = {args.post_id}
                 RETURNING *
             )
             SELECT upd.*, u.username AS author
             FROM upd
               JOIN users u ON u.id = upd.author_id
             """,
-            comment_id,
-            post_id,
-            *values,
+            *args,
         )
     if not row:
         raise HTTPException(
@@ -165,15 +192,15 @@ async def delete_comment(
     post_id: UUID,
     comment_id: UUID,
 ):
+    args = Args(comment_id=comment_id, post_id=post_id)
     async with pool.acquire() as conn:
         _ = await conn.execute(
-            """
+            f"""
             DELETE FROM comments
-            WHERE id = $1
-            AND post_id = $2
+            WHERE id = {args.comment_id}
+            AND post_id = {args.post_id}
             """,
-            comment_id,
-            post_id,
+            *args,
         )
 
 
@@ -182,13 +209,22 @@ async def list_replies(
     pool: PoolDep,
     post_id: UUID,
     comment_id: UUID,
+    current_user: OptionalCurrentUserDep,
     cursor: UUID | None = None,
     max_depth: int = DEFAULT_MAX_DEPTH,
     replies_per_page: int = DEFAULT_COMMENTS_PAGE_SIZE,
 ):
+    args = Args(
+        post_id=post_id,
+        comment_id=comment_id,
+        max_depth=max_depth,
+        page_size=replies_per_page,
+        cursor_id=cursor,
+        voter_id=current_user.id if current_user else None,
+    )
     async with pool.acquire() as conn:
         rows = await conn.fetch(
-            """
+            f"""
             SELECT
                 id,
                 post_id,
@@ -198,32 +234,30 @@ async def list_replies(
                 created_at,
                 updated_at,
                 vote_score,
-                depth
+                depth,
+                user_vote
             FROM get_reply_tree(
-                p_post_id    := $1,
-                p_comment_id := $2,
-                p_max_depth  := $3,
-                p_page_size  := $4,
-                p_cursor_id  := $5
+                p_post_id    := {args.post_id},
+                p_comment_id := {args.comment_id},
+                p_max_depth  := {args.max_depth},
+                p_page_size  := {args.page_size},
+                p_cursor_id  := {args.cursor_id},
+                p_voter_id   := {args.voter_id}
             )
             """,
-            post_id,
-            comment_id,
-            max_depth,
-            replies_per_page,
-            cursor,
+            *args,
         )
         if not rows:
             # Distinguish "comment not found" from "comment has no replies"
+            exists_args = Args(comment_id=comment_id, post_id=post_id)
             exists = await conn.fetchval(
-                """
+                f"""
                 SELECT 1
                 FROM comments
-                WHERE id = $1
-                AND post_id = $2
+                WHERE id = {exists_args.comment_id}
+                AND post_id = {exists_args.post_id}
                 """,
-                comment_id,
-                post_id,
+                *exists_args,
             )
             if not exists:
                 raise HTTPException(
