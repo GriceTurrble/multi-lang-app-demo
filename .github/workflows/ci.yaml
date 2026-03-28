@@ -87,7 +87,8 @@ jobs:
 
       - name: Run tests
         working-directory: ./frontends/nextjs
-        run: just test
+        # Test with coverage report:
+        run: just test-coverage
 
   test-mlad-manage:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
