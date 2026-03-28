@@ -8,7 +8,7 @@ import pytest
 import uuid7
 from fastapi.testclient import TestClient
 
-from app.config import Settings, get_settings
+from app.config import Settings
 from app.main import get_app
 from app.models import UserResponse
 
@@ -16,14 +16,11 @@ from app.models import UserResponse
 @pytest.fixture
 def settings() -> Generator[Settings]:
     # Apply any test overrides here
-    overrides = {
-        "database_url": "postgresql://postgres:postgres@localhost:5432/testdb",
-        "db_min_connections": 2,
-        "db_max_connections": 10,
-    }
-    # reload forces the singleton to be updated
-    # subsequent calls to `get_settings` should return the new object with our test settings
-    settings = get_settings(reload=True, **overrides)
+    settings = Settings(
+        database_url="postgresql://postgres:postgres@localhost:5432/testdb",
+        db_min_connections=2,
+        db_max_connections=10,
+    )
     yield settings
 
 
@@ -69,7 +66,7 @@ def test_client(settings, mock_pool: MagicMock) -> Generator[TestClient]:
 def authed_client(
     settings, mock_pool: MagicMock, mock_user: UserResponse
 ) -> Generator[TestClient]:
-    from app.auth import get_current_user
+    from app.auth import get_current_user, get_optional_current_user
     from app.config import get_settings
     from app.db import get_pool
 
@@ -77,6 +74,7 @@ def authed_client(
     app.dependency_overrides[get_pool] = lambda: mock_pool
     app.dependency_overrides[get_settings] = lambda: settings
     app.dependency_overrides[get_current_user] = lambda: mock_user
+    app.dependency_overrides[get_optional_current_user] = lambda: mock_user
     client = TestClient(app)
     yield client
     app.dependency_overrides.clear()

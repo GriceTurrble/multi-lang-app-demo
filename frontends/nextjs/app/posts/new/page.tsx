@@ -1,24 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useUsername } from "@/lib/context/UsernameContext";
+import { useRequireAuth } from "@/lib/context/AuthProvider";
 import { createPost } from "@/lib/api/posts";
 import { PostForm, type PostFormValues } from "@/components/posts/PostForm";
 
 export default function NewPostPage() {
-  const { username } = useUsername();
+  const { user, token, initialized } = useRequireAuth();
   const router = useRouter();
 
-  if (!username) {
-    return (
-      <p className="text-sm text-gray-500">
-        Set a username in the header before creating a post.
-      </p>
-    );
+  if (!initialized || !user || !token) {
+    return null;
   }
 
   const handleSubmit = async ({ title, body }: PostFormValues) => {
-    const post = await createPost({ title, body, author: username });
+    const post = await createPost({ title, body }, token);
     router.push(`/posts/${post.id}`);
   };
 

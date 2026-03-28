@@ -24,6 +24,7 @@ class CommentResponse(BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     vote_score: int
+    user_vote: int = 0
     depth: int | None = None
 
 

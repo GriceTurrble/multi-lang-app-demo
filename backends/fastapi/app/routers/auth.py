@@ -4,6 +4,7 @@ import datetime
 
 import asyncpg
 from fastapi import APIRouter, HTTPException, status
+from pgargs import Args, Cols
 
 from app.auth import BearerDep, CurrentUserDep, hash_password, verify_password
 from app.config import SettingsDep
@@ -16,16 +17,19 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", response_model=UserResponse, status_code=201)
 async def register(pool: PoolDep, payload: UserCreate):
     try:
+        cols = Cols(
+            email=payload.email,
+            username=payload.username,
+            passwrd=hash_password(payload.password),
+        )
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
-                """
-                INSERT INTO users (email, username, password_hash)
-                VALUES ($1, $2, $3)
+                f"""
+                INSERT INTO users {cols.names}
+                VALUES {cols.values}
                 RETURNING *
                 """,
-                payload.email,
-                payload.username,
-                hash_password(payload.password),
+                *cols.args,
             )
     except asyncpg.UniqueViolationError as err:
         raise HTTPException(
@@ -37,10 +41,11 @@ async def register(pool: PoolDep, payload: UserCreate):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(pool: PoolDep, settings: SettingsDep, payload: LoginRequest):
+    select_args = Args(email=payload.email)
     async with pool.acquire() as conn:
         user = await conn.fetchrow(
-            "SELECT * FROM users WHERE email = $1",
-            payload.email,
+            f"SELECT * FROM users WHERE email = {select_args.email}",
+            *select_args,
         )
     if not user or not verify_password(payload.password, user["password_hash"]):
         raise HTTPException(
@@ -48,14 +53,19 @@ async def login(pool: PoolDep, settings: SettingsDep, payload: LoginRequest):
             detail="Invalid credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     expires_at = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
         days=settings.session_expire_days
     )
+    insert_cols = Cols(user_id=user["id"], expires_at=expires_at)
     async with pool.acquire() as conn:
         session = await conn.fetchrow(
-            "INSERT INTO sessions (user_id, expires_at) VALUES ($1, $2) RETURNING *",
-            user["id"],
-            expires_at,
+            f"""
+            INSERT INTO sessions {insert_cols.names}
+            VALUES {insert_cols.values}
+            RETURNING *
+            """,
+            *insert_cols.args,
         )
     return TokenResponse(
         access_token=str(session["id"]),
@@ -65,11 +75,11 @@ async def login(pool: PoolDep, settings: SettingsDep, payload: LoginRequest):
 
 @router.post("/logout", status_code=204)
 async def logout(pool: PoolDep, credentials: BearerDep):
-    token = credentials.credentials
+    args = Args(token=credentials.credentials)
     async with pool.acquire() as conn:
         await conn.execute(
-            "UPDATE sessions SET is_active = FALSE WHERE id = $1::uuid",
-            token,
+            f"UPDATE sessions SET is_active = FALSE WHERE id = {args.token}::uuid",
+            *args,
         )
 
 

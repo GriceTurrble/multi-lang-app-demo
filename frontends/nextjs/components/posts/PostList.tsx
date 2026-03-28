@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { listPosts } from "@/lib/api/posts";
 import { ApiError } from "@/lib/api/client";
 import type { PostResponse } from "@/lib/api/types";
+import { useAuth } from "@/lib/context/AuthProvider";
 import { PostCard } from "./PostCard";
 
 export function PostList() {
+  const { token } = useAuth();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -14,24 +16,30 @@ export function PostList() {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
-    listPosts()
+    let cancelled = false;
+    listPosts(undefined, token)
       .then(({ items, next_cursor }) => {
+        if (cancelled) return;
         setPosts(items);
         setNextCursor(next_cursor);
       })
       .catch((err) => {
+        if (cancelled) return;
         setError(
           err instanceof ApiError ? err.message : "Failed to load posts",
         );
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [token]);
 
   const loadMore = async () => {
     if (!nextCursor) return;
     setLoadingMore(true);
     try {
-      const { items, next_cursor } = await listPosts(nextCursor);
+      const { items, next_cursor } = await listPosts(nextCursor, token);
       setPosts((prev) => [...prev, ...items]);
       setNextCursor(next_cursor);
     } catch (err) {

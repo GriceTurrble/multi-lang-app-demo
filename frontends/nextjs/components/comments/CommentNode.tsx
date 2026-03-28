@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { deleteComment, updateComment } from "@/lib/api/comments";
 import { voteOnComment } from "@/lib/api/votes";
-import { useUsername } from "@/lib/context/UsernameContext";
+import { useAuth } from "@/lib/context/AuthProvider";
 import type { CommentResponse } from "@/lib/api/types";
 import type { CommentNode as CommentNodeType } from "@/lib/api/treeUtils";
 import { VoteButtons } from "@/components/votes/VoteButtons";
@@ -24,8 +24,8 @@ type Props = {
 };
 
 export function CommentNode({ postId, comment }: Props) {
-  const { username } = useUsername();
-  const isAuthor = !!username && username === comment.author;
+  const { user, token } = useAuth();
+  const isAuthor = !!user && user.username === comment.author;
 
   const [deleted, setDeleted] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -39,10 +39,10 @@ export function CommentNode({ postId, comment }: Props) {
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm("Delete this comment?")) return;
+    if (!token || !confirm("Delete this comment?")) return;
     setDeleting(true);
     try {
-      await deleteComment(postId, comment.id);
+      await deleteComment(postId, comment.id, token);
       setDeleted(true);
     } catch {
       setDeleting(false);
@@ -50,13 +50,13 @@ export function CommentNode({ postId, comment }: Props) {
   };
 
   const handleEdit = async () => {
-    if (!editDraft.trim() || editDraft === editedBody) {
+    if (!token || !editDraft.trim() || editDraft === editedBody) {
       setShowEditForm(false);
       return;
     }
     setSaving(true);
     try {
-      await updateComment(postId, comment.id, { body: editDraft.trim() });
+      await updateComment(postId, comment.id, { body: editDraft.trim() }, token);
       setEditedBody(editDraft.trim());
       setShowEditForm(false);
     } finally {
@@ -65,8 +65,8 @@ export function CommentNode({ postId, comment }: Props) {
   };
 
   const handleVote = async (value: -1 | 0 | 1) => {
-    if (!username) return;
-    await voteOnComment(postId, comment.id, { username, value });
+    if (!token) return;
+    await voteOnComment(postId, comment.id, { value }, token);
   };
 
   const handleReplyAdded = (reply: CommentResponse) => {
@@ -151,8 +151,9 @@ export function CommentNode({ postId, comment }: Props) {
         <div className="flex items-center gap-3">
           <VoteButtons
             score={comment.vote_score}
+            userVote={comment.user_vote}
             onVote={handleVote}
-            disabled={!username}
+            disabled={!token}
           />
           <button
             onClick={() => setShowReplyForm((s) => !s)}
@@ -214,6 +215,7 @@ export function CommentNode({ postId, comment }: Props) {
             postId={postId}
             commentId={comment.id}
             cursor={replyCursor}
+            token={token}
             onLoaded={handleMoreRepliesLoaded}
           />
         </div>

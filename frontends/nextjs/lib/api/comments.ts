@@ -4,6 +4,7 @@ import type { CommentResponse, CommentTreeResponse } from "./types";
 export const listComments = (
   postId: string,
   params?: { cursor?: string; max_depth?: number; replies_per_page?: number },
+  token?: string | null,
 ) => {
   const qs = new URLSearchParams();
   if (params?.cursor) qs.set("cursor", params.cursor);
@@ -12,37 +13,40 @@ export const listComments = (
   if (params?.replies_per_page !== undefined)
     qs.set("replies_per_page", String(params.replies_per_page));
   const query = qs.size ? `?${qs}` : "";
-  return apiFetch<CommentTreeResponse>(`/posts/${postId}/comments${query}`);
+  return apiFetch<CommentTreeResponse>(`/posts/${postId}/comments${query}`, {}, token ?? undefined);
 };
 
 export const createComment = (
   postId: string,
-  body: { author: string; body: string; parent_comment_id?: string },
+  body: { body: string; parent_comment_id?: string },
+  token: string,
 ) =>
   apiFetch<CommentResponse>(`/posts/${postId}/comments`, {
     method: "POST",
     body: JSON.stringify(body),
-  });
+  }, token);
 
 export const updateComment = (
   postId: string,
   commentId: string,
   body: { body?: string },
+  token: string,
 ) =>
   apiFetch<CommentResponse>(`/posts/${postId}/comments/${commentId}`, {
     method: "PATCH",
     body: JSON.stringify(body),
-  });
+  }, token);
 
-export const deleteComment = (postId: string, commentId: string) =>
+export const deleteComment = (postId: string, commentId: string, token: string) =>
   apiFetch<void>(`/posts/${postId}/comments/${commentId}`, {
     method: "DELETE",
-  });
+  }, token);
 
 export const listReplies = (
   postId: string,
   commentId: string,
   params?: { cursor?: string; max_depth?: number; replies_per_page?: number },
+  token?: string | null,
 ) => {
   const qs = new URLSearchParams();
   if (params?.cursor) qs.set("cursor", params.cursor);
@@ -53,5 +57,7 @@ export const listReplies = (
   const query = qs.size ? `?${qs}` : "";
   return apiFetch<CommentTreeResponse>(
     `/posts/${postId}/comments/${commentId}/replies${query}`,
+    {},
+    token ?? undefined,
   );
 };

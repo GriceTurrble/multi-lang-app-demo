@@ -8,10 +8,11 @@ type Props = {
   postId: string;
   commentId: string;
   cursor: string;
+  token?: string | null;
   onLoaded: (items: CommentResponse[], nextCursor?: string) => void;
 };
 
-export function LoadMoreReplies({ postId, commentId, cursor, onLoaded }: Props) {
+export function LoadMoreReplies({ postId, commentId, cursor, token, onLoaded }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
@@ -19,9 +20,7 @@ export function LoadMoreReplies({ postId, commentId, cursor, onLoaded }: Props) 
     setLoading(true);
     setError(undefined);
     try {
-      const { items, next_cursor } = await listReplies(postId, commentId, {
-        cursor,
-      });
+      const { items, next_cursor } = await listReplies(postId, commentId, { cursor }, token);
       onLoaded(items, next_cursor);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load replies");

@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS votes (
 
 --
 -- Trigger function: recalculate vote_score on the affected object
--- whenever a vote is inserted.
+-- whenever a vote is inserted or updated.
 -- Looks up the target table from object_types, then sets vote_score
 -- to the sum of all vote_value entries for that object.
 --
@@ -105,9 +105,45 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER trg_update_vote_score
-    AFTER INSERT ON votes
+    AFTER INSERT OR UPDATE ON votes
     FOR EACH ROW
     EXECUTE FUNCTION update_vote_score();
+
+--
+-- Trigger function: recalculate vote_score on the affected object
+-- whenever a vote is deleted.
+-- Uses OLD (not NEW, which is NULL on DELETE) to identify the object.
+--
+CREATE OR REPLACE FUNCTION update_vote_score_on_delete()
+RETURNS TRIGGER AS $$
+DECLARE
+    target_table TEXT;
+BEGIN
+    SELECT ot.table_name INTO target_table
+    FROM object_types ot
+    WHERE ot.name = OLD.object_type;
+
+    IF target_table IS NULL THEN
+        RAISE EXCEPTION 'Unknown object_type: %', OLD.object_type;
+    END IF;
+
+    EXECUTE format(
+        'UPDATE %I SET vote_score = (
+            SELECT COALESCE(SUM(vote_value), 0)
+            FROM votes
+            WHERE object_id = $1 AND object_type = $2
+        ) WHERE id = $1',
+        target_table
+    ) USING OLD.object_id, OLD.object_type;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_update_vote_score_on_delete
+    AFTER DELETE ON votes
+    FOR EACH ROW
+    EXECUTE FUNCTION update_vote_score_on_delete();
 
 --
 -- Trigger function: auto-upvote a Post on creation.
@@ -159,7 +195,8 @@ CREATE OR REPLACE FUNCTION get_comment_tree(
     p_post_id UUID,
     p_max_depth INTEGER DEFAULT 2,
     p_page_size INTEGER DEFAULT 10,
-    p_cursor_id UUID DEFAULT NULL
+    p_cursor_id UUID DEFAULT NULL,
+    p_voter_id UUID DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -170,7 +207,8 @@ RETURNS TABLE (
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
     vote_score INTEGER,
-    depth INTEGER
+    depth INTEGER,
+    user_vote INTEGER
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -218,9 +256,13 @@ BEGIN
         ct.created_at,
         ct.updated_at,
         ct.vote_score,
-        ct.depth
+        ct.depth,
+        COALESCE(v.vote_value, 0) AS user_vote
     FROM comment_tree ct
     JOIN users u ON u.id = ct.author_id
+    LEFT JOIN votes v ON v.object_id = ct.id
+        AND v.object_type = 'Comment'
+        AND v.voter_id = p_voter_id
     ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
@@ -238,7 +280,8 @@ CREATE OR REPLACE FUNCTION get_reply_tree(
     p_comment_id UUID,
     p_max_depth INTEGER DEFAULT 2,
     p_page_size INTEGER DEFAULT 10,
-    p_cursor_id UUID DEFAULT NULL
+    p_cursor_id UUID DEFAULT NULL,
+    p_voter_id UUID DEFAULT NULL
 )
 RETURNS TABLE (
     id UUID,
@@ -249,7 +292,8 @@ RETURNS TABLE (
     created_at TIMESTAMP WITH TIME ZONE,
     updated_at TIMESTAMP WITH TIME ZONE,
     vote_score INTEGER,
-    depth INTEGER
+    depth INTEGER,
+    user_vote INTEGER
 ) AS $$
 BEGIN
     -- Verify the target comment exists and belongs to the given post
@@ -305,9 +349,13 @@ BEGIN
         ct.created_at,
         ct.updated_at,
         ct.vote_score,
-        ct.depth
+        ct.depth,
+        COALESCE(v.vote_value, 0) AS user_vote
     FROM comment_tree ct
     JOIN users u ON u.id = ct.author_id
+    LEFT JOIN votes v ON v.object_id = ct.id
+        AND v.object_type = 'Comment'
+        AND v.voter_id = p_voter_id
     ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
