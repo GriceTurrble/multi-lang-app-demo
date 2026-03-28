@@ -39,6 +39,13 @@ impl Adr {
         std::fs::write(&output_path, &content)
             .with_context(|| format!("Failed to write {}", output_path.display()))?;
 
+        let readme_path = self.adrs_dir.join("README.md");
+        let readme = std::fs::read_to_string(&readme_path)
+            .with_context(|| format!("Failed to read README: {}", readme_path.display()))?;
+        let updated_readme = append_readme_row(&readme, next, &filename, &title, &date, "Draft");
+        std::fs::write(&readme_path, &updated_readme)
+            .with_context(|| format!("Failed to write README: {}", readme_path.display()))?;
+
         println!("Created {}", filename);
         Ok(())
     }
@@ -67,6 +74,36 @@ fn collect_unique_adr_numbers(adr_dir: &PathBuf) -> Result<std::collections::Has
         .collect())
 }
 
+/// Insert a new row into the README table after the last `|`-prefixed line.
+fn append_readme_row(
+    readme: &str,
+    number: u32,
+    filename: &str,
+    title: &str,
+    date: &str,
+    status: &str,
+) -> String {
+    let adr_link = format!("[ADR-{:04}]({})", number, filename);
+    let new_row = format!("| {} | {} | {} | {} |", adr_link, title, date, status);
+    let lines: Vec<&str> = readme.lines().collect();
+    let last_table_idx = lines.iter().rposition(|l| l.starts_with('|'));
+    match last_table_idx {
+        Some(idx) => {
+            let mut result = lines[..=idx].join("\n");
+            result.push('\n');
+            result.push_str(&new_row);
+            result.push('\n');
+            let tail = lines[idx + 1..].join("\n");
+            if !tail.is_empty() {
+                result.push_str(&tail);
+                result.push('\n');
+            }
+            result
+        }
+        None => format!("{}\n{}\n", readme.trim_end_matches('\n'), new_row),
+    }
+}
+
 /// Convert a title string into a lowercase hyphen-separated slug suitable for filenames.
 fn slugify(title: &str) -> String {
     title
@@ -83,6 +120,14 @@ fn slugify(title: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_append_readme_row() {
+        let readme = "# ADRs\n\n| ADR | Title | Date | Status |\n| --- | ----- | ---- | ------ |\n| [ADR-0001](0001-foo.md) | Foo | 2026-01-01 | Accepted |\n";
+        let result = append_readme_row(readme, 2, "0002-bar.md", "Bar", "2026-03-27", "Draft");
+        let expected = "# ADRs\n\n| ADR | Title | Date | Status |\n| --- | ----- | ---- | ------ |\n| [ADR-0001](0001-foo.md) | Foo | 2026-01-01 | Accepted |\n| [ADR-0002](0002-bar.md) | Bar | 2026-03-27 | Draft |\n";
+        assert_eq!(result, expected);
+    }
 
     #[test]
     fn test_slugify() {
