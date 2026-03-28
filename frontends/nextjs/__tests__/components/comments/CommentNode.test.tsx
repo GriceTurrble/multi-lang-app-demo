@@ -255,6 +255,27 @@ describe("CommentNode", () => {
     expect(screen.queryByRole("button", { name: "Load more replies" })).not.toBeInTheDocument();
   });
 
+  it("clicking Save without changing text closes the edit form without calling updateComment", async () => {
+    renderWithAuth(<CommentNode postId="p1" comment={makeNode()} />, {
+      user: aliceUser,
+      token: "tok",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    // Don't change the textarea — editDraft === editedBody
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(screen.queryByDisplayValue("Test comment body")).not.toBeInTheDocument()
+    );
+    expect(mockUpdateComment).not.toHaveBeenCalled();
+  });
+
+  it("clicking Upvote calls voteOnComment with value 1", async () => {
+    const { voteOnComment } = await import("@/lib/api/votes");
+    renderWithAuth(<CommentNode postId="p1" comment={makeNode()} />, { token: "tok" });
+    fireEvent.click(screen.getByRole("button", { name: "Upvote" }));
+    await waitFor(() => expect(voteOnComment).toHaveBeenCalledWith("p1", "c1", { value: 1 }, "tok"));
+  });
+
   it("closing reply form via form's own Cancel button hides the form", () => {
     renderWithAuth(<CommentNode postId="p1" comment={makeNode()} />, { token: "tok" });
     fireEvent.click(screen.getByRole("button", { name: "Reply" }));

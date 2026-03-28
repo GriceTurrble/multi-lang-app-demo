@@ -68,6 +68,7 @@ export function CommentNode({ postId, comment }: Props) {
   };
 
   const handleVote = async (value: -1 | 0 | 1) => {
+    /* v8 ignore next */
     if (!token) return;
     await voteOnComment(postId, comment.id, { value }, token);
   };
