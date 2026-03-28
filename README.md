@@ -27,8 +27,8 @@ data/           # Supporting data files
 
 ### Backends
 
-| Directory                    | Language | Framework |
-| ---------------------------- | -------- | --------- |
+| Directory                      | Language | Framework |
+| ------------------------------ | -------- | --------- |
 | [`fastapi`](backends/fastapi/) | Python   | FastAPI   |
 
 ### Frontends
