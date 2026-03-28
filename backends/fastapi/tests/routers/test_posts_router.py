@@ -206,7 +206,7 @@ def test_get_post(
     post_id = uuid7.create()
     row = _make_post_row(id=post_id)
 
-    async def _side_effect(query, post_id, voter_id=None):
+    async def _side_effect(query, voter_id, post_id):
         # Assert args as passed
         assert "SELECT" in query.upper()
         assert post_id == row["id"]
@@ -262,13 +262,13 @@ def test_update_post(
     post_id = uuid7.create()
     row = _make_post_row(id=post_id, body="Updated body")
 
-    def _side_effect(query: str, post_id: UUID, *args):
+    def _side_effect(query: str, body: str, post_id: UUID):
         assert "UPDATE" in query.upper()
         assert post_id == row["id"]
-        assert args[0] == row["body"]
+        assert body == row["body"]
 
         copied = copy.deepcopy(row)
-        copied.update({"id": post_id, "body": args[0]})
+        copied.update({"id": post_id, "body": body})
         return copied
 
     mock_conn.fetchrow.side_effect = _side_effect

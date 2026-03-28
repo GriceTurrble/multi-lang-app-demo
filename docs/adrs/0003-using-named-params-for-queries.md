@@ -155,6 +155,12 @@ thus we rely on raw SQL queries as much as possible.
 - The same patterns do not apply across different database engines,
   so each application would need to maintain its own flavor of a query
   particular to the database engine available in its environment.
+- With `pgargs`, `$N` placeholder numbers are assigned based on the order
+  arguments are first *accessed* in the SQL f-string, not the order they are
+  added to `Args`. This means the positional order of values in `*args` is
+  determined by SQL structure, not by the Python code that constructs the args.
+  Test side effects and any code that unpacks `*args` positionally must account
+  for this, and mismatches are not caught at query-construction time.
 
 [`pgargs`]: https://github.com/raymondbutcher/pgargs
 [sqlalchemy orm]: https://docs.sqlalchemy.org/en/20/orm/index.html
