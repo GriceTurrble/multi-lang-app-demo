@@ -1,9 +1,10 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { renderWithAuth } from "@/__tests__/utils";
 import { PostCard } from "@/components/posts/PostCard";
 import type { PostResponse } from "@/lib/api/types";
+import { voteOnPost } from "@/lib/api/votes";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
@@ -13,6 +14,8 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/api/votes", () => ({
   voteOnPost: vi.fn().mockResolvedValue({ object_id: "p1", object_type: "post", vote_score: 1 }),
 }));
+
+const mockVoteOnPost = voteOnPost as ReturnType<typeof vi.fn>;
 
 function makePost(overrides: Partial<PostResponse> = {}): PostResponse {
   return {
@@ -71,5 +74,12 @@ describe("PostCard", () => {
     renderWithAuth(<PostCard post={makePost()} />, { token: "tok" });
     const upvoteBtn = screen.getByRole("button", { name: "Upvote" });
     expect(upvoteBtn).not.toBeDisabled();
+  });
+
+  it("calls voteOnPost when Upvote is clicked with a token", async () => {
+    mockVoteOnPost.mockClear();
+    renderWithAuth(<PostCard post={makePost()} />, { token: "tok" });
+    fireEvent.click(screen.getByRole("button", { name: "Upvote" }));
+    await waitFor(() => expect(mockVoteOnPost).toHaveBeenCalledWith("p1", { value: 1 }, "tok"));
   });
 });

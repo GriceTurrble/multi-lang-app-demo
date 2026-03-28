@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PostForm } from "@/components/posts/PostForm";
 
 vi.mock("next/navigation", () => ({
@@ -92,7 +92,7 @@ describe("PostForm", () => {
     expect(await screen.findByText("Saving...")).toBeInTheDocument();
     const btn = screen.getByRole("button", { name: "Saving..." });
     expect(btn).toBeDisabled();
-    resolve();
+    await act(async () => { resolve(); });
   });
 
   it("uses a custom submitLabel", () => {

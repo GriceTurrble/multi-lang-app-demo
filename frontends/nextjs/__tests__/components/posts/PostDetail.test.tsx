@@ -4,6 +4,7 @@ import { screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { renderWithAuth } from "@/__tests__/utils";
 import { PostDetail } from "@/components/posts/PostDetail";
 import type { PostResponse } from "@/lib/api/types";
+import { voteOnPost } from "@/lib/api/votes";
 
 const mockPush = vi.fn();
 
@@ -20,6 +21,8 @@ vi.mock("@/lib/api/posts", () => ({
 vi.mock("@/lib/api/votes", () => ({
   voteOnPost: vi.fn().mockResolvedValue({ object_id: "p1", object_type: "post", vote_score: 1 }),
 }));
+
+const mockVoteOnPost = voteOnPost as ReturnType<typeof vi.fn>;
 
 function makePost(overrides: Partial<PostResponse> = {}): PostResponse {
   return {
@@ -131,6 +134,13 @@ describe("PostDetail", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Delete" })).not.toBeDisabled()
     );
+  });
+
+  it("calls voteOnPost when Upvote is clicked with a token", async () => {
+    mockVoteOnPost.mockClear();
+    renderWithAuth(<PostDetail post={makePost()} />, { token: "tok" });
+    fireEvent.click(screen.getByRole("button", { name: "Upvote" }));
+    await waitFor(() => expect(mockVoteOnPost).toHaveBeenCalledWith("p1", { value: 1 }, "tok"));
   });
 
   it("disables Delete button while delete is in flight", async () => {

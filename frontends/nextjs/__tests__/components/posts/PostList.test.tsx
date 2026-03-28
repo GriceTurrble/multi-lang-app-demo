@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, screen, fireEvent, waitFor } from "@testing-library/react";
 import { renderWithAuth } from "@/__tests__/utils";
 import { PostList } from "@/components/posts/PostList";
 import type { PostResponse } from "@/lib/api/types";
@@ -100,7 +100,7 @@ describe("PostList", () => {
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
     expect(await screen.findByText("Loading...")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Loading..." })).toBeDisabled();
-    resolveMore({ items: [], next_cursor: undefined });
+    await act(async () => { resolveMore({ items: [], next_cursor: undefined }); });
   });
 
   it("does not set state after unmount (no error)", async () => {

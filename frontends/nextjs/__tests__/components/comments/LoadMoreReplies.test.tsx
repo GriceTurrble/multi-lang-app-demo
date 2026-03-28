@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { LoadMoreReplies } from "@/components/comments/LoadMoreReplies";
 import type { CommentResponse } from "@/lib/api/types";
 
@@ -79,7 +79,7 @@ describe("LoadMoreReplies", () => {
     fireEvent.click(screen.getByRole("button"));
     expect(await screen.findByText("Loading...")).toBeInTheDocument();
     expect(screen.getByRole("button")).toBeDisabled();
-    resolve({ items: [], next_cursor: undefined });
+    await act(async () => { resolve({ items: [], next_cursor: undefined }); });
   });
 
   it("shows error message when API fails", async () => {

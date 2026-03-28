@@ -147,7 +147,7 @@ describe("AuthProvider", () => {
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
-  it("useRequireAuth does not redirect before initialization", () => {
+  it("useRequireAuth does not redirect before initialization", async () => {
     // Simulate slow getMe — initialization not yet complete
     let resolve!: (v: unknown) => void;
     mockGetMe.mockReturnValue(new Promise((res) => { resolve = res; }));
@@ -158,6 +158,6 @@ describe("AuthProvider", () => {
       </AuthProvider>
     );
     expect(mockReplace).not.toHaveBeenCalled();
-    resolve({ id: "u1", email: "a@b.com", username: "alice" });
+    await act(async () => { resolve({ id: "u1", email: "a@b.com", username: "alice" }); });
   });
 });

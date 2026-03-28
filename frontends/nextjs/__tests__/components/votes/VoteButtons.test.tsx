@@ -1,6 +1,6 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { VoteButtons } from "@/components/votes/VoteButtons";
 
 function makeOnVote(rejectWith?: Error) {
@@ -61,13 +61,13 @@ describe("VoteButtons", () => {
     await waitFor(() => expect(onVote).toHaveBeenCalledWith(-1));
   });
 
-  it("optimistically updates score before onVote resolves", () => {
+  it("optimistically updates score before onVote resolves", async () => {
     let resolve!: () => void;
     const onVote = vi.fn().mockReturnValue(new Promise<void>((res) => { resolve = res; }));
     render(<VoteButtons score={3} userVote={0} onVote={onVote} />);
     fireEvent.click(screen.getByRole("button", { name: "Upvote" }));
     expect(screen.getByText("+4")).toBeInTheDocument();
-    resolve();
+    await act(async () => { resolve(); });
   });
 
   it("reverts score on failure", async () => {
@@ -86,6 +86,37 @@ describe("VoteButtons", () => {
     expect(downBtn).toBeDisabled();
     fireEvent.click(upBtn);
     expect(onVote).not.toHaveBeenCalled();
+  });
+
+  it("syncs userVote from updated props when not pending", async () => {
+    const onVote = makeOnVote();
+    const { rerender } = render(<VoteButtons score={0} userVote={0} onVote={onVote} />);
+    expect(screen.getByRole("button", { name: "Upvote" }).className).not.toMatch(/orange/);
+    rerender(<VoteButtons score={1} userVote={1} onVote={onVote} />);
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Upvote" }).className).toMatch(/orange/)
+    );
+  });
+
+  it("ignores further clicks while a vote is already pending", async () => {
+    let resolve!: () => void;
+    const onVote = vi.fn().mockReturnValue(new Promise<void>((res) => { resolve = res; }));
+    render(<VoteButtons score={0} userVote={0} onVote={onVote} />);
+    fireEvent.click(screen.getByRole("button", { name: "Upvote" }));   // sets pending=true
+    fireEvent.click(screen.getByRole("button", { name: "Downvote" })); // should be ignored
+    await act(async () => { resolve(); });
+    expect(onVote).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not reset optimistic vote when userVote prop changes while pending", async () => {
+    let resolve!: () => void;
+    const onVote = vi.fn().mockReturnValue(new Promise<void>((res) => { resolve = res; }));
+    const { rerender } = render(<VoteButtons score={0} userVote={0} onVote={onVote} />);
+    fireEvent.click(screen.getByRole("button", { name: "Upvote" })); // pending=true, optimistic upvote
+    // Rerender with a different external userVote while pending — should NOT override optimistic state
+    rerender(<VoteButtons score={0} userVote={-1} onVote={onVote} />);
+    expect(screen.getByRole("button", { name: "Upvote" }).className).toMatch(/orange/);
+    await act(async () => { resolve(); });
   });
 
   it("applies flex-col class when vertical prop is set", () => {
