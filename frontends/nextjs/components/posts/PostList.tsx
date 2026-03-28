@@ -16,17 +16,23 @@ export function PostList() {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
+    let cancelled = false;
     listPosts(undefined, token)
       .then(({ items, next_cursor }) => {
+        if (cancelled) return;
         setPosts(items);
         setNextCursor(next_cursor);
       })
       .catch((err) => {
+        if (cancelled) return;
         setError(
           err instanceof ApiError ? err.message : "Failed to load posts",
         );
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, [token]);
 
   const loadMore = async () => {

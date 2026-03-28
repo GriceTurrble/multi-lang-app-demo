@@ -22,15 +22,21 @@ export function CommentTree({ postId }: Props) {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
+    let cancelled = false;
     listComments(postId, undefined, token)
       .then(({ items, next_cursor }) => {
+        if (cancelled) return;
         setRoots(buildCommentTree(items));
         setNextCursor(next_cursor);
       })
       .catch((err) => {
+        if (cancelled) return;
         setError(err instanceof Error ? err.message : "Failed to load comments");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, [postId, token]);
 
   const loadMore = async () => {
