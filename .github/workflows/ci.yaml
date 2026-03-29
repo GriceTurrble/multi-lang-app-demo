@@ -149,12 +149,12 @@ jobs:
           cache: "npm"
           cache-dependency-path: ./integration/package-lock.json
 
-      - name: Start test stack
-        run: docker compose -f compose.test.yaml up -d --build --wait
-
       - name: Install Playwright and dependencies
         working-directory: ./integration
-        run: npx playwright install --with-deps chromium
+        run: just sync
+
+      - name: Start test stack
+        run: docker compose -f compose.test.yaml up -d --build --wait
 
       - name: Run integration tests
         working-directory: ./integration
@@ -197,7 +197,6 @@ jobs:
       - test-backends-result
       - test-frontends-result
       - test-mlad-manage
-      # Disabled requirement: see if it works, but don't rely on it
-      # - test-integration
+      - test-integration
     steps:
       - run: echo "Tests passing!"
