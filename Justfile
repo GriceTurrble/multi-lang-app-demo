@@ -10,6 +10,10 @@ mod frontends
 [group("submodules")]
 mod manage "mlad-manage"
 
+# integration tests
+[group("submodules")]
+mod integration
+
 ### START COMMON ###
 import? 'common.just'
 

@@ -1,0 +1,23 @@
+# Localized `just` command for this file only
+just_local := "just --justfile " + source_file()
+
+# Show these help docs
+[default]
+@help:
+    echo "{{GREEN}}[MLAD] Integration tests{{NORMAL}}"
+    echo "{{GREEN}}>> $(pwd){{NORMAL}}"
+    echo ""
+    just --list --unsorted --justfile {{ source_file() }}
+
+# Install all test environment prerequisites (idempotent)
+bootstrap:
+    {{just_local}} sync
+    npx playwright install chromium
+
+# Install npm dependencies
+sync:
+    npm install
+
+# Run integration tests
+test:
+    npx playwright test
