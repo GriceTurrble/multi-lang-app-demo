@@ -95,7 +95,7 @@ jobs:
     name: Test mlad-manage CLI
     runs-on: ubuntu-latest
     services:
-      mysql:
+      postgres:
         image: postgres:18
         # Health checks
         options: >-
