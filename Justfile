@@ -53,11 +53,3 @@ up:
 # destroy Tilt resources so they will rebuild when using `just up` next time
 down:
     tilt down
-
-# Run the integration test suite against the test Docker Compose stack
-test-integration:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    trap 'docker compose -f compose.test.yaml down --remove-orphans' EXIT
-    docker compose -f compose.test.yaml up -d --build --wait
-    cd integration && npx playwright test

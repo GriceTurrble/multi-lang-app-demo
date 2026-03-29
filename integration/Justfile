@@ -20,4 +20,8 @@ sync:
 
 # Run integration tests
 test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    trap 'docker compose -f ../compose.test.yaml down --remove-orphans' EXIT
+    docker compose -f ../compose.test.yaml up -d --build --wait
     npx playwright test
