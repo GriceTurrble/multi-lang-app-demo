@@ -133,7 +133,7 @@ jobs:
 
   test-integration:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
-    name: Integration tests
+    name: Test - integration
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
