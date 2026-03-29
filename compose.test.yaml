@@ -1,0 +1,80 @@
+# Docker Compose stack for integration testing.
+# Builds all images from source (prod-runner targets).
+# Postgres starts clean each run; schema is loaded via initdb.
+# No Tilt, no .env files required.
+
+networks:
+  default:
+    name: mlad-int
+
+services:
+  postgres:
+    container_name: postgres-int
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlad
+      PGUSER: postgres
+    volumes:
+      - ./database_schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "mlad"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend-fastapi:
+    container_name: backend-fastapi-int
+    build:
+      context: ./backends/fastapi
+      dockerfile: Dockerfile
+      target: prod-runner
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mlad
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c ''import urllib.request; urllib.request.urlopen("http://localhost:8080/health")''',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  frontend-nextjs:
+    container_name: frontend-nextjs-int
+    build:
+      context: ./frontends/nextjs
+      dockerfile: Dockerfile
+      target: prod-runner
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "require(''http'').get(''http://localhost:3000/'', r => process.exit(r.statusCode < 400 ? 0 : 1)).on(''error'', () => process.exit(1))"',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  nginx:
+    container_name: nginx-int
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      backend-fastapi:
+        condition: service_healthy
+      frontend-nextjs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

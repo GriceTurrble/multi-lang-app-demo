@@ -7,6 +7,9 @@
     {
 			"path": "mlad-manage",
 		},
+    {
+      "path": "integration",
+    },
 		{
 			"name": "backends/fastapi",
 			"path": "backends/fastapi"
@@ -24,6 +27,7 @@
       "**/.DS_Store": true,
       "**/Thumbs.db": true,
       "mlad-manage": true,
+      "integration": true,
       "backends/fastapi": true,
       "frontends/nextjs": true
     }

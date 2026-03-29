@@ -10,6 +10,10 @@ mod frontends
 [group("submodules")]
 mod manage "mlad-manage"
 
+# integration tests
+[group("submodules")]
+mod integration
+
 ### START COMMON ###
 import? 'common.just'
 
@@ -33,12 +37,14 @@ sync-commons:
 bootstrap:
     just sync-commons
     just bootstrap-commons
+    just integration bootstrap
     just sync
 
 # Sync all dependencies in all projects
 sync:
     just backends sync
     just frontends sync
+    just integration sync
 
 # bring up Tilt to start all services
 up:
