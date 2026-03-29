@@ -1,0 +1,67 @@
+# Docker Compose stack for integration testing.
+# Builds all images from source (prod-runner targets).
+# Postgres starts clean each run; schema is loaded via initdb.
+# No Tilt, no .env files required.
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlad
+    volumes:
+      - ./database_schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mlad"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-fastapi:
+    build:
+      context: ./backends/fastapi
+      dockerfile: Dockerfile
+      target: prod-runner
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mlad
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c ''import urllib.request; urllib.request.urlopen("http://localhost:8080/health")''',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend-nextjs:
+    build:
+      context: ./frontends/nextjs
+      dockerfile: Dockerfile
+      target: prod-runner
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:3000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backend-fastapi:
+        condition: service_healthy
+      frontend-nextjs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
