@@ -131,6 +131,46 @@ jobs:
         working-directory: ./mlad-manage
         run: cargo test --workspace
 
+  test-integration:
+    if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
+    name: Integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Install just runner
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b # v3
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: 25
+          cache: "npm"
+          cache-dependency-path: ./integration/package-lock.json
+
+      - name: Start test stack
+        run: docker compose -f compose.test.yaml up -d --build --wait
+
+      - name: Install Playwright and dependencies
+        working-directory: ./integration
+        run: npx playwright install --with-deps chromium
+
+      - name: Run integration tests
+        working-directory: ./integration
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report
+          path: integration/playwright-report/
+
+      - name: Tear down test stack
+        if: always()
+        run: docker compose -f compose.test.yaml down --remove-orphans
+
   test-backends-result:
     if: ${{ !github.event.pull_request || (!github.event.pull_request.draft && !contains(github.event.pull_request.title, '[draft]')) }}
     name: Test backends - result
@@ -157,5 +197,7 @@ jobs:
       - test-backends-result
       - test-frontends-result
       - test-mlad-manage
+      # Disabled requirement: see if it works, but don't rely on it
+      # - test-integration
     steps:
       - run: echo "Tests passing!"
