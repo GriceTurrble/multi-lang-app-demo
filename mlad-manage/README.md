@@ -75,7 +75,7 @@ just run-dev gen adr "Title of the Decision" [OPTIONS]
 | ------------------- | ------------------------- | -------------- |
 | `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
----
+______________________________________________________________________
 
 ### `db` - Database Management
 
@@ -87,11 +87,11 @@ Apply `schema.sql` to the database. Fails if the schema appears already loaded (
 just run db load-schema [OPTIONS]
 ```
 
-| Option                 | Description                                           | Default                         |
-| ---------------------- | ----------------------------------------------------- | ------------------------------- |
+| Option                 | Description                                           | Default                  |
+| ---------------------- | ----------------------------------------------------- | ------------------------ |
 | `--schema-file <PATH>` | Path to schema SQL file                               | `../database/schema.sql` |
-| `-y, --yes`            | Skip confirmation prompt                              | -                               |
-| `--force`              | Drop and reload even if schema already appears loaded | -                               |
+| `-y, --yes`            | Skip confirmation prompt                              | -                        |
+| `--force`              | Drop and reload even if schema already appears loaded | -                        |
 
 #### `db reload-schema`
 
@@ -101,10 +101,10 @@ Alias for `load-schema --force`. Drops and reloads the schema unconditionally.
 just run db reload-schema [OPTIONS]
 ```
 
-| Option                 | Description              | Default                         |
-| ---------------------- | ------------------------ | ------------------------------- |
+| Option                 | Description              | Default                  |
+| ---------------------- | ------------------------ | ------------------------ |
 | `--schema-file <PATH>` | Path to schema SQL file  | `../database/schema.sql` |
-| `-y, --yes`            | Skip confirmation prompt | -                               |
+| `-y, --yes`            | Skip confirmation prompt | -                        |
 
 #### `db load-fixtures`
 
@@ -114,8 +114,8 @@ Load fixture data from `fixtures.sql` into the current schema.
 just run db load-fixtures [OPTIONS]
 ```
 
-| Option                   | Description               | Default                           |
-| ------------------------ | ------------------------- | --------------------------------- |
+| Option                   | Description               | Default                    |
+| ------------------------ | ------------------------- | -------------------------- |
 | `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
 
 #### `db refresh-db`
@@ -126,13 +126,13 @@ Reload the schema then load fixtures in one step. Equivalent to running `reload-
 just run db refresh-db [OPTIONS]
 ```
 
-| Option                   | Description               | Default                           |
-| ------------------------ | ------------------------- | --------------------------------- |
+| Option                   | Description               | Default                    |
+| ------------------------ | ------------------------- | -------------------------- |
 | `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`   |
 | `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
-| `-y, --yes`              | Skip confirmation prompt  | -                                 |
+| `-y, --yes`              | Skip confirmation prompt  | -                          |
 
----
+______________________________________________________________________
 
 ### `check` - Management Checks
 
@@ -165,7 +165,7 @@ just run check adrs [OPTIONS]
 | ------------------- | ------------------------- | -------------- |
 | `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
----
+______________________________________________________________________
 
 ### `users` - User Management
 
@@ -178,6 +178,7 @@ just run users create
 ```
 
 No flags or arguments. Prompts:
+
 - **Email**
 - **Username**
 - **Password** (hidden)

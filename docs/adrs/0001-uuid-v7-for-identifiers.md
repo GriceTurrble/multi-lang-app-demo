@@ -23,5 +23,5 @@ Use UUID v7 for all primary key columns. Values are generated as column defaults
 - All backends and frontends must treat IDs as opaque strings - no logic should depend on their internal structure.
 - The `pg_uuidv7` extension must be available in the Postgres instance. It is included in the project's database setup.
 
-[uuid v7]: https://uuidv7.com
 [pg_uuidv7]: https://github.com/fboulnois/pg_uuidv7
+[uuid v7]: https://uuidv7.com

@@ -1,4 +1,5 @@
-<<<<<<< Updated upstream
+\<<\<<\<<< Updated upstream
+
 # Data specification
 
 Backend data will be stored in Postgres.
@@ -28,6 +29,7 @@ See [fixtures.sql](fixtures.sql).
 ## Common scripts for accessing data
 
 ### See all posts
+
 ```sql
 SELECT * FROM posts
 ```
@@ -97,7 +99,8 @@ FROM get_reply_tree(
 - The target comment itself is **not** included in the results; only its replies are returned.
 - Pagination is **keyset/cursor-based** on direct replies: pass `p_cursor_id` for subsequent pages, or `NULL` for the first page.
 - Replies are fetched recursively up to `p_max_depth` levels deep.
-=======
+  \=======
+
 # Specification for the shared database
 
 All backend implementations share a single PostgreSQL instance running from the Docker image defined in this directory. Backends communicate with it directly; no other service interacts with the database.
@@ -130,7 +133,7 @@ Stores registered user accounts.
 
 Passwords must be stored as a secure hash (Argon2, bcrypt, or PBKDF2). Plaintext passwords must never be stored.
 
----
+______________________________________________________________________
 
 ### `sessions`
 
@@ -148,7 +151,7 @@ The session `id` is the Bearer token returned to the client on login. Backends v
 
 Sessions expire after 30 days by default.
 
----
+______________________________________________________________________
 
 ### `posts`
 
@@ -168,7 +171,7 @@ Stores user-submitted posts.
 
 Deleting a post cascades to all comments on that post (via the `comments.post_id` foreign key).
 
----
+______________________________________________________________________
 
 ### `comments`
 
@@ -191,7 +194,7 @@ Deleting a comment cascades to all of its replies (via `parent_comment_id`) and 
 
 `vote_score` is maintained automatically by triggers; backends must not write to it directly.
 
----
+______________________________________________________________________
 
 ### `object_types`
 
@@ -209,7 +212,7 @@ Pre-seeded rows:
 | `Post`    | `posts`      |
 | `Comment` | `comments`   |
 
----
+______________________________________________________________________
 
 ### `votes`
 
@@ -310,6 +313,7 @@ post
 ```
 
 - Additional votes on the post and top-level comments from fixture users
->>>>>>> Stashed changes
+
+> > > > > > > Stashed changes
 
 [uuid v7]: https://uuidv7.com
