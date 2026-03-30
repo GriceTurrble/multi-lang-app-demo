@@ -359,5 +359,3 @@ BEGIN
     ORDER BY ct.depth, ct.created_at ASC, ct.id ASC;
 END;
 $$ LANGUAGE plpgsql;
-
-SELECT 'Schema load complete' AS run_status;

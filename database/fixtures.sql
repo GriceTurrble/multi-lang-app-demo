@@ -170,5 +170,3 @@ BEGIN
     END IF;
 END
 $$;
-
-SELECT 'Fixture load complete' AS run_status;
