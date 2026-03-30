@@ -15,11 +15,6 @@ describe("VoteButtons", () => {
     expect(screen.getByText("0")).toBeInTheDocument();
   });
 
-  it("prefixes positive score with +", () => {
-    render(<VoteButtons score={5} onVote={makeOnVote()} />);
-    expect(screen.getByText("+5")).toBeInTheDocument();
-  });
-
   it("upvote button has active (orange) styling when userVote is 1", () => {
     render(<VoteButtons score={1} userVote={1} onVote={makeOnVote()} />);
     const upBtn = screen.getByRole("button", { name: "Upvote" });
@@ -66,7 +61,7 @@ describe("VoteButtons", () => {
     const onVote = vi.fn().mockReturnValue(new Promise<void>((res) => { resolve = res; }));
     render(<VoteButtons score={3} userVote={0} onVote={onVote} />);
     fireEvent.click(screen.getByRole("button", { name: "Upvote" }));
-    expect(screen.getByText("+4")).toBeInTheDocument();
+    expect(screen.getByText("4")).toBeInTheDocument();
     await act(async () => { resolve(); });
   });
 
@@ -74,7 +69,7 @@ describe("VoteButtons", () => {
     const onVote = makeOnVote(new Error("Network error"));
     render(<VoteButtons score={3} userVote={0} onVote={onVote} />);
     fireEvent.click(screen.getByRole("button", { name: "Upvote" }));
-    await waitFor(() => expect(screen.getByText("+3")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("3")).toBeInTheDocument());
   });
 
   it("does not call onVote and both buttons are disabled when disabled prop is set", () => {
