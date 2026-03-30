@@ -135,6 +135,10 @@ The environment variables `PGADMIN_EMAIL` and `PGADMIN_PASSWORD`
 (see [`.env.example`](.env.example))
 define the login credentials for this interface.
 
+## Testing
+
+Please see [TESTING.md](TESTING.md) for details.
+
 ## Architecture Decision Records
 
 Key design decisions are documented in [docs/adrs/](docs/adrs/).
