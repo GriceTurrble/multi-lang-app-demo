@@ -21,7 +21,7 @@ sync:
 
 TEST_DB := "postgresql://postgres:postgres@localhost:5432/mlad"
 
-# Run integration tests
+# Run integration tests in isolation. Starts a separate compose stack for all services.
 test:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -34,4 +34,8 @@ test:
     }
     DATABASE_URL={{TEST_DB}} \
         {{just_manage}} run db migrate run
+    npx playwright test
+
+# Run tests against the live service, which should be running in Tilt already.
+test-live:
     npx playwright test
