@@ -89,7 +89,7 @@ just run db load-schema [OPTIONS]
 
 | Option                 | Description                                           | Default                         |
 | ---------------------- | ----------------------------------------------------- | ------------------------------- |
-| `--schema-file <PATH>` | Path to schema SQL file                               | `../database_schema/schema.sql` |
+| `--schema-file <PATH>` | Path to schema SQL file                               | `../database/schema.sql` |
 | `-y, --yes`            | Skip confirmation prompt                              | —                               |
 | `--force`              | Drop and reload even if schema already appears loaded | —                               |
 
@@ -103,7 +103,7 @@ just run db reload-schema [OPTIONS]
 
 | Option                 | Description              | Default                         |
 | ---------------------- | ------------------------ | ------------------------------- |
-| `--schema-file <PATH>` | Path to schema SQL file  | `../database_schema/schema.sql` |
+| `--schema-file <PATH>` | Path to schema SQL file  | `../database/schema.sql` |
 | `-y, --yes`            | Skip confirmation prompt | —                               |
 
 #### `db load-fixtures`
@@ -116,7 +116,7 @@ just run db load-fixtures [OPTIONS]
 
 | Option                   | Description               | Default                           |
 | ------------------------ | ------------------------- | --------------------------------- |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database_schema/fixtures.sql` |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
 
 #### `db refresh-db`
 
@@ -128,8 +128,8 @@ just run db refresh-db [OPTIONS]
 
 | Option                   | Description               | Default                           |
 | ------------------------ | ------------------------- | --------------------------------- |
-| `--schema-file <PATH>`   | Path to schema SQL file   | `../database_schema/schema.sql`   |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database_schema/fixtures.sql` |
+| `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`   |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
 | `-y, --yes`              | Skip confirmation prompt  | —                                 |
 
 ---

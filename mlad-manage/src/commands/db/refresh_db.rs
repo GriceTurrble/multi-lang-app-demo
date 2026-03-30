@@ -8,11 +8,11 @@ use std::path::PathBuf;
 #[derive(Args)]
 pub struct RefreshDb {
     /// Path to the schema SQL file.
-    #[arg(long, default_value = "../database_schema/schema.sql")]
+    #[arg(long, default_value = "../database/schema.sql")]
     pub schema_file: PathBuf,
 
     /// Path to the fixtures SQL file.
-    #[arg(long, default_value = "../database_schema/fixtures.sql")]
+    #[arg(long, default_value = "../database/fixtures.sql")]
     pub fixtures_file: PathBuf,
 
     /// Skip the confirmation prompt and proceed immediately.

@@ -11,7 +11,7 @@ reply to Comments,
 and cast upvotes or downvotes on both Posts and Comments.
 
 Every backend implementation follows the same [specification](backends/SPEC.md)
-and exposes the same REST API, making each one a drop-in replacement for any other. A single shared Postgres instance handles data storage across all services, with the schema and stored functions defined once in [`database_schema/`](database_schema/).
+and exposes the same REST API, making each one a drop-in replacement for any other. A single shared Postgres instance handles data storage across all services, with the schema and stored functions defined once in [`database/`](database/).
 
 The local development environment is orchestrated with [Tilt] and [Docker Compose],
 providing live reloading and easy switching between backend services.
@@ -19,10 +19,10 @@ providing live reloading and easy switching between backend services.
 ### Project structure
 
 ```
-backends/       # One sub-directory per backend implementation
-frontends/      # One sub-directory per frontend implementation (planned)
-database_schema/# Shared Postgres schema, migrations, and fixture data
-data/           # Supporting data files
+backends/   # One sub-directory per backend implementation
+frontends/  # One sub-directory per frontend implementation (planned)
+database/   # Shared Postgres schema, migrations, and fixture data
+data/       # Supporting data files
 ```
 
 ### Backends
@@ -114,8 +114,8 @@ which essentially runs on top of Docker Compose
 (using [compose.yaml](compose.yaml)).
 Resources are defined in the Docker Compose spec,
 while Tilt provides some means for extra local resources,
-such as migrating the shared [database schema](database_schema/schema.sql) automatically
-and loading [fixture data](database_schema/fixtures.sql).
+such as migrating the shared [database schema](database/schema.sql) automatically
+and loading [fixture data](database/fixtures.sql).
 
 With `tilt up` running in a dedicated console, hit the `Space` key to open its web UI
 and view the logs for each service.

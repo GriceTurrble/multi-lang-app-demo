@@ -11,7 +11,7 @@ Comments may relate to a Post or to another Comment.
 
 ## Data spec
 
-Refer to the [Data specification](../database_schema/SPEC.md) for details.
+Refer to the [Data specification](../database/SPEC.md) for details.
 
 ## Authentication
 

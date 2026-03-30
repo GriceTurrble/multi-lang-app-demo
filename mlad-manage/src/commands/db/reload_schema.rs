@@ -8,7 +8,7 @@ use std::path::PathBuf;
 #[derive(Args)]
 pub struct ReloadSchema {
     /// Path to the schema SQL file.
-    #[arg(long, default_value = "../database_schema/schema.sql")]
+    #[arg(long, default_value = "../database/schema.sql")]
     pub schema_file: PathBuf,
 
     /// Skip the confirmation prompt and proceed immediately.

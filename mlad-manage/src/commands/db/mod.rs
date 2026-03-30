@@ -45,12 +45,12 @@ pub mod test_helpers {
 
     /// Canonical path to `schema.sql` relative to the workspace root.
     pub fn schema_path() -> PathBuf {
-        PathBuf::from("../database_schema/schema.sql")
+        PathBuf::from("../database/schema.sql")
     }
 
     /// Canonical path to `fixtures.sql` relative to the workspace root.
     pub fn fixtures_path() -> PathBuf {
-        PathBuf::from("../database_schema/fixtures.sql")
+        PathBuf::from("../database/fixtures.sql")
     }
 
     /// Apply schema.sql directly to the pool without dropping first.
