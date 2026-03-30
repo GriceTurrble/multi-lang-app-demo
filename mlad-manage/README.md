@@ -51,11 +51,11 @@ These flags apply to all commands:
 
 | Flag                   | Description                                      | Default |
 | ---------------------- | ------------------------------------------------ | ------- |
-| `--database-url <URL>` | Override the `DATABASE_URL` environment variable | —       |
+| `--database-url <URL>` | Override the `DATABASE_URL` environment variable | -       |
 
 ## Commands
 
-### `generate` (`gen`) — Generators
+### `generate` (`gen`) - Generators
 
 > These commands do not require a database connection.
 
@@ -77,7 +77,7 @@ just run-dev gen adr "Title of the Decision" [OPTIONS]
 
 ---
 
-### `db` — Database Management
+### `db` - Database Management
 
 #### `db load-schema`
 
@@ -90,8 +90,8 @@ just run db load-schema [OPTIONS]
 | Option                 | Description                                           | Default                         |
 | ---------------------- | ----------------------------------------------------- | ------------------------------- |
 | `--schema-file <PATH>` | Path to schema SQL file                               | `../database/schema.sql` |
-| `-y, --yes`            | Skip confirmation prompt                              | —                               |
-| `--force`              | Drop and reload even if schema already appears loaded | —                               |
+| `-y, --yes`            | Skip confirmation prompt                              | -                               |
+| `--force`              | Drop and reload even if schema already appears loaded | -                               |
 
 #### `db reload-schema`
 
@@ -104,7 +104,7 @@ just run db reload-schema [OPTIONS]
 | Option                 | Description              | Default                         |
 | ---------------------- | ------------------------ | ------------------------------- |
 | `--schema-file <PATH>` | Path to schema SQL file  | `../database/schema.sql` |
-| `-y, --yes`            | Skip confirmation prompt | —                               |
+| `-y, --yes`            | Skip confirmation prompt | -                               |
 
 #### `db load-fixtures`
 
@@ -130,11 +130,11 @@ just run db refresh-db [OPTIONS]
 | ------------------------ | ------------------------- | --------------------------------- |
 | `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`   |
 | `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
-| `-y, --yes`              | Skip confirmation prompt  | —                                 |
+| `-y, --yes`              | Skip confirmation prompt  | -                                 |
 
 ---
 
-### `check` — Management Checks
+### `check` - Management Checks
 
 Run integrity checks against project assets. When invoked without a subcommand, all registered checks are run in parallel.
 
@@ -154,8 +154,8 @@ Output follows the format:
 
 Check ADR file compliance. Verifies:
 
-- **No duplicate IDs** — no two files share the same 4-digit number prefix.
-- **No gaps in sequence** — ADR IDs form a contiguous sequence starting from `0001`.
+- **No duplicate IDs** - no two files share the same 4-digit number prefix.
+- **No gaps in sequence** - ADR IDs form a contiguous sequence starting from `0001`.
 
 ```bash
 just run check adrs [OPTIONS]
@@ -167,7 +167,7 @@ just run check adrs [OPTIONS]
 
 ---
 
-### `users` — User Management
+### `users` - User Management
 
 #### `users create`
 

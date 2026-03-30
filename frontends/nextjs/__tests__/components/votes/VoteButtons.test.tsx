@@ -108,7 +108,7 @@ describe("VoteButtons", () => {
     const onVote = vi.fn().mockReturnValue(new Promise<void>((res) => { resolve = res; }));
     const { rerender } = render(<VoteButtons score={0} userVote={0} onVote={onVote} />);
     fireEvent.click(screen.getByRole("button", { name: "Upvote" })); // pending=true, optimistic upvote
-    // Rerender with a different external userVote while pending — should NOT override optimistic state
+    // Rerender with a different external userVote while pending - should NOT override optimistic state
     rerender(<VoteButtons score={0} userVote={-1} onVote={onVote} />);
     expect(screen.getByRole("button", { name: "Upvote" }).className).toMatch(/orange/);
     await act(async () => { resolve(); });
