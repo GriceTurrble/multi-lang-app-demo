@@ -11,8 +11,7 @@ services:
   postgres:
     container_name: postgres-int
     build:
-      context: ./database
-      dockerfile: Dockerfile
+      dockerfile: postgres.Dockerfile
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

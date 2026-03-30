@@ -4,8 +4,7 @@ services:
   postgres:
     container_name: postgres
     build:
-      context: ./database
-      dockerfile: Dockerfile
+      dockerfile: postgres.Dockerfile
       args:
         load_fixtures: "true"
     environment:
