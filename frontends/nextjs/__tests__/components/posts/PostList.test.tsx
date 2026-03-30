@@ -120,7 +120,7 @@ describe("PostList", () => {
     mockListPosts.mockReturnValue(new Promise((res) => { resolve = res; }));
     const { unmount } = renderWithAuth(<PostList />);
     unmount();
-    // resolve after unmount — should not throw
+    // resolve after unmount - should not throw
     await expect(
       new Promise<void>((res) => {
         resolve({ items: [], next_cursor: undefined });

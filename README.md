@@ -75,21 +75,23 @@ Otherwise, you can manually install each of the following:
 You will also need:
 
 - Docker, particularly [Docker Compose]
-    - **recommendation**: install Docker Desktop to install Docker, Compose, and other tools together
+  - **recommendation**: install Docker Desktop to install Docker, Compose, and other tools together
 - [Tilt] to orchestrate the full application on your local machine
-    - **recommendation**: follow their installation instructions, including the setup for Kubernetes in Docker.
+  - **recommendation**: follow their installation instructions, including the setup for Kubernetes in Docker.
 
 ## Usage
+
 ### First start up
+
 Make a copy of the different `.env.example` files in each service:
 
 - Root [`.env.example`](.env.example)
 - Backends:
-    - FastAPI: [`backends/fastapi/.env.example`](backends/fastapi/.env.example)
+  - FastAPI: [`backends/fastapi/.env.example`](backends/fastapi/.env.example)
 
 Rename these copies to `.env` to store local environment variables.
 
-> [!note]
+> [!NOTE]
 > The defaults in each `.env.example` file should be sufficient in most cases,
 > but I recommend *at least* changing the values of
 > `PGADMIN_EMAIL` and `PGADMIN_PASSWORD`

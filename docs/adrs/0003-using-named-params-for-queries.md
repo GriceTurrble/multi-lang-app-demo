@@ -162,5 +162,5 @@ thus we rely on raw SQL queries as much as possible.
   Test side effects and any code that unpacks `*args` positionally must account
   for this, and mismatches are not caught at query-construction time.
 
-[`pgargs`]: https://github.com/raymondbutcher/pgargs
 [sqlalchemy orm]: https://docs.sqlalchemy.org/en/20/orm/index.html
+[`pgargs`]: https://github.com/raymondbutcher/pgargs

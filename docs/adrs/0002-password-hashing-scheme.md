@@ -9,10 +9,10 @@ User passwords must never be stored in plaintext. A key derivation function (KDF
 
 The options considered were:
 
-- **MD5 / SHA-family** — cryptographic hash functions, not KDFs; no work factor, trivially brute-forced.
-- **bcrypt** — well-established, widely supported, memory-stable work factor; limited to 72-byte passwords.
-- **PBKDF2** — NIST-recommended, FIPS-compliant; computationally bound but not memory-hard.
-- **Argon2** — winner of the 2015 Password Hashing Competition; memory-hard, resistant to GPU and ASIC attacks, and configurable across time, memory, and parallelism dimensions.
+- **MD5 / SHA-family** - cryptographic hash functions, not KDFs; no work factor, trivially brute-forced.
+- **bcrypt** - well-established, widely supported, memory-stable work factor; limited to 72-byte passwords.
+- **PBKDF2** - NIST-recommended, FIPS-compliant; computationally bound but not memory-hard.
+- **Argon2** - winner of the 2015 Password Hashing Competition; memory-hard, resistant to GPU and ASIC attacks, and configurable across time, memory, and parallelism dimensions.
 
 ## Decision
 
