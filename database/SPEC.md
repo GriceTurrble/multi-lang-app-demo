@@ -15,7 +15,7 @@ A throwaway Postgres image can be created using the following:
 docker run --rm -d \
     --name test-postgres \
     -e POSTGRES_PASSWORD=postgres \
-    -e POSTGRES_DB=testdb \
+    -e POSTGRES_DB=mlad \
     -p 5432:5432 \
     postgres:latest
 ```

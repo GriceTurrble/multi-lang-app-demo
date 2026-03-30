@@ -23,5 +23,10 @@ test:
     #!/usr/bin/env bash
     set -euo pipefail
     trap 'docker compose -f ../compose.test.yaml down --remove-orphans' EXIT
-    docker compose -f ../compose.test.yaml up -d --build --wait
+    docker compose -f ../compose.test.yaml up -d --build --wait || {
+        echo ""
+        echo "--- Stack startup failed. Service logs:"
+        docker compose -f ../compose.test.yaml logs --no-color
+        exit 1
+    }
     npx playwright test

@@ -108,14 +108,14 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mlad
     steps:
       - name: Checkout the code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup database
         run: |
-          psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE testdb;"
+          psql postgresql://postgres:postgres@localhost:5432/postgres -c "CREATE DATABASE mlad;"
 
       - name: Cache Rust dependencies
         uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5

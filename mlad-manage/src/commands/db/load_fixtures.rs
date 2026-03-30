@@ -7,7 +7,7 @@ use std::path::PathBuf;
 #[derive(Args)]
 pub struct LoadFixtures {
     /// Path to the fixtures SQL file.
-    #[arg(long, default_value = "../database_schema/fixtures.sql")]
+    #[arg(long, default_value = "../database/fixtures.sql")]
     pub fixtures_file: PathBuf,
 }
 

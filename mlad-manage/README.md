@@ -12,9 +12,9 @@ A CLI management tool written in Rust for managing database state for the multi-
 
 The tool reads configuration from environment variables or a `.env` file in the `mlad-manage/` directory.
 
-| Variable       | Description                  | Default                                                |
-| -------------- | ---------------------------- | ------------------------------------------------------ |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/testdb` |
+| Variable       | Description                  | Default                                              |
+| -------------- | ---------------------------- | ---------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/mlad` |
 
 `DATABASE_URL` can also be overridden at runtime with the `--database-url` flag (see [Global Flags](#global-flags)).
 
@@ -71,8 +71,8 @@ just run-dev generate adr "Title of the Decision" [OPTIONS]
 just run-dev gen adr "Title of the Decision" [OPTIONS]
 ```
 
-| Option             | Description               | Default       |
-| ------------------ | ------------------------- | ------------- |
+| Option              | Description               | Default        |
+| ------------------- | ------------------------- | -------------- |
 | `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
 ---
@@ -89,7 +89,7 @@ just run db load-schema [OPTIONS]
 
 | Option                 | Description                                           | Default                         |
 | ---------------------- | ----------------------------------------------------- | ------------------------------- |
-| `--schema-file <PATH>` | Path to schema SQL file                               | `../database_schema/schema.sql` |
+| `--schema-file <PATH>` | Path to schema SQL file                               | `../database/schema.sql` |
 | `-y, --yes`            | Skip confirmation prompt                              | —                               |
 | `--force`              | Drop and reload even if schema already appears loaded | —                               |
 
@@ -103,7 +103,7 @@ just run db reload-schema [OPTIONS]
 
 | Option                 | Description              | Default                         |
 | ---------------------- | ------------------------ | ------------------------------- |
-| `--schema-file <PATH>` | Path to schema SQL file  | `../database_schema/schema.sql` |
+| `--schema-file <PATH>` | Path to schema SQL file  | `../database/schema.sql` |
 | `-y, --yes`            | Skip confirmation prompt | —                               |
 
 #### `db load-fixtures`
@@ -116,7 +116,7 @@ just run db load-fixtures [OPTIONS]
 
 | Option                   | Description               | Default                           |
 | ------------------------ | ------------------------- | --------------------------------- |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database_schema/fixtures.sql` |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
 
 #### `db refresh-db`
 
@@ -128,8 +128,8 @@ just run db refresh-db [OPTIONS]
 
 | Option                   | Description               | Default                           |
 | ------------------------ | ------------------------- | --------------------------------- |
-| `--schema-file <PATH>`   | Path to schema SQL file   | `../database_schema/schema.sql`   |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database_schema/fixtures.sql` |
+| `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`   |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
 | `-y, --yes`              | Skip confirmation prompt  | —                                 |
 
 ---
@@ -161,8 +161,8 @@ Check ADR file compliance. Verifies:
 just run check adrs [OPTIONS]
 ```
 
-| Option             | Description               | Default       |
-| ------------------ | ------------------------- | ------------- |
+| Option              | Description               | Default        |
+| ------------------- | ------------------------- | -------------- |
 | `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
 ---
