@@ -8,8 +8,7 @@ networks:
     name: mlad-int
 
 services:
-  postgres:
-    container_name: postgres-int
+  postgres-int:
     image: postgres:18
     environment:
       POSTGRES_USER: postgres
@@ -24,16 +23,15 @@ services:
       timeout: 5s
       retries: 10
 
-  backend-fastapi:
-    container_name: backend-fastapi-int
+  backend-fastapi-int:
     build:
       context: ./backends/fastapi
       dockerfile: Dockerfile
       target: prod-runner
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mlad
+      DATABASE_URL: postgresql://postgres:postgres@postgres-int:5432/mlad
     depends_on:
-      postgres:
+      postgres-int:
         condition: service_healthy
     healthcheck:
       test:
@@ -45,8 +43,7 @@ services:
       timeout: 5s
       retries: 10
 
-  frontend-nextjs:
-    container_name: frontend-nextjs-int
+  frontend-nextjs-int:
     build:
       context: ./frontends/nextjs
       dockerfile: Dockerfile
@@ -61,17 +58,16 @@ services:
       timeout: 5s
       retries: 10
 
-  nginx:
-    container_name: nginx-int
+  nginx-int:
     build:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
       - "8080:80"
     depends_on:
-      backend-fastapi:
+      backend-fastapi-int:
         condition: service_healthy
-      frontend-nextjs:
+      frontend-nextjs-int:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -O /dev/null http://localhost/health"]
