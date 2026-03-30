@@ -17,7 +17,15 @@ local_resource(
     "db-migrate",
     cmd="just manage run db migrate run",
     resource_deps=["postgres"],
-    labels=["database"],
+    labels=["manage"],
+)
+local_resource(
+    "db-load-fixtures",
+    cmd="just manage run db load-fixtures",
+    resource_deps=["postgres", "db-migrate"],
+    labels=["manage"],
+    auto_init=False,
+    trigger_mode=TRIGGER_MODE_MANUAL,
 )
 dc_resource(
     "pgadmin",
