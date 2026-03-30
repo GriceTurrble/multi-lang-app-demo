@@ -2,7 +2,7 @@
 [group("submodules")]
 mod backends
 
-# backend modules
+# frontend modules
 [group("submodules")]
 mod frontends
 
