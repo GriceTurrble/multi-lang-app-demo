@@ -6,6 +6,10 @@ mod backends
 [group("submodules")]
 mod frontends
 
+# database schema and migrations
+[group("submodules")]
+mod db "mlad-db"
+
 # mgmt CLI tool
 [group("submodules")]
 mod manage "mlad-manage"
@@ -37,6 +41,7 @@ sync-commons:
 bootstrap:
     just sync-commons
     just bootstrap-commons
+    just db bootstrap
     just int bootstrap
     just sync
 

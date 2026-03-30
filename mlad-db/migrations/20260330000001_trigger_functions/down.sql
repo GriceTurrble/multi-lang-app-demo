@@ -1,0 +1,10 @@
+DROP TRIGGER IF EXISTS trg_auto_upvote_comment ON comments;
+DROP TRIGGER IF EXISTS trg_auto_upvote_post ON posts;
+DROP TRIGGER IF EXISTS trg_update_vote_score_on_delete ON votes;
+DROP TRIGGER IF EXISTS trg_update_vote_score ON votes;
+DROP FUNCTION IF EXISTS auto_upvote_comment();
+DROP FUNCTION IF EXISTS auto_upvote_post();
+DROP FUNCTION IF EXISTS update_vote_score_on_delete();
+DROP FUNCTION IF EXISTS update_vote_score();
+DROP FUNCTION IF EXISTS get_reply_tree(UUID, UUID, INTEGER, INTEGER, UUID, UUID);
+DROP FUNCTION IF EXISTS get_comment_tree(UUID, INTEGER, INTEGER, UUID, UUID);
