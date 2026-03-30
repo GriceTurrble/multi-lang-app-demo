@@ -10,14 +10,14 @@ networks:
 services:
   postgres:
     container_name: postgres-int
-    image: postgres:18
+    build:
+      context: ./database_schema
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mlad
       PGUSER: postgres
-    volumes:
-      - ./database_schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready", "-d", "mlad"]
       interval: 5s

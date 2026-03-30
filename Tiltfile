@@ -22,22 +22,6 @@ dc_resource(
     infer_links=False,
 )
 
-# Load schema after DB is ready
-local_resource(
-    "schema-load",
-    cmd="docker exec -i postgres psql -U $POSTGRES_USER -d $POSTGRES_DB < database_schema/schema.sql",
-    allow_parallel=True,
-    resource_deps=["postgres"],
-    labels=["database"],
-)
-# Load fixtures after schema load is complete
-local_resource(
-    "fixture-load",
-    cmd="docker exec -i postgres psql -U $POSTGRES_USER -d $POSTGRES_DB < database_schema/fixtures.sql",
-    resource_deps=["schema-load"],
-    labels=["database"],
-)
-
 # Nginx
 dc_resource(
     "nginx",
