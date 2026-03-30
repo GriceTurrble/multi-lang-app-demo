@@ -5,6 +5,9 @@
 			"path": "."
 		},
     {
+      "path": "database"
+    },
+    {
 			"path": "mlad-manage",
 		},
     {
@@ -26,6 +29,7 @@
       "**/.hg": true,
       "**/.DS_Store": true,
       "**/Thumbs.db": true,
+      "database": true,
       "mlad-manage": true,
       "integration": true,
       "backends/fastapi": true,
