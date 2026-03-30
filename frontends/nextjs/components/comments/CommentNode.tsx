@@ -8,6 +8,7 @@ import type { CommentResponse } from "@/lib/api/types";
 import type { CommentNode as CommentNodeType } from "@/lib/api/treeUtils";
 import { VoteButtons } from "@/components/votes/VoteButtons";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Username } from "@/components/ui/Username";
 import { CommentForm } from "./CommentForm";
 import { LoadMoreReplies } from "./LoadMoreReplies";
 
@@ -114,9 +115,7 @@ export function CommentNode({ postId, comment }: Props) {
       <div className="flex flex-col gap-2">
         {/* Header */}
         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-          <span className="font-medium text-gray-700 dark:text-gray-300">
-            {comment.author}
-          </span>
+          <Username username={comment.author} isCurrentUser={isAuthor} />
           <span>·</span>
           <span>{formatDate(comment.created_at)}</span>
           {comment.updated_at !== comment.created_at && (
