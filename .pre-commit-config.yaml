@@ -27,7 +27,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.15.7"
+    rev: "v0.15.8"
     hooks:
       # backends/fastapi
       - name: ruff-check-backend-fastapi
