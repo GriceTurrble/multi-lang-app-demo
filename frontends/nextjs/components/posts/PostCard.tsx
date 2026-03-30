@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { PostResponse } from "@/lib/api/types";
 import { voteOnPost } from "@/lib/api/votes";
 import { useAuth } from "@/lib/context/AuthProvider";
+import { Username } from "@/components/ui/Username";
 import { VoteButtons } from "@/components/votes/VoteButtons";
 
 function formatDate(dateStr: string) {
@@ -15,7 +16,8 @@ function formatDate(dateStr: string) {
 }
 
 export function PostCard({ post }: { post: PostResponse }) {
-  const { token } = useAuth();
+  const { user, token } = useAuth();
+  const isOwnPost = !!user && user.username === post.author;
   const excerpt =
     post.body.length > 120 ? post.body.slice(0, 120) + "..." : post.body;
 
@@ -50,7 +52,7 @@ export function PostCard({ post }: { post: PostResponse }) {
           </p>
         </div>
         <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-          <span>{post.author}</span>
+          <Username username={post.author} isCurrentUser={isOwnPost} />
           <span>·</span>
           <span>{formatDate(post.created_at)}</span>
         </div>

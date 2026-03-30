@@ -9,6 +9,7 @@ import { voteOnPost } from "@/lib/api/votes";
 import { useAuth } from "@/lib/context/AuthProvider";
 import { VoteButtons } from "@/components/votes/VoteButtons";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { Username } from "@/components/ui/Username";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString(undefined, {
@@ -70,7 +71,7 @@ export function PostDetail({ post }: Props) {
           </h1>
         )}
         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-          <span>{post.author}</span>
+          <Username username={post.author} isCurrentUser={isAuthor} />
           <span>·</span>
           <span>{formatDate(post.created_at)}</span>
           {post.updated_at !== post.created_at && (
