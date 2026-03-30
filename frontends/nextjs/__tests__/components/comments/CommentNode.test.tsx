@@ -219,7 +219,7 @@ describe("CommentNode", () => {
 
   it("renders LoadMoreReplies when replyCursor is set via onLoaded", async () => {
     // We set an initial replyCursor by rendering with a comment that has
-    // a non-undefined replyCursor — but that's internal state. Instead,
+    // a non-undefined replyCursor - but that's internal state. Instead,
     // test that LoadMoreReplies is absent when there's no cursor, and
     // present when more replies load with a next_cursor.
     // Since replyCursor starts undefined, LoadMoreReplies should not render.
@@ -251,7 +251,7 @@ describe("CommentNode", () => {
     const loadMoreBtn = await screen.findByRole("button", { name: "Load more replies" });
     fireEvent.click(loadMoreBtn);
     await waitFor(() => expect(screen.getByText("Extra reply")).toBeInTheDocument());
-    // Cursor cleared — button should disappear
+    // Cursor cleared - button should disappear
     expect(screen.queryByRole("button", { name: "Load more replies" })).not.toBeInTheDocument();
   });
 
@@ -261,7 +261,7 @@ describe("CommentNode", () => {
       token: "tok",
     });
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
-    // Don't change the textarea — editDraft === editedBody
+    // Don't change the textarea - editDraft === editedBody
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() =>
       expect(screen.queryByDisplayValue("Test comment body")).not.toBeInTheDocument()

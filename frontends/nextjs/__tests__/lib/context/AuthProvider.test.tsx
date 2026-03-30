@@ -148,7 +148,7 @@ describe("AuthProvider", () => {
   });
 
   it("useRequireAuth does not redirect before initialization", async () => {
-    // Simulate slow getMe — initialization not yet complete
+    // Simulate slow getMe - initialization not yet complete
     let resolve!: (v: unknown) => void;
     mockGetMe.mockReturnValue(new Promise((res) => { resolve = res; }));
     localStorage.setItem("mlad_token", "tok");

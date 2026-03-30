@@ -46,7 +46,7 @@ describe("buildCommentTree", () => {
     expect(result[0].replies[0].id).toBe("child");
   });
 
-  it("nests grandchild correctly (root → child → grandchild)", () => {
+  it("nests grandchild correctly (root --> child --> grandchild)", () => {
     const root = makeComment({ id: "root" });
     const child = makeComment({ id: "child", parent_comment_id: "root" });
     const grandchild = makeComment({ id: "grandchild", parent_comment_id: "child" });

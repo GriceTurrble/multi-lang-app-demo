@@ -89,31 +89,33 @@ Each backend service must fulfill the following criteria:
 - "Replies" are any Comment that has some other comment as its `parent_comment_id`. A Top Comment should not be referred to as a "reply" in most cases.
 
 ## REST resources
+
 ### Posts and Comments
+
 - `/posts`
-    - GET: A list of Posts served with pagination controls (up to 25 posts per page)
-    - POST: create a new Post
+  - GET: A list of Posts served with pagination controls (up to 25 posts per page)
+  - POST: create a new Post
 - `/posts/<post_id>`
-    - GET: a single post matching `post_id`
-    - PATCH: update the details of a single Post matching `post_id`.
-    - DELETE: delete this Post and all comments related to it.
+  - GET: a single post matching `post_id`
+  - PATCH: update the details of a single Post matching `post_id`.
+  - DELETE: delete this Post and all comments related to it.
 - `/posts/<post_id>/comments`
-    - GET: a list of Top Comments served with pagination controls (up to 10 Top Comments per page).
-        - A `max_depth` parameter can be passed to set the number of levels of replies that should be returned in the comment tree in one request. Defaults to `2`. Pass `0` to get top comments only.
-        - A `replies_per_page` parameter controls how many direct replies to the same comment should be returned.
-        - Given the above constraints, the maximum number of comments returned in any one request should be
-          `(max_depth + 1) * replies_per_page`
-    - POST: create a new top-level Comment for the Post.
+  - GET: a list of Top Comments served with pagination controls (up to 10 Top Comments per page).
+    - A `max_depth` parameter can be passed to set the number of levels of replies that should be returned in the comment tree in one request. Defaults to `2`. Pass `0` to get top comments only.
+    - A `replies_per_page` parameter controls how many direct replies to the same comment should be returned.
+    - Given the above constraints, the maximum number of comments returned in any one request should be
+      `(max_depth + 1) * replies_per_page`
+  - POST: create a new top-level Comment for the Post.
 - `/posts/<post_id>/comments/<comment_id>`
-    - GET: a single comment matching `comment_id` (the `post_id` should also match, else return a 404 error)
-    - PATCH: update the details of this comment.
-    - DELETE: delete this Comment and all comment replies to it.
+  - GET: a single comment matching `comment_id` (the `post_id` should also match, else return a 404 error)
+  - PATCH: update the details of this comment.
+  - DELETE: delete this Comment and all comment replies to it.
 - `/posts/<post_id>/comments/<comment_id>/replies`
-    - GET: a list of comment replies under comment matching `comment_id` (the `post_id` should also match, else return a 404 error).
-        - A `max_depth` parameter can be passed to set the number of levels of replies that should be returned in the comment tree in one request. Defaults to `2`. Pass `0` to get direct replies only to this comment only.
-        - A `replies_per_page` parameter controls how many direct replies to the same comment should be returned.
-        - Given the above constraints, the maximum number of comments returned in any one request should be
-          `(max_depth + 1) * replies_per_page`
+  - GET: a list of comment replies under comment matching `comment_id` (the `post_id` should also match, else return a 404 error).
+    - A `max_depth` parameter can be passed to set the number of levels of replies that should be returned in the comment tree in one request. Defaults to `2`. Pass `0` to get direct replies only to this comment only.
+    - A `replies_per_page` parameter controls how many direct replies to the same comment should be returned.
+    - Given the above constraints, the maximum number of comments returned in any one request should be
+      `(max_depth + 1) * replies_per_page`
 
 ### Votes
 
