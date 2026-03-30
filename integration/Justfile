@@ -1,5 +1,6 @@
 # Localized `just` command for this file only
 just_local := "just --justfile " + source_file()
+just_manage := "just --justfile ../mlad-manage/Justfile"
 
 # Show these help docs
 [default]
@@ -18,6 +19,8 @@ bootstrap:
 sync:
     npm install
 
+TEST_DB := "postgresql://postgres:postgres@localhost:5432/mlad"
+
 # Run integration tests
 test:
     #!/usr/bin/env bash
@@ -29,6 +32,6 @@ test:
         docker compose -f ../compose.test.yaml logs --no-color
         exit 1
     }
-    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mlad \
-        cargo run --manifest-path ../mlad-manage/Cargo.toml -- db migrate run
+    DATABASE_URL={{TEST_DB}} \
+        {{just_manage}} run db migrate run
     npx playwright test

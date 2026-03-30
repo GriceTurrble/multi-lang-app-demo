@@ -11,16 +11,16 @@ class HomePage {
     return this.page.getByRole("heading", { name: "Welcome to MLAD Forum" });
   }
 
-  loginLink() {
-    return this.page.getByRole("link", { name: "Login" });
+  loginButton() {
+    return this.page.getByRole("button", { name: "Login" });
   }
 
-  registerLink() {
-    return this.page.getByRole("link", { name: "Register" });
+  registerButton() {
+    return this.page.getByRole("button", { name: "Register" });
   }
 
-  browsePostsLink() {
-    return this.page.getByRole("link", { name: "Browse Posts" });
+  browsePostsButton() {
+    return this.page.getByRole("button", { name: "Browse Posts" });
   }
 }
 
