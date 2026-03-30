@@ -156,6 +156,12 @@ jobs:
       - name: Start test stack
         run: docker compose -f compose.test.yaml up -d --build --wait
 
+      - name: Run database migrations
+        working-directory: mlad-manage
+        run: cargo run -- db migrate run
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mlad
+
       - name: Run integration tests
         working-directory: ./integration
         run: npx playwright test

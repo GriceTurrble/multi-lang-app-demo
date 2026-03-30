@@ -114,9 +114,9 @@ Load fixture data from `fixtures.sql` into the current schema.
 just run db load-fixtures [OPTIONS]
 ```
 
-| Option                   | Description               | Default                    |
-| ------------------------ | ------------------------- | -------------------------- |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
+| Option                   | Description               | Default                                   |
+| ------------------------ | ------------------------- | ----------------------------------------- |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../mlad-manage/db-fixtures/fixtures.sql` |
 
 #### `db refresh-db`
 
@@ -126,11 +126,11 @@ Reload the schema then load fixtures in one step. Equivalent to running `reload-
 just run db refresh-db [OPTIONS]
 ```
 
-| Option                   | Description               | Default                    |
-| ------------------------ | ------------------------- | -------------------------- |
-| `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`   |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../database/fixtures.sql` |
-| `-y, --yes`              | Skip confirmation prompt  | -                          |
+| Option                   | Description               | Default                                   |
+| ------------------------ | ------------------------- | ----------------------------------------- |
+| `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`                  |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../mlad-manage/db-fixtures/fixtures.sql` |
+| `-y, --yes`              | Skip confirmation prompt  | -                                         |
 
 ______________________________________________________________________
 

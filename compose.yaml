@@ -3,11 +3,7 @@
 services:
   postgres:
     container_name: postgres
-    build:
-      context: ./database
-      dockerfile: Dockerfile
-      args:
-        load_fixtures: "true"
+    image: postgres:18
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

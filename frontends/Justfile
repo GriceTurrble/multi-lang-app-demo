@@ -1,5 +1,5 @@
 # Next.js frontend
-[group("submodules")]
+[group("frontend-apps")]
 mod nextjs
 
 # Common variable used for running `just` commands from this file, but not from the repo root
@@ -13,6 +13,10 @@ just_local := "just --justfile " + source_file()
     echo "{{GREEN}}>> $(pwd){{NORMAL}}"
     echo ""
     just --list --unsorted --justfile {{ source_file() }}
+
+# List all frontend apps available
+@list:
+    grep -E '^mod ' {{ source_file() }} | awk '{print $2}'
 
 # Sync each frontend
 sync:

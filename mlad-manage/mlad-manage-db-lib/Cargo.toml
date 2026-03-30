@@ -1,0 +1,9 @@
+[package]
+name = "mlad-manage-db-lib"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+diesel = { version = "2", features = ["postgres", "uuid"] }
+diesel_migrations = "2"

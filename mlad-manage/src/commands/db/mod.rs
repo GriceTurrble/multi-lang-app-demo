@@ -1,7 +1,5 @@
 pub mod load_fixtures;
-pub mod load_schema;
-pub mod refresh_db;
-pub mod reload_schema;
+pub mod migrate;
 
 use crate::context::Context;
 use anyhow::Result;
@@ -9,14 +7,10 @@ use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
 pub enum DbCommands {
-    /// Apply schema.sql, failing if the schema already appears to be loaded. Use --force to override.
-    LoadSchema(load_schema::LoadSchema),
-    /// Alias for `load-schema --force`. Drops and reloads the schema unconditionally.
-    ReloadSchema(reload_schema::ReloadSchema),
+    /// Run, revert, or redo diesel migrations.
+    Migrate(migrate::Migrate),
     /// Load fixture data from fixtures.sql into the current schema.
     LoadFixtures(load_fixtures::LoadFixtures),
-    /// Reload schema then load fixtures in one step.
-    RefreshDb(refresh_db::RefreshDb),
 }
 
 /// Arguments for the `db` subcommand group.
@@ -28,38 +22,36 @@ pub struct Db {
 
 impl Db {
     /// Dispatch to the selected database subcommand.
-    pub async fn run(&self, ctx: &Context) -> Result<()> {
+    pub fn run(&self, ctx: &mut Context) -> Result<()> {
         match &self.command {
-            DbCommands::LoadSchema(cmd) => cmd.run(ctx).await,
-            DbCommands::ReloadSchema(cmd) => cmd.run(ctx).await,
-            DbCommands::LoadFixtures(cmd) => cmd.run(ctx).await,
-            DbCommands::RefreshDb(cmd) => cmd.run(ctx).await,
+            DbCommands::Migrate(cmd) => cmd.run(&ctx.database_url),
+            DbCommands::LoadFixtures(cmd) => cmd.run(&mut ctx.conn),
         }
     }
 }
 
 #[cfg(test)]
 pub mod test_helpers {
-    use sqlx::PgPool;
+    use diesel::PgConnection;
+    use diesel::prelude::*;
     use std::path::PathBuf;
-
-    /// Canonical path to `schema.sql` relative to the workspace root.
-    pub fn schema_path() -> PathBuf {
-        PathBuf::from("../database/schema.sql")
-    }
 
     /// Canonical path to `fixtures.sql` relative to the workspace root.
     pub fn fixtures_path() -> PathBuf {
-        PathBuf::from("../database/fixtures.sql")
+        PathBuf::from("./db_fixtures/fixtures.sql")
     }
 
-    /// Apply schema.sql directly to the pool without dropping first.
-    /// Suitable for setting up fresh test databases from `#[sqlx::test]`.
-    pub async fn apply_schema(pool: &PgPool) {
-        let sql = std::fs::read_to_string(schema_path()).expect("Cannot read schema.sql");
-        sqlx::raw_sql(&sql)
-            .execute(pool)
-            .await
-            .expect("Failed to apply schema in test setup");
+    /// Open a connection to the test database.
+    pub fn establish_test_conn() -> PgConnection {
+        let url = std::env::var("DATABASE_URL")
+            .unwrap_or_else(|_| "postgresql://postgres:postgres@localhost:5432/mlad".to_string());
+        PgConnection::establish(&url).expect("Failed to connect to test database")
+    }
+
+    /// Run all pending migrations against `conn`.
+    /// Suitable for use inside a `test_transaction` block.
+    pub fn apply_migrations(conn: &mut PgConnection) {
+        mlad_manage_db_lib::run_pending_migrations(conn)
+            .expect("Failed to run migrations in test setup");
     }
 }

@@ -9,6 +9,7 @@ export default function Home() {
         across multiple backend frameworks.
       </p>
       <Link
+        role="button"
         href="/posts"
         className="w-fit rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
       >

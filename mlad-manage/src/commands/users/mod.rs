@@ -19,9 +19,9 @@ pub struct Users {
 
 impl Users {
     /// Dispatch to the selected user subcommand.
-    pub async fn run(&self, ctx: &Context) -> Result<()> {
+    pub fn run(&self, ctx: &mut Context) -> Result<()> {
         match &self.command {
-            UsersCommands::Create(cmd) => cmd.run(ctx).await,
+            UsersCommands::Create(cmd) => cmd.run(&mut ctx.conn),
         }
     }
 }

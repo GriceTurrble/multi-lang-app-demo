@@ -22,8 +22,7 @@ struct Cli {
     command: Commands,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let cli = Cli::parse();
     let config = Config::load(cli.database_url)?;
 
@@ -31,12 +30,12 @@ async fn main() -> Result<()> {
         Commands::Check(cmd) => cmd.run(),
         Commands::Generate(cmd) => cmd.run(),
         Commands::Db(cmd) => {
-            let ctx = Context::new(config).await?;
-            cmd.run(&ctx).await
+            let mut ctx = Context::new(config)?;
+            cmd.run(&mut ctx)
         }
         Commands::Users(cmd) => {
-            let ctx = Context::new(config).await?;
-            cmd.run(&ctx).await
+            let mut ctx = Context::new(config)?;
+            cmd.run(&mut ctx)
         }
     }
 }

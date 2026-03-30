@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "fixtures/HomePage";
 
-test("home page is shown", async ({ page }) => {
-  await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "Welcome to MLAD Forum" }),
-  ).toBeVisible();
+test("home page controls are shown", async ({ homePage }) => {
+  await expect(homePage.heading()).toBeVisible();
+  await expect(homePage.loginButton()).toBeVisible();
+  await expect(homePage.registerButton()).toBeVisible();
+  await expect(homePage.browsePostsButton()).toBeVisible();
 });

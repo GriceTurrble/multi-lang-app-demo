@@ -36,6 +36,10 @@ ensure-built:
 @run-dev +args:
     cargo run {{ args }}
 
+# Install diesel_cli (required for generating new migrations)
+bootstrap:
+    cargo install diesel_cli --no-default-features --features postgres
+
 # Run tests across the workspace
 test:
     cargo test --workspace
