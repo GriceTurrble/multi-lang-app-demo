@@ -21,6 +21,12 @@ export function LoginModal({ open, onClose, onSwitchToRegister }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    setError(undefined);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -28,10 +34,13 @@ export function LoginModal({ open, onClose, onSwitchToRegister }: Props) {
     try {
       const { access_token, user } = await apiLogin(email, password);
       login(access_token, user);
+      resetForm();
       onClose();
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed");
+      // Clear the password on error: the user must re-enter it
+      setPassword("");
     } finally {
       setSubmitting(false);
     }
