@@ -25,15 +25,5 @@ Meanwhile, [frontends/nextjs](frontends/nextjs) uses Vitest to ensure different 
 
 ## Integration tests
 
-At a higher level from individual apps, **integration tests** ensure the overall app works as intended,
-using simulated interactions from a user. These tests should ensure that the individual parts of the application stack
-work together - from frontend interactions to backend responses and the database queries that drive those respones.
-
-All integration tests are written with Playwright in the [integration/](integration/) directory.
-The command `just test` in that directory (or `just integration test` from the project root)
-spins up an isolated version of the application in Docker Compose along with a Postgres database that is not persisted.
-This allows tests to function inside CI.
-
-> [!NOTE]
-> Integration tests can also be run using Playwright's VS Code extension, so long as the application is started
-> using `just up` in a separate terminal tab before running tests.
+At a higher level from individual apps, **integration tests** ensure the overall app works as intended
+using simulated user interactions. See [integration/](integration/) for full details.
