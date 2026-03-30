@@ -15,7 +15,7 @@ dc_resource(
 )
 local_resource(
     "db-migrate",
-    cmd="just db migrate",
+    cmd="just manage run db migrate run",
     resource_deps=["postgres"],
     labels=["database"],
 )
