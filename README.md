@@ -11,7 +11,10 @@ reply to Comments,
 and cast upvotes or downvotes on both Posts and Comments.
 
 Every backend implementation follows the same [specification](backends/SPEC.md)
-and exposes the same REST API, making each one a drop-in replacement for any other. A single shared Postgres instance handles data storage across all services, with the schema and stored functions defined once in [`database/`](database/).
+and exposes the same REST API, making each one a drop-in replacement for any other.
+
+A single shared Postgres instance handles data storage across all services.
+The schema and stored functions are maintained by a local Rust crate, [`mlad-db/`](mlad-db/).
 
 The local development environment is orchestrated with [Tilt] and [Docker Compose],
 providing live reloading and easy switching between backend services.
@@ -19,10 +22,12 @@ providing live reloading and easy switching between backend services.
 ### Project structure
 
 ```
-backends/   # One sub-directory per backend implementation
-frontends/  # One sub-directory per frontend implementation (planned)
-database/   # Shared Postgres schema, migrations, and fixture data
-data/       # Supporting data files
+backends/     # One sub-directory per backend implementation
+frontends/    # One sub-directory per frontend implementation
+mlad-db/      # Rust crate used to manage database schema
+mlad-manage/  # Rust crate used for general management commands across the project
+integration/  # Playwright integration tests
+data/         # Supporting data files
 ```
 
 ### Backends
@@ -33,7 +38,9 @@ data/       # Supporting data files
 
 ### Frontends
 
-*Coming soon*
+| Directory                     | Language   | Framework |
+| ----------------------------- | ---------- | --------- |
+| [`nextjs`](frontends/nextjs/) | TypeScript | NextJs    |
 
 ### Goals
 
@@ -53,6 +60,7 @@ You'll want the following languages installed on your local machine *if* you wan
 
 - [Python] (3.14 or later)
 - [Rust] (latest stable)
+- [Node] (25+)
 
 Otherwise, you are free to run processes via their Docker entrypoints.
 
@@ -160,6 +168,7 @@ Contributions suspected of being created and submitted solely by an AI agent wil
 [docker compose]: https://docs.docker.com/compose/install
 [homebrew]: https://brew.sh/
 [just]: https://just.systems/man/en/introduction.html
+[node]: https://nodejs.org/en/download
 [pgadmin]: https://www.pgadmin.org/
 [pre-commit]: https://pre-commit.com
 [python]: https://www.python.org/
