@@ -63,7 +63,6 @@ export function VoteButtons({ score, userVote = 0, onVote, disabled, vertical }:
         ▲
       </button>
       <span className="min-w-[2ch] text-center text-sm font-medium tabular-nums text-gray-700 dark:text-gray-300">
-        {displayScore > 0 ? "+" : ""}
         {displayScore}
       </span>
       <button
