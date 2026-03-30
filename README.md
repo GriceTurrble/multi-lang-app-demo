@@ -143,6 +143,10 @@ Key design decisions are documented in [docs/adrs/](docs/adrs/).
 
 Code in this repository was developed with AI assistance, however all code here is (eventually) reviewed by a human and continually refactored to improve quality, clarity, coherence, and idiomatic patterns in their respective frameworks.
 
+This project is not intended to be deployed into any production environment.
+Rather, it serves for education (of its author!) and demonstration.
+If it *was* intended for production use, the author of this work would have much more strict guidelines here.
+
 ## AI Contributions
 
 Any contributions to this repository should adhere to the same standard set by the above disclosure. Human contributors must always be directly accountable for the work committed.
