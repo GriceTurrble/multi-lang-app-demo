@@ -1,10 +1,12 @@
-use crate::context::Context;
 use anyhow::{Context as _, Result};
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
+    password_hash::{PasswordHasher, SaltString},
     Argon2,
 };
+use rand::rngs::OsRng;
 use clap::Args;
+use diesel::prelude::*;
+use diesel::sql_types::{Text, Uuid as SqlUuid};
 use uuid::Uuid;
 
 /// Arguments for the `users create` subcommand.
@@ -13,7 +15,7 @@ pub struct Create;
 
 impl Create {
     /// Prompt for user details, hash the password with Argon2, and insert the new user.
-    pub async fn run(&self, ctx: &Context) -> Result<()> {
+    pub fn run(&self, conn: &mut PgConnection) -> Result<()> {
         let email = prompt("Email: ")?;
         let username = prompt("Username: ")?;
         let password = rpassword::prompt_password("Password: ")
@@ -27,15 +29,14 @@ impl Create {
 
         let id = Uuid::now_v7();
 
-        sqlx::query(
+        diesel::sql_query(
             "INSERT INTO users (id, email, username, password_hash) VALUES ($1, $2, $3, $4)",
         )
-        .bind(id)
-        .bind(&email)
-        .bind(&username)
-        .bind(&hash)
-        .execute(&ctx.pool)
-        .await
+        .bind::<SqlUuid, _>(id)
+        .bind::<Text, _>(&email)
+        .bind::<Text, _>(&username)
+        .bind::<Text, _>(&hash)
+        .execute(conn)
         .context("Failed to insert user")?;
 
         println!("Created user  id={}  username={}", id, username);

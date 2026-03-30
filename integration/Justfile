@@ -29,4 +29,6 @@ test:
         docker compose -f ../compose.test.yaml logs --no-color
         exit 1
     }
+    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mlad \
+        cargo run --manifest-path ../mlad-manage/Cargo.toml -- db migrate run
     npx playwright test

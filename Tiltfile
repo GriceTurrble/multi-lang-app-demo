@@ -13,6 +13,12 @@ dc_resource(
     ],
     infer_links=False,
 )
+local_resource(
+    "db-migrate",
+    cmd="just db migrate",
+    resource_deps=["postgres"],
+    labels=["database"],
+)
 dc_resource(
     "pgadmin",
     labels=["database"],
