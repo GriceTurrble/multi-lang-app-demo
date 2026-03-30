@@ -12,9 +12,9 @@ A CLI management tool written in Rust for managing database state for the multi-
 
 The tool reads configuration from environment variables or a `.env` file in the `mlad-manage/` directory.
 
-| Variable       | Description                  | Default                                                |
-| -------------- | ---------------------------- | ------------------------------------------------------ |
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/testdb` |
+| Variable       | Description                  | Default                                              |
+| -------------- | ---------------------------- | ---------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5432/mlad` |
 
 `DATABASE_URL` can also be overridden at runtime with the `--database-url` flag (see [Global Flags](#global-flags)).
 
@@ -71,8 +71,8 @@ just run-dev generate adr "Title of the Decision" [OPTIONS]
 just run-dev gen adr "Title of the Decision" [OPTIONS]
 ```
 
-| Option             | Description               | Default       |
-| ------------------ | ------------------------- | ------------- |
+| Option              | Description               | Default        |
+| ------------------- | ------------------------- | -------------- |
 | `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
 ---
@@ -161,8 +161,8 @@ Check ADR file compliance. Verifies:
 just run check adrs [OPTIONS]
 ```
 
-| Option             | Description               | Default       |
-| ------------------ | ------------------------- | ------------- |
+| Option              | Description               | Default        |
+| ------------------- | ------------------------- | -------------- |
 | `--adrs-dir <PATH>` | Path to the ADR directory | `../docs/adrs` |
 
 ---

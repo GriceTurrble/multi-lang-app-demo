@@ -18,7 +18,7 @@ impl Config {
         let database_url = database_url_override
             .or_else(|| std::env::var("DATABASE_URL").ok())
             .unwrap_or_else(|| {
-                "postgresql://postgres:postgres@localhost:5432/testdb".to_string()
+                "postgresql://postgres:postgres@localhost:5432/mlad".to_string()
             });
 
         Ok(Self { database_url })

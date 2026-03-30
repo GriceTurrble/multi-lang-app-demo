@@ -17,7 +17,7 @@ from app.models import UserResponse
 def settings() -> Generator[Settings]:
     # Apply any test overrides here
     settings = Settings(
-        database_url="postgresql://postgres:postgres@localhost:5432/testdb",
+        database_url="postgresql://postgres:postgres@localhost:5432/mlad",
         db_min_connections=2,
         db_max_connections=10,
     )
