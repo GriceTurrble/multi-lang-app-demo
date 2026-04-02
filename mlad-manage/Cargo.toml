@@ -12,7 +12,7 @@ mlad-manage-db-lib = { path = "mlad-manage-db-lib" }
 clap = { version = "4", features = ["derive", "env"] }
 diesel = { version = "2", features = ["postgres", "uuid"] }
 argon2 = "0.5.3"
-rand = "0.8.5"
+rand = "0.10.0"
 uuid = { version = "1", features = ["v4", "v7"] }
 chrono = { version = "0.4", features = ["clock"] }
 dotenvy = "0.15"
