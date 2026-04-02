@@ -1,24 +1,29 @@
 {
-	"folders": [
-		{
-			"name": "root",
-			"path": "."
-		},
+  // Workspace roots:
+  "folders": [
     {
-			"path": "mlad-manage",
-		},
-    {
-      "path": "integration",
+      "name": "root",
+      "path": "."
     },
-		{
-			"name": "backends/fastapi",
-			"path": "backends/fastapi"
-		},
-		{
-			"name": "frontends/nextjs",
-			"path": "frontends/nextjs"
-		}
-	],
+    {
+      "path": "mlad-manage"
+    },
+    {
+      "path": "integration"
+    },
+    {
+      "name": "backends/fastapi",
+      "path": "backends/fastapi"
+    },
+    {
+      "name": "frontends/nextjs",
+      "path": "frontends/nextjs"
+    }
+  ],
+  // Settings for excluding projects from the 'root' workspace to avoid confusion
+  // (you'll still find them in their own folder paths, above)
+  // NOTE: this applies separately to each workspace root.
+  // Try to avoid duplicating names in a subdirectory, or you may lose things!
   "settings": {
     "files.exclude": {
       "**/.git": true,
@@ -31,5 +36,38 @@
       "backends/fastapi": true,
       "frontends/nextjs": true
     }
+  },
+  // My extension recommendations for working with this project in VS Code:
+  "extensions": {
+    "recommendations": [
+      // Rust syntax
+      "1YiB.rust-bundle",
+      // Tera template language, used in some Rust frameworks
+      "karunamurti.tera",
+      // Dependency markers in requirements files (cargo.toml, pyproject, package.json, etc.)
+      "fill-labs.dependi",
+      // Python type checker `ty` by Astral
+      "astral-sh.ty",
+      // TailwindCSS intellisense
+      "bradlc.vscode-tailwindcss",
+      // Python linter and formatter `ruff` by Astral
+      "charliermarsh.ruff",
+      // eslint for JavaScript/TypeScript projects
+      "dbaeumer.vscode-eslint",
+      // Playwright test runner
+      "ms-playwright.playwright",
+      // Python bundle
+      "ms-python.python",
+      // Justfile syntax
+      "nefrob.vscode-just-syntax",
+      // YAML support
+      "redhat.vscode-yaml",
+      // TOML support
+      "tamasfe.even-better-toml",
+      // Tiltfile syntax
+      "tilt-dev.tiltfile",
+      // Vitest test runner
+      "vitest.explorer"
+    ]
   }
 }
