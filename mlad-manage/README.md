@@ -45,6 +45,20 @@ just test
 cargo test
 ```
 
+**One-time setup** - install `diesel_cli` (required to generate new migrations):
+
+```bash
+just bootstrap
+```
+
+**Justfile shortcuts** (aliases for common commands using the release binary):
+
+| Shortcut             | Equivalent                  |
+| -------------------- | --------------------------- |
+| `just migrate`       | `just run db migrate run`   |
+| `just load-fixtures` | `just run db load-fixtures` |
+| `just check`         | `just run check`            |
+
 ## Global Flags
 
 These flags apply to all commands:
@@ -79,32 +93,35 @@ ______________________________________________________________________
 
 ### `db` - Database Management
 
-#### `db load-schema`
+#### `db migrate` - Migrations
 
-Apply `schema.sql` to the database. Fails if the schema appears already loaded (i.e., the first table already exists), unless `--force` is used.
+Wraps [Diesel] migrations. Requires `diesel_cli` to be installed (see `just bootstrap` above).
 
-```bash
-just run db load-schema [OPTIONS]
-```
+##### `db migrate run`
 
-| Option                 | Description                                           | Default                  |
-| ---------------------- | ----------------------------------------------------- | ------------------------ |
-| `--schema-file <PATH>` | Path to schema SQL file                               | `../database/schema.sql` |
-| `-y, --yes`            | Skip confirmation prompt                              | -                        |
-| `--force`              | Drop and reload even if schema already appears loaded | -                        |
-
-#### `db reload-schema`
-
-Alias for `load-schema --force`. Drops and reloads the schema unconditionally.
+Run all pending migrations.
 
 ```bash
-just run db reload-schema [OPTIONS]
+just run db migrate run
 ```
 
-| Option                 | Description              | Default                  |
-| ---------------------- | ------------------------ | ------------------------ |
-| `--schema-file <PATH>` | Path to schema SQL file  | `../database/schema.sql` |
-| `-y, --yes`            | Skip confirmation prompt | -                        |
+##### `db migrate revert`
+
+Revert the most recently applied migration.
+
+```bash
+just run db migrate revert
+```
+
+##### `db migrate redo`
+
+Revert and re-run the most recently applied migration.
+
+```bash
+just run db migrate redo
+```
+
+______________________________________________________________________
 
 #### `db load-fixtures`
 
@@ -114,23 +131,9 @@ Load fixture data from `fixtures.sql` into the current schema.
 just run db load-fixtures [OPTIONS]
 ```
 
-| Option                   | Description               | Default                                   |
-| ------------------------ | ------------------------- | ----------------------------------------- |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../mlad-manage/db-fixtures/fixtures.sql` |
-
-#### `db refresh-db`
-
-Reload the schema then load fixtures in one step. Equivalent to running `reload-schema` followed by `load-fixtures`.
-
-```bash
-just run db refresh-db [OPTIONS]
-```
-
-| Option                   | Description               | Default                                   |
-| ------------------------ | ------------------------- | ----------------------------------------- |
-| `--schema-file <PATH>`   | Path to schema SQL file   | `../database/schema.sql`                  |
-| `--fixtures-file <PATH>` | Path to fixtures SQL file | `../mlad-manage/db-fixtures/fixtures.sql` |
-| `-y, --yes`              | Skip confirmation prompt  | -                                         |
+| Option                   | Description               | Default                      |
+| ------------------------ | ------------------------- | ---------------------------- |
+| `--fixtures-file <PATH>` | Path to fixtures SQL file | `./db_fixtures/fixtures.sql` |
 
 ______________________________________________________________________
 
@@ -150,7 +153,7 @@ Output follows the format:
    - <failure detail>
 ```
 
-#### `check adrs`
+#### `check adr`
 
 Check ADR file compliance. Verifies:
 
@@ -158,7 +161,7 @@ Check ADR file compliance. Verifies:
 - **No gaps in sequence** - ADR IDs form a contiguous sequence starting from `0001`.
 
 ```bash
-just run check adrs [OPTIONS]
+just run check adr [OPTIONS]
 ```
 
 | Option              | Description               | Default        |
@@ -186,14 +189,14 @@ No flags or arguments. Prompts:
 ## Examples
 
 ```bash
-# Full database reset with fixtures (skip confirmation)
-just run db refresh-db --yes
+# Run all pending migrations
+just run db migrate run
 
-# Load only the schema (prompt for confirmation)
-just run db load-schema
+# Revert the last migration
+just run db migrate revert
 
-# Force reload schema from a custom path
-just run db reload-schema --yes --schema-file /path/to/schema.sql
+# Load fixture data
+just run db load-fixtures
 
 # Create a new user interactively
 just run users create
@@ -202,10 +205,10 @@ just run users create
 just run check
 
 # Run only the ADR check
-just run check adrs
+just run check adr
 
 # Run ADR check against a non-default directory
-just run check adrs --adrs-dir /path/to/docs/adrs
+just run check adr --adrs-dir /path/to/docs/adrs
 
 # Create a new ADR
 just run generate adr "My Architecture Decision"
@@ -217,5 +220,6 @@ just run gen adr "My Architecture Decision"
 just run gen adr "My Architecture Decision" --adrs-dir /path/to/docs/adrs
 ```
 
+[diesel]: https://diesel.rs/
 [just]: https://github.com/casey/just
 [rustup]: https://rustup.rs/
