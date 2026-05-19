@@ -44,7 +44,7 @@ ensure-built:
 @run-dev +args:
     cargo run {{ args }}
 
-# Install diesel_cli (required for generating new migrations)
+# Install required tools (diesel_cli, auditable, etc.)
 bootstrap:
     cargo install diesel_cli --no-default-features --features postgres
     cargo install cargo-auditable cargo-audit
