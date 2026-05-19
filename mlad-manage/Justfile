@@ -16,9 +16,17 @@ BIN_PATH := BIN_DIR + "/" + PACKAGE
 # Build the `mlad-manage` binary in release mode, then copy it into `bin/`.
 build:
     rm -rf {{ BIN_DIR }}
-    cargo build --release
+    cargo auditable build --release
     mkdir -p {{ BIN_DIR }}
     cp target/release/{{ PACKAGE }} {{ BIN_PATH }}
+
+# Updates cargo.lock dependencies
+update:
+    cargo update
+
+# Run `cargo audit` for the built package
+audit: build
+    cargo audit bin target/release/{{ PACKAGE }}
 
 # Ensures the binary exists. If it does not, builds it.
 ensure-built:
@@ -36,9 +44,10 @@ ensure-built:
 @run-dev +args:
     cargo run {{ args }}
 
-# Install diesel_cli (required for generating new migrations)
+# Install required tools (diesel_cli, auditable, etc.)
 bootstrap:
     cargo install diesel_cli --no-default-features --features postgres
+    cargo install cargo-auditable cargo-audit
 
 # Run tests across the workspace
 test:
