@@ -20,6 +20,10 @@ build:
     mkdir -p {{ BIN_DIR }}
     cp target/release/{{ PACKAGE }} {{ BIN_PATH }}
 
+# Updates cargo.lock dependencies
+update:
+    cargo update
+
 # Run `cargo audit` for the built package
 audit: build
     cargo audit bin target/release/{{ PACKAGE }}
