@@ -11,7 +11,7 @@ dependencies = [
     "pydantic-settings~=2.14.1",
     "uuid7-standard>=1.1.0",
     "passlib[argon2,bcrypt]>=1.7.4",
-    "python-multipart>=0.0.29",
+    "python-multipart>=0.0.31",
     "pgargs>=0.1.0",
 ]
 
