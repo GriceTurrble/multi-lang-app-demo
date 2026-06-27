@@ -36,20 +36,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("mlad_token");
-    if (!storedToken) {
-      setInitialized(true);
-      return;
-    }
 
-    getMe(storedToken)
-      .then((u) => {
-        setToken(storedToken);
-        setUser(u);
-      })
-      .catch(() => {
-        localStorage.removeItem("mlad_token");
-      })
-      .finally(() => setInitialized(true));
+    (storedToken
+      ? getMe(storedToken)
+        .then((u) => {
+          setToken(storedToken);
+          setUser(u);
+        })
+        .catch(() => {
+          localStorage.removeItem("mlad_token");
+        })
+      : Promise.resolve()
+    ).finally(() => setInitialized(true));
   }, []);
 
   const login = (newToken: string, newUser: UserResponse) => {
