@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type Props = {
   score: number;
@@ -14,13 +14,12 @@ export function VoteButtons({ score, userVote = 0, onVote, disabled, vertical }:
   const [pending, setPending] = useState(false);
   const [localDelta, setLocalDelta] = useState(0);
   const [currentVote, setCurrentVote] = useState(userVote);
-
-  useEffect(() => {
-    if (!pending) {
-      setCurrentVote(userVote);
-      setLocalDelta(0);
-    }
-  }, [userVote]);
+  const [prevUserVote, setPrevUserVote] = useState(userVote);
+  if (!pending && prevUserVote !== userVote) {
+    setPrevUserVote(userVote);
+    setCurrentVote(userVote);
+    setLocalDelta(0);
+  }
 
   const handleVote = async (value: -1 | 1) => {
     if (pending || disabled) return;
