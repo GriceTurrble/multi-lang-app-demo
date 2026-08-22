@@ -26,6 +26,7 @@ ignore = [
     "E203",    # whitespace-before-punctuation
     "F811",    # redefined-while-unused
     "PLR0913", # too-many-arguments
+    "PLR0917", # too-many-positional-arguments
     "S101",    # assert (usage of the assert statement)
     "S113",    # request-without-timeout
     "S602",    # subprocess-popen-with-shell-equals-true

@@ -6,6 +6,13 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    // eslint-plugin-react 7.37.5 detects the React version by calling
+    // context.getFilename(), which ESLint 10 removed. Pinning the version here
+    // skips that detection. Drop this once eslint-config-next ships a
+    // React plugin that supports ESLint 10.
+    settings: {
+      react: { version: "19.2" },
+    },
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
