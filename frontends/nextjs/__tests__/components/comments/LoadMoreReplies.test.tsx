@@ -69,7 +69,7 @@ describe("LoadMoreReplies", () => {
   });
 
   it("shows Loading... and disables button while loading", async () => {
-    let resolve!: () => void;
+    let resolve!: (value: { items: CommentResponse[]; next_cursor?: string }) => void;
     mockListReplies.mockReturnValue(
       new Promise((res) => { resolve = res; })
     );
