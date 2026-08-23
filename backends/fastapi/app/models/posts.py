@@ -3,17 +3,20 @@ from __future__ import annotations
 import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+TITLE_MAX_LENGTH = 300
+BODY_MAX_LENGTH = 40_000
 
 
 class PostCreate(BaseModel):
-    title: str | None = None
-    body: str
+    title: str | None = Field(default=None, max_length=TITLE_MAX_LENGTH)
+    body: str = Field(min_length=1, max_length=BODY_MAX_LENGTH)
 
 
 class PostUpdate(BaseModel):
-    title: str | None = None
-    body: str | None = None
+    title: str | None = Field(default=None, max_length=TITLE_MAX_LENGTH)
+    body: str | None = Field(default=None, min_length=1, max_length=BODY_MAX_LENGTH)
 
 
 class PostResponse(BaseModel):

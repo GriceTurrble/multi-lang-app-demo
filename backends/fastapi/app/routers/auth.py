@@ -6,7 +6,12 @@ import asyncpg
 from fastapi import APIRouter, HTTPException, status
 from pgargs import Args, Cols
 
-from app.auth import BearerDep, CurrentUserDep, hash_password, verify_password
+from app.auth import (
+    CurrentSessionDep,
+    CurrentUserDep,
+    hash_password,
+    verify_password,
+)
 from app.config import SettingsDep
 from app.db import PoolDep
 from app.models import LoginRequest, TokenResponse, UserCreate, UserResponse
@@ -20,7 +25,7 @@ async def register(pool: PoolDep, payload: UserCreate):
         cols = Cols(
             email=payload.email,
             username=payload.username,
-            passwrd=hash_password(payload.password),
+            password_hash=hash_password(payload.password),
         )
         async with pool.acquire() as conn:
             row = await conn.fetchrow(
@@ -74,11 +79,16 @@ async def login(pool: PoolDep, settings: SettingsDep, payload: LoginRequest):
 
 
 @router.post("/logout", status_code=204)
-async def logout(pool: PoolDep, credentials: BearerDep):
-    args = Args(token=credentials.credentials)
+async def logout(pool: PoolDep, session: CurrentSessionDep):
+    args = Args(session_id=session.id, user_id=session.user.id)
     async with pool.acquire() as conn:
         await conn.execute(
-            f"UPDATE sessions SET is_active = FALSE WHERE id = {args.token}::uuid",
+            f"""
+            UPDATE sessions
+            SET is_active = FALSE
+            WHERE id = {args.session_id}
+              AND user_id = {args.user_id}
+            """,
             *args,
         )
 

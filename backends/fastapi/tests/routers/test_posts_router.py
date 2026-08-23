@@ -257,10 +257,12 @@ def test_get_post_invalid_uuid(
 def test_update_post(
     authed_client: TestClient,
     mock_conn: AsyncMock,
+    mock_user: UserResponse,
 ):
     """PATCH /posts/<uuid> edits the post."""
     post_id = uuid7.create()
     row = _make_post_row(id=post_id, body="Updated body")
+    mock_conn.fetchval.return_value = mock_user.id
 
     def _side_effect(query: str, body: str, post_id: UUID):
         assert "UPDATE" in query.upper()
@@ -289,7 +291,7 @@ def test_update_post_no_fields(authed_client: TestClient):
 
 def test_update_post_not_found(authed_client: TestClient, mock_conn: AsyncMock):
     """Attemping to PATCH a non-existent Post 404's."""
-    mock_conn.fetchrow.return_value = None
+    mock_conn.fetchval.return_value = None
 
     resp = authed_client.patch(f"/posts/{uuid7.create()}", json={"body": "Updated"})
 
@@ -303,12 +305,29 @@ def test_update_post_requires_auth(test_client: TestClient):
     assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
+def test_update_post_rejects_non_author(
+    authed_client: TestClient, mock_conn: AsyncMock
+):
+    """A post authored by somebody else cannot be edited."""
+    mock_conn.fetchval.return_value = uuid7.create()
+
+    resp = authed_client.patch(f"/posts/{uuid7.create()}", json={"body": "Updated"})
+
+    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    mock_conn.fetchrow.assert_not_awaited()
+
+
 # === DELETE /posts/{post_id} ===
 
 
-def test_delete_post(authed_client: TestClient, mock_conn: AsyncMock):
+def test_delete_post(
+    authed_client: TestClient,
+    mock_conn: AsyncMock,
+    mock_user: UserResponse,
+):
     """Can DELETE Posts."""
     row_id = uuid7.create()
+    mock_conn.fetchval.return_value = mock_user.id
 
     async def _side_effect(query, post_id):
         assert "DELETE" in query.upper()
@@ -332,14 +351,27 @@ def test_delete_post_not_found_still_works(
     I mean, why 404 (not found) when we want to no longer be able to find it, anyway?
     Issuing the same DELETE command more than once should be idempotent.
     """
-    mock_conn.execute.return_value = "DELETE 0"
+    mock_conn.fetchval.return_value = None
 
     resp = authed_client.delete(f"/posts/{uuid7.create()}")
 
     assert resp.status_code == status.HTTP_204_NO_CONTENT
+    mock_conn.execute.assert_not_awaited()
 
 
 def test_delete_post_requires_auth(test_client: TestClient):
     """DELETE /posts without credentials is rejected."""
     resp = test_client.delete(f"/posts/{uuid7.create()}")
     assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_delete_post_rejects_non_author(
+    authed_client: TestClient, mock_conn: AsyncMock
+):
+    """A post authored by somebody else cannot be deleted."""
+    mock_conn.fetchval.return_value = uuid7.create()
+
+    resp = authed_client.delete(f"/posts/{uuid7.create()}")
+
+    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    mock_conn.execute.assert_not_awaited()

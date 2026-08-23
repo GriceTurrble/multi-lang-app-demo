@@ -51,6 +51,29 @@ def test_register(test_client: TestClient, mock_conn: AsyncMock):
     assert "password_hash" not in data
 
 
+def test_register_inserts_into_password_hash_column(
+    test_client: TestClient, mock_conn: AsyncMock
+):
+    """The INSERT targets the real column name on the `users` table.
+
+    Because the DB is mocked, a misspelled column name would otherwise only
+    surface against a live Postgres.
+    """
+    mock_conn.fetchrow.return_value = _make_user_row()
+
+    test_client.post(
+        "/auth/register",
+        json={
+            "email": "test@example.com",
+            "username": "testuser",
+            "password": "pass123",
+        },
+    )
+
+    sql = mock_conn.fetchrow.await_args.args[0]
+    assert "password_hash" in sql
+
+
 def test_register_conflict(test_client: TestClient, mock_conn: AsyncMock):
     """Registering with a duplicate email or username returns 409."""
     mock_conn.fetchrow.side_effect = asyncpg.UniqueViolationError()
@@ -123,9 +146,9 @@ def test_login_wrong_password(test_client: TestClient, mock_conn: AsyncMock):
 # === POST /auth/logout ===
 
 
-def test_logout(test_client: TestClient, mock_conn: AsyncMock):
-    """A valid Bearer token can be logged out."""
-    resp = test_client.post(
+def test_logout(authed_client: TestClient, mock_conn: AsyncMock):
+    """A valid session can be logged out."""
+    resp = authed_client.post(
         "/auth/logout",
         headers={"Authorization": "Bearer some-fake-token"},
     )
@@ -133,9 +156,37 @@ def test_logout(test_client: TestClient, mock_conn: AsyncMock):
     assert resp.status_code == status.HTTP_204_NO_CONTENT
 
 
+def test_logout_scopes_update_to_the_session(
+    authed_client: TestClient,
+    mock_conn: AsyncMock,
+    mock_session,
+):
+    """Logout deactivates only the caller's own session row."""
+    authed_client.post(
+        "/auth/logout",
+        headers={"Authorization": "Bearer some-fake-token"},
+    )
+
+    _, *params = mock_conn.execute.await_args.args
+    assert mock_session.id in params
+    assert mock_session.user.id in params
+
+
 def test_logout_requires_auth(test_client: TestClient):
-    """Logout without a Bearer token returns 403."""
+    """Logout without a Bearer token returns 401."""
     resp = test_client.post("/auth/logout")
+
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_logout_rejects_unknown_session(test_client: TestClient, mock_conn: AsyncMock):
+    """A well-formed token with no matching session row returns 401."""
+    mock_conn.fetchrow.return_value = None
+
+    resp = test_client.post(
+        "/auth/logout",
+        headers={"Authorization": f"Bearer {uuid7.create()}"},
+    )
 
     assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 

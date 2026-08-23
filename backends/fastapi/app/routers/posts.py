@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from pgargs import Args, Cols
 
 from app.auth import CurrentUserDep, OptionalCurrentUserDep
@@ -10,6 +10,28 @@ from app.models import PostCreate, PostListResponse, PostResponse, PostUpdate
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 PAGE_SIZE = 25
+
+
+async def _post_is_owned_by(conn, post_id: UUID, user_id: UUID) -> bool:
+    """Check that `user_id` authored the post `post_id`.
+
+    Returns `False` when the post does not exist at all, leaving the caller to
+    choose between a 404 and an idempotent no-op. Raises 403 when the post
+    exists but belongs to someone else.
+    """
+    args = Args(post_id=post_id)
+    author_id = await conn.fetchval(
+        f"SELECT author_id FROM posts WHERE id = {args.post_id}",
+        *args,
+    )
+    if author_id is None:
+        return False
+    if author_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You may only modify your own posts",
+        )
+    return True
 
 
 @router.get("", response_model=PostListResponse)
@@ -122,6 +144,8 @@ async def update_post(
     args = Args(post_id=post_id)
     update_cols = Cols(args, **updates)
     async with pool.acquire() as conn:
+        if not await _post_is_owned_by(conn, post_id, current_user.id):
+            raise HTTPException(status_code=404, detail="Post not found")
         row = await conn.fetchrow(
             f"""
             WITH upd AS (
@@ -150,4 +174,7 @@ async def delete_post(
 ):
     args = Args(post_id=post_id)
     async with pool.acquire() as conn:
+        # Deleting an already-absent post stays a no-op 204.
+        if not await _post_is_owned_by(conn, post_id, current_user.id):
+            return
         _ = await conn.execute(f"DELETE FROM posts WHERE id = {args.post_id}", *args)

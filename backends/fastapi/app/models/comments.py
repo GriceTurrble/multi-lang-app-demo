@@ -3,16 +3,18 @@ from __future__ import annotations
 import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+BODY_MAX_LENGTH = 10_000
 
 
 class CommentCreate(BaseModel):
-    body: str
+    body: str = Field(min_length=1, max_length=BODY_MAX_LENGTH)
     parent_comment_id: UUID | None = None
 
 
 class CommentUpdate(BaseModel):
-    body: str | None = None
+    body: str | None = Field(default=None, min_length=1, max_length=BODY_MAX_LENGTH)
 
 
 class CommentResponse(BaseModel):

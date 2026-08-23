@@ -8,9 +8,20 @@ import pytest
 import uuid7
 from fastapi.testclient import TestClient
 
+from app.auth import AuthenticatedSession
 from app.config import Settings
 from app.main import get_app
 from app.models import UserResponse
+
+
+@pytest.fixture(scope="session")
+def anyio_backend() -> str:
+    """Run `@pytest.mark.anyio` tests on asyncio only.
+
+    anyio ships the pytest plugin we use for async tests, so no extra async
+    test dependency is needed.
+    """
+    return "asyncio"
 
 
 @pytest.fixture
@@ -63,16 +74,29 @@ def test_client(settings, mock_pool: MagicMock) -> Generator[TestClient]:
 
 
 @pytest.fixture
+def mock_session(mock_user: UserResponse) -> AuthenticatedSession:
+    return AuthenticatedSession(id=uuid7.create(), user=mock_user)
+
+
+@pytest.fixture
 def authed_client(
-    settings, mock_pool: MagicMock, mock_user: UserResponse
+    settings,
+    mock_pool: MagicMock,
+    mock_user: UserResponse,
+    mock_session: AuthenticatedSession,
 ) -> Generator[TestClient]:
-    from app.auth import get_current_user, get_optional_current_user
+    from app.auth import (
+        get_current_session,
+        get_current_user,
+        get_optional_current_user,
+    )
     from app.config import get_settings
     from app.db import get_pool
 
     app = get_app()
     app.dependency_overrides[get_pool] = lambda: mock_pool
     app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_current_session] = lambda: mock_session
     app.dependency_overrides[get_current_user] = lambda: mock_user
     app.dependency_overrides[get_optional_current_user] = lambda: mock_user
     client = TestClient(app)
