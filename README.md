@@ -13,8 +13,10 @@ and cast upvotes or downvotes on both Posts and Comments.
 Every backend implementation follows the same [specification](backends/SPEC.md)
 and exposes the same REST API, making each one a drop-in replacement for any other.
 
-A single shared Postgres instance handles data storage across all services.
-The schema and stored functions are maintained by a local Rust crate, [`mlad-db/`](mlad-db/).
+A single shared Postgres instance handles data storage across all services,
+described by the [data specification](database/SPEC.md).
+The schema and stored functions are maintained as migrations in a local Rust crate,
+[`mlad-manage-db-lib`](mlad-manage/mlad-manage-db-lib/).
 
 The local development environment is orchestrated with [Tilt] and [Docker Compose],
 providing live reloading and easy switching between backend services.
@@ -24,9 +26,10 @@ providing live reloading and easy switching between backend services.
 ```
 backends/     # One sub-directory per backend implementation
 frontends/    # One sub-directory per frontend implementation
-mlad-db/      # Rust crate used to manage database schema
-mlad-manage/  # Rust crate used for general management commands across the project
+database/     # Specification for the shared database schema
+mlad-manage/  # Rust crate for management commands, including the schema migrations
 integration/  # Playwright integration tests
+docs/         # Architecture decision records
 data/         # Supporting data files
 ```
 
@@ -124,8 +127,8 @@ which essentially runs on top of Docker Compose
 (using [compose.yaml](compose.yaml)).
 Resources are defined in the Docker Compose spec,
 while Tilt provides some means for extra local resources,
-such as migrating the shared [database schema](database/schema.sql) automatically
-and loading [fixture data](database/fixtures.sql).
+such as migrating the shared [database schema](mlad-manage/mlad-manage-db-lib/migrations/) automatically
+and loading [fixture data](mlad-manage/db_fixtures/fixtures.sql).
 
 With `tilt up` running in a dedicated console, hit the `Space` key to open its web UI
 and view the logs for each service.

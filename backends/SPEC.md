@@ -71,6 +71,24 @@ The following endpoints require a valid Bearer token. The authenticated user is 
 - `POST /posts/<post_id>/vote` — vote is attributed to the authenticated user
 - `POST /posts/<post_id>/comments/<comment_id>/vote` — vote is attributed to the authenticated user
 
+### Ownership
+
+Authentication alone is not authorization. Editing and deleting are restricted to the
+author of the resource: only the author of a Post may PATCH or DELETE that Post, and
+only the author of a Comment may PATCH or DELETE that Comment.
+
+Backends must compare the resource's `author_id` against the user resolved from the
+session, and must not rely on a frontend to hide the controls.
+
+A request from an authenticated user who is not the author is rejected with
+`403 Forbidden`.
+
+When the resource does not exist at all, PATCH responds `404 Not Found`, while DELETE
+stays idempotent and responds `204 No Content`.
+
+Voting is deliberately not restricted this way. Any authenticated user may vote on any
+Post or Comment, including their own.
+
 ## Requirements
 
 Each backend service must fulfill the following criteria:
@@ -79,7 +97,7 @@ Each backend service must fulfill the following criteria:
 - Exposes an external port `8080`
 - Communicates with a single, shared Postgres instance as a data storage layer.
 - Serves an API only, no HTML documents or fragments.
-- Runs a REST API serving Post and Comment resources with CRUD operations using GET, POST, PUT, and DELETE verbs.
+- Runs a REST API serving Post and Comment resources with CRUD operations using GET, POST, PATCH, and DELETE verbs. Updates are partial, so PATCH is used rather than PUT.
 - OpenAPI/Swagger documentation of the api is served at the endpoint `/docs`
 
 ## Terminology
@@ -105,7 +123,10 @@ Each backend service must fulfill the following criteria:
     - A `replies_per_page` parameter controls how many direct replies to the same comment should be returned.
     - Given the above constraints, the maximum number of comments returned in any one request should be
       `(max_depth + 1) * replies_per_page`
-  - POST: create a new top-level Comment for the Post.
+  - POST: create a new Comment on the Post.
+    - Body: `body`, and an optional `parent_comment_id`.
+    - Omitting `parent_comment_id` creates a Top Comment. Passing one creates a reply to that comment.
+    - The `parent_comment_id`, when given, must name a Comment on this same Post. A parent belonging to a different Post is rejected with a 404 error. A foreign key alone does not enforce this, so backends must check it explicitly; without the check a reply can be attached across Posts, producing a Comment that neither tree query will ever return.
 - `/posts/<post_id>/comments/<comment_id>`
   - GET: a single comment matching `comment_id` (the `post_id` should also match, else return a 404 error)
   - PATCH: update the details of this comment.
@@ -116,6 +137,14 @@ Each backend service must fulfill the following criteria:
     - A `replies_per_page` parameter controls how many direct replies to the same comment should be returned.
     - Given the above constraints, the maximum number of comments returned in any one request should be
       `(max_depth + 1) * replies_per_page`
+
+#### Bounding the comment tree
+
+Both `max_depth` and `replies_per_page` feed a recursive query, so left unchecked a
+single request can ask for an arbitrarily large tree. Backends must enforce an upper
+bound on each and reject an out-of-range value with `422 Unprocessable Content`.
+
+The exact ceilings are left to each implementation, but they must exist.
 
 ### Votes
 
