@@ -112,6 +112,8 @@ Each backend service must fulfill the following criteria:
 
 - `/posts`
   - GET: A list of Posts served with pagination controls (up to 25 posts per page)
+    - Ordered newest first, by `created_at` descending with `id` descending as the tiebreak, so the feed opens on recent activity.
+    - Pagination is keyset-based: pass the `id` of the last Post on a page as the `cursor` to get the next page. Each page returns the Posts ordered before the cursor row.
   - POST: create a new Post
 - `/posts/<post_id>`
   - GET: a single post matching `post_id`

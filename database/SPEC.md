@@ -34,6 +34,10 @@ the reasoning.
 Because UUID v7 values sort by creation time, `(created_at, id)` is a stable total
 ordering and is what the keyset pagination in this spec uses.
 
+The two readers walk that ordering in opposite directions, deliberately. The Posts
+feed is newest first, so it opens on recent activity. Comment trees are oldest first,
+so a conversation reads top to bottom.
+
 ## Tables
 
 ### `users`

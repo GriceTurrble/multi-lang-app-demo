@@ -87,6 +87,19 @@ def test_list_posts_full_page_sets_next_cursor(
     assert data["next_cursor"] == str(rows[-1]["id"])
 
 
+def test_list_posts_orders_newest_first(
+    test_client: TestClient,
+    mock_conn: AsyncMock,
+):
+    """The feed opens on the most recent posts, not the oldest."""
+    mock_conn.fetch.return_value = [_make_post_row()]
+
+    test_client.get("/posts")
+
+    sql = mock_conn.fetch.call_args.args[0]
+    assert "ORDER BY p.created_at DESC, p.id DESC" in sql
+
+
 def test_list_posts_with_cursor(
     test_client: TestClient,
     mock_conn: AsyncMock,
@@ -99,6 +112,8 @@ def test_list_posts_with_cursor(
     assert resp.status_code == status.HTTP_200_OK
     # Cursor UUID is passed as first query parameter in the cursor-based query
     assert mock_conn.fetch.call_args.args[1] == cursor_id
+    # Paging walks backwards in time from the cursor row.
+    assert "<" in mock_conn.fetch.call_args.args[0]
     # NOTE we are not actually querying the data,
     # and the logic for returning data based on query resides in the database,
     # not this backend.

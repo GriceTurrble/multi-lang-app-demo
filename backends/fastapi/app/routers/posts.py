@@ -44,13 +44,16 @@ async def list_posts(
         page_size=PAGE_SIZE,
         voter_id=current_user.id if current_user else None,
     )
+    # Newest first, so the feed opens on recent activity. Keyset pagination
+    # therefore walks backwards in time: each page asks for rows sorted before
+    # the cursor row.
     cursor_filter = ""
     if cursor:
         args.cursor = cursor
         cursor_filter = f"""
         WHERE
             (p.created_at, p.id)
-            >
+            <
             (SELECT pp.created_at, pp.id FROM posts pp WHERE pp.id = {args.cursor})
         """
     async with pool.acquire() as conn:
@@ -64,7 +67,7 @@ async def list_posts(
                 AND v.object_type = 'Post'
                 AND v.voter_id = {args.voter_id}
             {cursor_filter}
-            ORDER BY p.created_at ASC, p.id ASC
+            ORDER BY p.created_at DESC, p.id DESC
             LIMIT {args.page_size}
             """,
             *args,
