@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function CommentTree({ postId }: Props) {
-  const { token } = useAuth();
+  const { token, initialized } = useAuth();
   const [roots, setRoots] = useState<CommentNode[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -22,6 +22,10 @@ export function CommentTree({ postId }: Props) {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
+    // Wait for the stored token, so the tree is fetched once with the reader's
+    // own vote state rather than rendering signed-out and then correcting.
+    if (!initialized) return;
+
     let cancelled = false;
     listComments(postId, undefined, token)
       .then(({ items, next_cursor }) => {
@@ -37,7 +41,7 @@ export function CommentTree({ postId }: Props) {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [postId, token]);
+  }, [postId, token, initialized]);
 
   const loadMore = async () => {
     if (!nextCursor) return;

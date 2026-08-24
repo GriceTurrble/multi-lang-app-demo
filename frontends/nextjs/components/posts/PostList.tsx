@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/context/AuthProvider";
 import { PostCard } from "./PostCard";
 
 export function PostList() {
-  const { token } = useAuth();
+  const { token, initialized } = useAuth();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -16,6 +16,10 @@ export function PostList() {
   const [error, setError] = useState<string | undefined>();
 
   useEffect(() => {
+    // Wait for the stored token, so the list is fetched once with the reader's
+    // own vote state rather than rendering signed-out and then correcting.
+    if (!initialized) return;
+
     let cancelled = false;
     listPosts(undefined, token)
       .then(({ items, next_cursor }) => {
@@ -33,7 +37,7 @@ export function PostList() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [token]);
+  }, [token, initialized]);
 
   const loadMore = async () => {
     if (!nextCursor) return;
