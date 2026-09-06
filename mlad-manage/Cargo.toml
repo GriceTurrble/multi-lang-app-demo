@@ -14,7 +14,7 @@ diesel = { version = "2", features = ["postgres", "uuid"] }
 argon2 = "0.5.3"
 # TODO rand must stay in 0.8 while argon2 is in 0.5
 # argon2 0.6 will skip to rand 0.10
-rand = "0.8.6"
+rand = "0.10.0"
 uuid = { version = "1", features = ["v4", "v7"] }
 chrono = { version = "0.4", features = ["clock"] }
 dotenvy = "0.15"
