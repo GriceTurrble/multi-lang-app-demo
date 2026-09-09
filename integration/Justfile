@@ -13,11 +13,11 @@ just_manage := "just --justfile ../mlad-manage/Justfile"
 # Install all test environment prerequisites (idempotent)
 bootstrap:
     {{just_local}} sync
-    npx playwright install chromium
+    pnpm exec playwright install chromium
 
-# Install npm dependencies
+# Install pnpm dependencies
 sync:
-    npm install
+    pnpm install
 
 TEST_DB := "postgresql://postgres:postgres@localhost:5432/mlad"
 
@@ -34,8 +34,8 @@ test:
     }
     DATABASE_URL={{TEST_DB}} \
         {{just_manage}} run db migrate run
-    npx playwright test
+    pnpm exec playwright test
 
 # Run tests against the live service, which should be running in Tilt already.
 test-live:
-    npx playwright test
+    pnpm exec playwright test

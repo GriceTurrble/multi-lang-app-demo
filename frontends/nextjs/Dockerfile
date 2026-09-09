@@ -2,8 +2,10 @@ FROM node:25-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install -g pnpm@10.33.0
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Run in dev mode with watchfiles and a reloading server
@@ -12,14 +14,14 @@ FROM builder AS dev-runner
 EXPOSE 3000
 ENV NODE_ENV=development
 ENV PORT=3000
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "dev"]
 
 # Build for prod.
 # Contents of this builder are COPY-ed into the prod-runner below
 # to make the image smaller.
 FROM builder AS prod-builder
 
-RUN npm run build
+RUN pnpm run build
 
 FROM node:25-alpine AS prod-runner
 
