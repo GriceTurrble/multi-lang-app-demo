@@ -30,7 +30,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: griceturrble/precommit-checks-action@e3d8c08d089c33ac5f0d32c9b1f4783296ea7411 # v3.1.0
+      - uses: griceturrble/precommit-checks-action@62f15bdb493bd607c2496de1bcb87657354e22a5 # v3.1.1
         env:
           # `ty` local hooks don't work well in CI
           SKIP: "ty"
