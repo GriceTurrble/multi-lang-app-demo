@@ -19,43 +19,43 @@ just_local := "just --justfile " + source_file()
     just --list --unsorted --justfile {{ source_file() }}
 
 # Remove lockfile and node_modules, then reinstall from scratch
-[confirm("This will delete 'package.lock' and 'node_modules/'.\nProceed? [y/N]")]
+[confirm("This will delete 'pnpm-lock.yaml' and 'node_modules/'.\nProceed? [y/N]")]
 lock:
-    rm -f package-lock.json
+    rm -f pnpm-lock.yaml
     rm -rf node_modules
     {{just_local}} sync
 
 # sync dependencies for this frontend
 sync:
-    npm install
+    pnpm install
 
 # Run tests
 test:
-    npm run test
+    pnpm run test
 
 # Run tests, and watch for file changes to rerun
 test-watch:
-    npm run test:watch
+    pnpm run test:watch
 
 # Run tests with code coverage report
 test-coverage:
-    npm run test:coverage
+    pnpm run test:coverage
 
 # Run tests with code coverage report, and watch for file changes to rerun
 test-coverage-watch:
-    npm run test:coverage:watch
+    pnpm run test:coverage:watch
 
 # Run the development server
 dev:
-    npm run dev
+    pnpm run dev
 
 # Build for production
 build:
-    npm run build
+    pnpm run build
 
 # Lint
 lint:
-    npm run lint
+    pnpm run lint
 
 # builds Docker image for this frontend, with optional `target` build stage
 build-docker target="":
