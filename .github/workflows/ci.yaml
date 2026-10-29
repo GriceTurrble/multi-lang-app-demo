@@ -74,12 +74,17 @@ jobs:
       - name: Install just runner
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 25
-          cache: "npm"
-          cache-dependency-path: ./frontends/nextjs/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: ./frontends/nextjs/pnpm-lock.yaml
 
       - name: Install project dependencies
         working-directory: ./frontends/nextjs
@@ -142,12 +147,17 @@ jobs:
       - name: Install just runner
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 25
-          cache: "npm"
-          cache-dependency-path: ./integration/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: ./integration/pnpm-lock.yaml
 
       - name: Install Playwright and dependencies
         working-directory: ./integration

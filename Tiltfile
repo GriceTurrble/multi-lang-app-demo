@@ -58,7 +58,7 @@ docker_build(
         # Copy file changes into the container
         sync("./frontends/nextjs", "/app"),
         # install any new dependencies
-        run("npm i", trigger=["package.json", "package-lock.json"]),
+        run("pnpm install", trigger=["package.json", "pnpm-lock.yaml"]),
         # force a restart of the
         restart_container(),
     ],

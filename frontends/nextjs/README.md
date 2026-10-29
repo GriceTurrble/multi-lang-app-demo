@@ -5,14 +5,10 @@ This is a [Next.js] project bootstrapped with [`create-next-app`][create-next-ap
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
+
+This project uses [pnpm] to manage dependencies; see [`just sync`](./Justfile) to install them.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -42,5 +38,6 @@ Check out our [Next.js deployment documentation] for more details.
 [next.js deployment documentation]: https://nextjs.org/docs/app/building-your-application/deploying
 [next.js documentation]: https://nextjs.org/docs
 [next/font]: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
+[pnpm]: https://pnpm.io
 [the next.js github repository]: https://github.com/vercel/next.js
 [vercel platform]: https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme
